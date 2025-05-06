@@ -1,0 +1,4042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CAC UtilityTracer - Professional Utility Mapping</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <!-- Include Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    
+    <style>
+        :root {
+            /* Primary color palette */
+            --primary-color: #3949ab;
+            --primary-light: #6f74dd;
+            --primary-dark: #00227b;
+            --secondary-color: #ff6f00;
+            --secondary-light: #ffa040;
+            --secondary-dark: #c43e00;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --info-color: #2196f3;
+            
+            /* Background and text colors */
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #263238;
+            --text-secondary: #546e7a;
+            --text-light: #b0bec5;
+            
+            /* Utility type colors */
+            --water-color: #03a9f4;
+            --water-light: #b3e5fc;
+            --gas-color: #ff9800;
+            --gas-light: #ffe0b2;
+            --electric-color: #fdd835;
+            --electric-light: #fff9c4;
+            --sewer-color: #795548;
+            --sewer-light: #d7ccc8;
+            --telecom-color: #9c27b0;
+            --telecom-light: #e1bee7;
+            
+            /* UI elements */
+            --border-radius: 12px;
+            --border-radius-lg: 18px;
+            --border-radius-sm: 8px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Dark mode colors - will be activated with JS */
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #eceff1;
+            --text-secondary: #b0bec5;
+            --text-light: #78909c;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+            --shadow: 0 4px 12px rgba(0,0,0,0.25);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen-Sans, Ubuntu, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* App container and layout */
+        .app-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Map styles */
+        #map {
+            flex: 1;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header styles */
+        .app-header {
+            background-color: var(--primary-color);
+            padding: 16px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            z-index: 10;
+        }
+
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .app-logo img {
+            height: 32px;
+            width: auto;
+        }
+
+        .app-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-subtitle {
+            font-size: 12px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .header-btn:hover, .header-btn:active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .header-btn i {
+            font-size: 18px;
+        }
+
+        /* Main toolbar styles */
+        .main-toolbar {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            box-shadow: var(--shadow-lg);
+            padding: 16px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            transform: translateY(calc(100% - 80px));
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toolbar-handle {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 5px;
+            border-radius: 3px;
+            background-color: var(--text-light);
+            opacity: 0.5;
+        }
+
+        .main-toolbar.expanded {
+            transform: translateY(0);
+        }
+
+        .utility-type-selector {
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            gap: 10px;
+            padding: 5px 0 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .utility-type-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .utility-btn {
+            flex: 0 0 auto;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+            min-width: 70px;
+            cursor: pointer;
+        }
+
+        .utility-btn i {
+            font-size: 20px;
+            transition: var(--transition);
+        }
+
+        .utility-btn-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .utility-btn.active {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        /* Utility type specific button styles */
+        .utility-btn.water {
+            color: var(--water-color);
+            background-color: var(--water-light);
+        }
+        
+        .utility-btn.gas {
+            color: var(--gas-color);
+            background-color: var(--gas-light);
+        }
+        
+        .utility-btn.electric {
+            color: var(--electric-color);
+            background-color: var(--electric-light);
+        }
+        
+        .utility-btn.sewer {
+            color: var(--sewer-color);
+            background-color: var(--sewer-light);
+        }
+        
+        .utility-btn.telecom {
+            color: var(--telecom-color);
+            background-color: var(--telecom-light);
+        }
+        
+        .utility-btn.active.water, 
+        .utility-btn.active.gas, 
+        .utility-btn.active.electric, 
+        .utility-btn.active.sewer, 
+        .utility-btn.active.telecom {
+            color: white;
+        }
+        
+        .utility-btn.active.water {
+            background-color: var(--water-color);
+        }
+        
+        .utility-btn.active.gas {
+            background-color: var(--gas-color);
+        }
+        
+        .utility-btn.active.electric {
+            background-color: var(--electric-color);
+        }
+        
+        .utility-btn.active.sewer {
+            background-color: var(--sewer-color);
+        }
+        
+        .utility-btn.active.telecom {
+            background-color: var(--telecom-color);
+        }
+
+        .toolbar-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 8px;
+            border-radius: var(--border-radius);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .action-btn i {
+            font-size: 24px;
+            transition: var(--transition);
+        }
+
+        .action-btn-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .action-btn:hover, .action-btn:active {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .action-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .action-btn.danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* Floating action button */
+        .floating-action-btn {
+            position: absolute;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            z-index: 5;
+        }
+
+        .floating-action-btn i {
+            font-size: 24px;
+        }
+
+        .floating-action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .float-menu {
+            position: absolute;
+            bottom: 160px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 5;
+            transition: var(--transition);
+            transform: scale(0);
+            transform-origin: bottom right;
+            opacity: 0;
+        }
+
+        .float-menu.visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .float-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            position: relative;
+        }
+
+        .float-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .float-btn i {
+            font-size: 20px;
+        }
+
+        .float-btn:active {
+            transform: scale(0.95);
+        }
+
+        .float-btn-label {
+            position: absolute;
+            right: 60px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .float-btn:hover .float-btn-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Status bar */
+        .status-bar {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 5;
+            max-width: 90%;
+            pointer-events: none;
+        }
+
+        .status-bar i {
+            color: var(--primary-color);
+        }
+
+        /* Side controls for map */
+        .map-controls {
+            position: absolute;
+            right: 16px;
+            top: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .map-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .map-btn i {
+            font-size: 16px;
+        }
+
+        .map-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 16px;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-lg);
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(57, 73, 171, 0.1);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group .form-control {
+            flex: 1;
+        }
+
+        .input-group-append {
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background-color: var(--bg-color);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            color: var(--text-secondary);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 16px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover, .btn-primary:active {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover, .btn-secondary:active {
+            background-color: var(--secondary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline:hover, .btn-outline:active {
+            background-color: rgba(57, 73, 171, 0.1);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover, .btn-danger:active {
+            background-color: #d32f2f;
+        }
+
+        .btn-icon {
+            width: 42px;
+            padding: 0;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn i {
+            font-size: 18px;
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        /* Direction selector for utility direction */
+        .direction-selector {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0 20px;
+        }
+
+        .direction-indicator {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--bg-color);
+            border: 3px solid var(--primary-light);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .direction-arrow {
+            color: var(--primary-color);
+            font-size: 32px;
+            transform-origin: center;
+            transition: transform 0.2s ease;
+        }
+
+        .direction-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .direction-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--bg-color);
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .direction-btn:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .direction-value {
+            font-weight: 600;
+            font-size: 16px;
+            min-width: 60px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        /* Specialized structure selector */
+        .structure-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .structure-item {
+            background-color: var(--bg-color);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .structure-item.active {
+            border-color: var(--primary-color);
+            background-color: rgba(57, 73, 171, 0.1);
+        }
+
+        .structure-item i {
+            font-size: 24px;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .structure-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Utility markers on map */
+        .utility-marker {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid white;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .utility-marker .main-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            background-color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .utility-line {
+            stroke-width: 4;
+        }
+
+        .utility-line.main {
+            stroke-width: 6;
+        }
+
+        /* Utility info card */
+        .utility-info-card {
+            position: absolute;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow);
+            z-index: 50;
+            width: 280px;
+            max-width: 90vw;
+            display: none;
+        }
+        
+        .utility-info-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+            padding-bottom: 8px;
+        }
+        
+        .utility-info-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .utility-info-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .utility-info-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .utility-info-row {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .utility-info-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .utility-info-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .utility-info-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .utility-info-btn {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: var(--border-radius);
+            border: none;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .utility-info-btn i {
+            font-size: 14px;
+        }
+        
+        .utility-info-btn.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .utility-info-btn.danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            max-width: 90%;
+        }
+
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+
+        .notification.success {
+            background-color: var(--success-color);
+        }
+
+        .notification.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification i {
+            font-size: 18px;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s infinite ease-in-out;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Context menu */
+        .context-menu {
+            position: absolute;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            z-index: 100;
+            width: 180px;
+            display: none;
+        }
+
+        .context-menu-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-primary);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .context-menu-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .context-menu-item.danger {
+            color: var(--danger-color);
+        }
+
+        .context-menu-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Measurement tag */
+        .measurement-tag {
+            background-color: white;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+            box-shadow: var(--shadow);
+            white-space: nowrap;
+            pointer-events: all !important;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .measurement-tag:hover {
+            background-color: var(--primary-light);
+            color: white;
+        }
+
+        /* High accuracy edit mode */
+        .high-accuracy-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 16px;
+            z-index: 100;
+            display: none;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .high-accuracy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .high-accuracy-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-primary);
+        }
+
+        .high-accuracy-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .high-accuracy-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .control-point {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 2px solid white;
+            cursor: move;
+            box-shadow: var(--shadow);
+        }
+
+        /* Splash screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-logo {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            background-color: white;
+            border-radius: 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .splash-logo::after {
+            content: "";
+            position: absolute;
+            background-color: var(--primary-color);
+            width: 200%;
+            height: 200%;
+            top: 80%;
+            left: -50%;
+            border-radius: 40%;
+            animation: wave 5s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(10deg);
+            }
+        }
+
+        .splash-logo i {
+            font-size: 60px;
+            color: var(--primary-color);
+            position: relative;
+            z-index: 1;
+        }
+
+        .splash-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .splash-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .logo-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 30px;
+            background-color: rgba(255, 255, 255, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(1.1);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+        }
+
+        /* General utilities and animations */
+        .hidden {
+            display: none !important;
+        }
+
+        .pulse-animation {
+            animation: pulse-effect 2s infinite;
+        }
+
+        @keyframes pulse-effect {
+            0% {
+                box-shadow: 0 0 0 0 rgba(57, 73, 171, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(57, 73, 171, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(57, 73, 171, 0);
+            }
+        }
+
+        .shake-animation {
+            animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        @keyframes shake {
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+            30%, 50%, 70% {
+                transform: translate3d(-2px, 0, 0);
+            }
+            40%, 60% {
+                transform: translate3d(2px, 0, 0);
+            }
+        }
+
+        /* Special Structure Markers */
+        .structure-marker {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background-color: white;
+            color: var(--primary-color);
+            border: 3px solid var(--primary-color);
+            box-shadow: var(--shadow);
+            font-size: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .structure-marker.elec-box {
+            background-color: var(--electric-light);
+            color: var(--electric-color);
+            border-color: var(--electric-color);
+        }
+
+        .structure-marker.manhole {
+            background-color: var(--sewer-light);
+            color: var(--sewer-color);
+            border-color: var(--sewer-color);
+            border-radius: 50%;
+        }
+
+        .structure-marker.catch-basin {
+            background-color: var(--water-light);
+            color: var(--water-color);
+            border-color: var(--water-color);
+            border-radius: 8px;
+        }
+
+        /* Measuring tool styles */
+        .measure-line {
+            stroke: #ff6f00;
+            stroke-width: 3;
+            stroke-dasharray: 5, 5;
+            animation: dash 30s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+
+        .measure-point {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ff6f00;
+            border: 2px solid white;
+            box-shadow: var(--shadow);
+        }
+
+        .measure-label {
+            background-color: #ff6f00;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 12px;
+            box-shadow: var(--shadow);
+            white-space: nowrap;
+        }
+
+        /* Media queries for responsive design */
+        @media (max-width: 576px) {
+            .toolbar-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .utility-btn {
+                min-width: 60px;
+                padding: 10px;
+            }
+            
+            .utility-btn i {
+                font-size: 18px;
+            }
+            
+            .utility-btn-label {
+                font-size: 11px;
+            }
+            
+            .action-btn {
+                padding: 12px 8px;
+            }
+            
+            .action-btn i {
+                font-size: 20px;
+            }
+            
+            .action-btn-label {
+                font-size: 11px;
+            }
+        }
+
+        /* iOS safe area support */
+        @supports(padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .main-toolbar {
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen">
+        <div class="splash-logo">
+            <div class="logo-pulse"></div>
+            <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <div class="splash-title">CAC UtilityTracer</div>
+        <div class="splash-subtitle">Professional Utility Mapping</div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- App Header -->
+        <header class="app-header">
+            <div class="app-logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <div class="app-title">
+                    CAC UtilityTracer
+                    <span class="app-subtitle">Professional Utility Mapping</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="help-btn" title="Help">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                <button class="header-btn" id="settings-btn" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Map Container -->
+        <div id="map"></div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <i class="fas fa-info-circle"></i>
+            <span id="status-text">Select a utility type to begin mapping</span>
+        </div>
+
+        <!-- Map Controls -->
+        <div class="map-controls">
+            <button class="map-btn" id="locate-btn" title="My Location">
+                <i class="fas fa-crosshairs"></i>
+            </button>
+            <button class="map-btn" id="zoom-in-btn" title="Zoom In">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="map-btn" id="zoom-out-btn" title="Zoom Out">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="map-btn" id="layers-btn" title="Map Layers">
+                <i class="fas fa-layer-group"></i>
+            </button>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="floating-action-btn" id="fab-btn">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Floating Menu -->
+        <div class="float-menu" id="float-menu">
+            <button class="float-btn" id="add-utility-btn">
+                <i class="fas fa-route"></i>
+                <span class="float-btn-label">Add Utility</span>
+            </button>
+            <button class="float-btn" id="add-structure-btn">
+                <i class="fas fa-box"></i>
+                <span class="float-btn-label">Add Structure</span>
+            </button>
+            <button class="float-btn" id="measure-btn">
+                <i class="fas fa-ruler"></i>
+                <span class="float-btn-label">Measure</span>
+            </button>
+            <button class="float-btn" id="tag-btn">
+                <i class="fas fa-tag"></i>
+                <span class="float-btn-label">Add Tag</span>
+            </button>
+        </div>
+
+        <!-- Main Toolbar -->
+        <div class="main-toolbar" id="main-toolbar">
+            <div class="toolbar-handle"></div>
+
+            <!-- Utility Type Selector -->
+            <div class="utility-type-selector">
+                <button class="utility-btn water" data-type="water">
+                    <i class="fas fa-tint"></i>
+                    <span class="utility-btn-label">Water</span>
+                </button>
+                <button class="utility-btn gas" data-type="gas">
+                    <i class="fas fa-fire"></i>
+                    <span class="utility-btn-label">Gas</span>
+                </button>
+                <button class="utility-btn electric" data-type="electric">
+                    <i class="fas fa-bolt"></i>
+                    <span class="utility-btn-label">Electric</span>
+                </button>
+                <button class="utility-btn sewer" data-type="sewer">
+                    <i class="fas fa-toilet"></i>
+                    <span class="utility-btn-label">Sewer</span>
+                </button>
+                <button class="utility-btn telecom" data-type="telecom">
+                    <i class="fas fa-phone"></i>
+                    <span class="utility-btn-label">Telecom</span>
+                </button>
+            </div>
+
+            <!-- Toolbar Actions -->
+            <div class="toolbar-actions">
+                <button class="action-btn" id="find-utility-btn">
+                    <i class="fas fa-search"></i>
+                    <span class="action-btn-label">Find</span>
+                </button>
+                <button class="action-btn" id="map-utility-btn">
+                    <i class="fas fa-draw-polygon"></i>
+                    <span class="action-btn-label">Map</span>
+                </button>
+                <button class="action-btn" id="connect-utility-btn">
+                    <i class="fas fa-link"></i>
+                    <span class="action-btn-label">Connect</span>
+                </button>
+                <button class="action-btn" id="edit-utility-btn">
+                    <i class="fas fa-edit"></i>
+                    <span class="action-btn-label">Edit</span>
+                </button>
+                <button class="action-btn" id="high-accuracy-btn">
+                    <i class="fas fa-bullseye"></i>
+                    <span class="action-btn-label">Precision</span>
+                </button>
+                <button class="action-btn" id="clear-btn">
+                    <i class="fas fa-trash-alt"></i>
+                    <span class="action-btn-label">Clear</span>
+                </button>
+            </div>
+
+            <!-- Extra Toolbar Section -->
+            <div class="toolbar-extra">
+                <button class="btn btn-primary btn-block" id="save-data-btn">
+                    <i class="fas fa-save"></i>
+                    <span>Save & Export Data</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Utility Found Modal -->
+        <div class="modal" id="utility-found-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Add Utility Segment</div>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="utility-type">Utility Type</label>
+                        <select class="form-control" id="utility-type">
+                            <option value="water">Water</option>
+                            <option value="gas">Gas</option>
+                            <option value="electric">Electric</option>
+                            <option value="sewer">Sewer</option>
+                            <option value="telecom">Telecom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Line Type</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="main-type" name="line-type" value="main">
+                                <label for="main-type">Main</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="service-type" name="line-type" value="service" checked>
+                                <label for="service-type">Service</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="utility-size">Size</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="utility-size" value="4">
+                            <div class="input-group-append">inches</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="utility-depth">Depth</label>
+                        <div class="input-group">
+                            <input type="number" step="0.1" class="form-control" id="utility-depth" value="3">
+                            <div class="input-group-append">feet</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Direction</label>
+                        <div class="direction-selector">
+                            <div class="direction-indicator">
+                                <i class="fas fa-arrow-up direction-arrow" id="utility-direction-arrow"></i>
+                            </div>
+                            <div class="direction-controls">
+                                <button class="direction-btn" id="utility-rotate-left-btn">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                <div class="direction-value" id="utility-direction-angle">0°</div>
+                                <button class="direction-btn" id="utility-rotate-right-btn">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="utility-notes">Notes (Optional)</label>
+                        <textarea class="form-control" id="utility-notes" placeholder="Enter any additional information"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="utility-media">Photo/Video (Optional)</label>
+                        <input type="file" class="form-control" id="utility-media" accept="image/*,video/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-utility-btn">Cancel</button>
+                    <button class="btn btn-primary" id="confirm-utility-btn">Save Utility</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Structure Modal -->
+        <div class="modal" id="structure-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Add Structure</div>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Structure Type</label>
+                        <div class="structure-selector">
+                            <div class="structure-item active" data-type="elec-box">
+                                <i class="fas fa-bolt"></i>
+                                <div class="structure-name">Electrical Box</div>
+                            </div>
+                            <div class="structure-item" data-type="manhole">
+                                <i class="fas fa-circle"></i>
+                                <div class="structure-name">Manhole</div>
+                            </div>
+                            <div class="structure-item" data-type="catch-basin">
+                                <i class="fas fa-water"></i>
+                                <div class="structure-name">Catch Basin</div>
+                            </div>
+                            <div class="structure-item" data-type="custom">
+                                <i class="fas fa-plus-square"></i>
+                                <div class="structure-name">Custom</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="custom-structure-name-group" style="display: none;">
+                        <label for="custom-structure-name">Custom Structure Name</label>
+                        <input type="text" class="form-control" id="custom-structure-name" placeholder="Enter structure name">
+                    </div>
+                    <div class="form-group">
+                        <label for="structure-notes">Notes (Optional)</label>
+                        <textarea class="form-control" id="structure-notes" placeholder="Enter any additional information"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="structure-media">Photo (Optional)</label>
+                        <input type="file" class="form-control" id="structure-media" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-structure-btn">Cancel</button>
+                    <button class="btn btn-primary" id="confirm-structure-btn">Save Structure</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Measurement Tag Modal -->
+        <div class="modal" id="measurement-tag-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Add Measurement Tag</div>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="tag-measurement">Measurement</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" class="form-control" id="tag-measurement" value="6">
+                            <div class="input-group-append">
+                                <select class="form-control" id="tag-unit">
+                                    <option value="ft">feet</option>
+                                    <option value="in">inches</option>
+                                    <option value="m">meters</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tag-description">Description</label>
+                        <input type="text" class="form-control" id="tag-description" placeholder="e.g., from curb, from building">
+                    </div>
+                    <div class="form-group">
+                        <label for="tag-color">Tag Color</label>
+                        <select class="form-control" id="tag-color">
+                            <option value="default">Default</option>
+                            <option value="water">Water Blue</option>
+                            <option value="gas">Gas Orange</option>
+                            <option value="electric">Electric Yellow</option>
+                            <option value="sewer">Sewer Brown</option>
+                            <option value="telecom">Telecom Purple</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-tag-btn">Cancel</button>
+                    <button class="btn btn-primary" id="confirm-tag-btn">Add Tag</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Modal -->
+        <div class="modal" id="connection-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Connect Utilities</div>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Select connection type:</p>
+                    <div class="structure-selector">
+                        <div class="structure-item active" data-connect-type="direct">
+                            <i class="fas fa-link"></i>
+                            <div class="structure-name">Direct Connect</div>
+                        </div>
+                        <div class="structure-item" data-connect-type="offset">
+                            <i class="fas fa-project-diagram"></i>
+                            <div class="structure-name">Offset Connect</div>
+                        </div>
+                    </div>
+                    <p class="mt-3">First select a utility segment, then select another segment or structure to connect to.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-connection-btn">Cancel</button>
+                    <button class="btn btn-primary" id="start-connection-btn">Start Connecting</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Accuracy Controls -->
+        <div class="high-accuracy-controls" id="high-accuracy-controls">
+            <div class="high-accuracy-header">
+                <div class="high-accuracy-title">Precision Edit Mode</div>
+                <div class="high-accuracy-actions">
+                    <button class="btn btn-outline btn-icon" id="cancel-high-accuracy-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="btn btn-primary btn-icon" id="save-high-accuracy-btn">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="high-accuracy-info">
+                Drag the control points to precisely position the utility. Tap anywhere on the line to add more control points.
+            </div>
+        </div>
+
+        <!-- Utility Info Card (Popup) -->
+        <div class="utility-info-card" id="utility-info-card">
+            <div class="utility-info-header">
+                <div class="utility-info-title">Utility Information</div>
+                <button class="utility-info-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="utility-info-content">
+                <div class="utility-info-row">
+                    <div class="utility-info-label">Type:</div>
+                    <div class="utility-info-value" id="info-type">Water</div>
+                </div>
+                <div class="utility-info-row">
+                    <div class="utility-info-label">Line Type:</div>
+                    <div class="utility-info-value" id="info-line-type">Service</div>
+                </div>
+                <div class="utility-info-row">
+                    <div class="utility-info-label">Size:</div>
+                    <div class="utility-info-value" id="info-size">4 inches</div>
+                </div>
+                <div class="utility-info-row">
+                    <div class="utility-info-label">Depth:</div>
+                    <div class="utility-info-value" id="info-depth">3 feet</div>
+                </div>
+                <div class="utility-info-row">
+                    <div class="utility-info-label">Direction:</div>
+                    <div class="utility-info-value" id="info-direction">North</div>
+                </div>
+                <div class="utility-info-row" id="info-notes-row" style="display: none;">
+                    <div class="utility-info-label">Notes:</div>
+                    <div class="utility-info-value" id="info-notes"></div>
+                </div>
+                <div class="utility-info-actions">
+                    <button class="utility-info-btn" id="info-edit-btn">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="utility-info-btn primary" id="info-precision-btn">
+                        <i class="fas fa-bullseye"></i> Precision
+                    </button>
+                    <button class="utility-info-btn danger" id="info-delete-btn">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div class="context-menu" id="context-menu">
+            <div class="context-menu-item" id="edit-item">
+                <i class="fas fa-edit"></i>
+                <span>Edit</span>
+            </div>
+            <div class="context-menu-item" id="precision-item">
+                <i class="fas fa-bullseye"></i>
+                <span>Precision Edit</span>
+            </div>
+            <div class="context-menu-item" id="connect-item">
+                <i class="fas fa-link"></i>
+                <span>Connect</span>
+            </div>
+            <div class="context-menu-item" id="measure-item">
+                <i class="fas fa-ruler"></i>
+                <span>Measure From Here</span>
+            </div>
+            <div class="context-menu-item" id="tag-item">
+                <i class="fas fa-tag"></i>
+                <span>Add Tag</span>
+            </div>
+            <div class="context-menu-item danger" id="delete-item">
+                <i class="fas fa-trash-alt"></i>
+                <span>Delete</span>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div class="notification" id="notification">
+            <i class="fas fa-info-circle"></i>
+            <span id="notification-text">Notification message</span>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let map, userMarker, currentPosition;
+            let selectedUtilityType = null;
+            let selectedLineType = 'service';
+            let activeTool = null;
+            let isDrawing = false;
+            let drawingPoints = [];
+            let tempLine = null;
+            let directionAngle = 0;
+            let selectedElement = null;
+            let tempUtilityLocation = null;
+            let isHighAccuracyMode = false;
+            let editingUtility = null;
+            let controlPoints = [];
+            let isMeasuring = false;
+            let measureStartPoint = null;
+            let measureLine = null;
+            let measureMarkers = [];
+            let currentConnectionMode = false;
+            let connectionSource = null;
+            let isToolbarExpanded = false;
+            
+            // Utility data storage
+            let utilities = {
+                water: [],
+                gas: [],
+                electric: [],
+                sewer: [],
+                telecom: []
+            };
+            
+            // Structures storage
+            let structures = [];
+            
+            // Measurement tags storage
+            let measurementTags = [];
+            
+            // Layers
+            let utilitiesLayer = null;
+            let structuresLayer = null;
+            let measurementLayer = null;
+            let tempLayer = null;
+            let controlPointsLayer = null;
+            
+            // Wait for splash screen with a short timeout
+            setTimeout(function() {
+                document.querySelector('.splash-screen').style.opacity = 0;
+                setTimeout(() => {
+                    document.querySelector('.splash-screen').style.display = 'none';
+                    initApp();
+                }, 500);
+            }, 2000);
+            
+            function initApp() {
+                // Initialize map
+                initMap();
+                
+                // Initialize UI handlers
+                initUIHandlers();
+                
+                // Get user location
+                getUserLocation();
+            }
+            
+            function initMap() {
+                // Create map centered on NYC by default
+                map = L.map('map', {
+                    zoomControl: false,
+                    attributionControl: false
+                }).setView([40.7128, -74.0060], 16);
+                
+                // Add tile layer - using OpenStreetMap
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 22
+                }).addTo(map);
+                
+                // Create layers
+                utilitiesLayer = L.layerGroup().addTo(map);
+                structuresLayer = L.layerGroup().addTo(map);
+                measurementLayer = L.layerGroup().addTo(map);
+                tempLayer = L.layerGroup().addTo(map);
+                controlPointsLayer = L.layerGroup().addTo(map);
+                
+                // Map event listeners
+                map.on('click', handleMapClick);
+                map.on('contextmenu', handleContextMenu);
+                
+                // Hide context menu on map move
+                map.on('movestart', hideContextMenu);
+            }
+            
+            function initUIHandlers() {
+                // Toolbar expansion
+                const toolbar = document.getElementById('main-toolbar');
+                const toolbarHandle = document.querySelector('.toolbar-handle');
+                
+                toolbarHandle.addEventListener('click', function() {
+                    toolbar.classList.toggle('expanded');
+                    isToolbarExpanded = toolbar.classList.contains('expanded');
+                });
+                
+                // Utility type selection
+                document.querySelectorAll('.utility-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // Remove active class from all buttons
+                        document.querySelectorAll('.utility-btn').forEach(b => b.classList.remove('active'));
+                        
+                        // Add active class to clicked button
+                        this.classList.add('active');
+                        
+                        // Set selected utility type
+                        selectedUtilityType = this.getAttribute('data-type');
+                        
+                        // Expand toolbar when selecting a utility type
+                        if (!isToolbarExpanded) {
+                            toolbar.classList.add('expanded');
+                            isToolbarExpanded = true;
+                        }
+                        
+                        // Update status
+                        updateStatus(`Selected ${selectedUtilityType} utility type. Choose an action.`);
+                    });
+                });
+                
+                // Action buttons
+                document.getElementById('find-utility-btn').addEventListener('click', function() {
+                    setActiveTool('find-utility');
+                    updateStatus('Click on the map to add a discovered utility segment');
+                });
+                
+                document.getElementById('map-utility-btn').addEventListener('click', function() {
+                    setActiveTool('map-utility');
+                    updateStatus('Click on the map to start mapping a utility');
+                });
+                
+                document.getElementById('connect-utility-btn').addEventListener('click', function() {
+                    showModal('connection-modal');
+                });
+                
+                document.getElementById('edit-utility-btn').addEventListener('click', function() {
+                    setActiveTool('edit-utility');
+                    updateStatus('Click on a utility to edit its properties');
+                });
+                
+                document.getElementById('high-accuracy-btn').addEventListener('click', function() {
+                    setActiveTool('high-accuracy');
+                    updateStatus('Click on a utility to enter precision edit mode');
+                });
+                
+                document.getElementById('clear-btn').addEventListener('click', function() {
+                    if (confirm('Are you sure you want to clear all utilities of the selected type?')) {
+                        clearUtilities(selectedUtilityType);
+                    }
+                });
+                
+                // Floating action button
+                document.getElementById('fab-btn').addEventListener('click', function() {
+                    toggleFloatMenu();
+                });
+                
+                // Float menu buttons
+                document.getElementById('add-utility-btn').addEventListener('click', function() {
+                    setActiveTool('find-utility');
+                    updateStatus('Click on the map to add a utility segment');
+                    toggleFloatMenu();
+                });
+                
+                document.getElementById('add-structure-btn').addEventListener('click', function() {
+                    setActiveTool('add-structure');
+                    updateStatus('Click on the map to add a structure');
+                    toggleFloatMenu();
+                });
+                
+                document.getElementById('measure-btn').addEventListener('click', function() {
+                    startMeasurement();
+                    toggleFloatMenu();
+                });
+                
+                document.getElementById('tag-btn').addEventListener('click', function() {
+                    setActiveTool('add-tag');
+                    updateStatus('Click on the map to add a measurement tag');
+                    toggleFloatMenu();
+                });
+                
+                // Map controls
+                document.getElementById('locate-btn').addEventListener('click', function() {
+                    getUserLocation();
+                });
+                
+                document.getElementById('zoom-in-btn').addEventListener('click', function() {
+                    map.zoomIn();
+                });
+                
+                document.getElementById('zoom-out-btn').addEventListener('click', function() {
+                    map.zoomOut();
+                });
+                
+                document.getElementById('layers-btn').addEventListener('click', function() {
+                    // TODO: Implement layers panel
+                    showNotification('Layers panel coming soon');
+                });
+                
+                // Modal close buttons
+                document.querySelectorAll('.modal-close').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        hideAllModals();
+                    });
+                });
+                
+                // Utility Found Modal
+                document.getElementById('utility-rotate-left-btn').addEventListener('click', function() {
+                    directionAngle = (directionAngle - 15) % 360;
+                    if (directionAngle < 0) directionAngle += 360;
+                    document.getElementById('utility-direction-arrow').style.transform = `rotate(${directionAngle}deg)`;
+                    document.getElementById('utility-direction-angle').textContent = `${directionAngle}°`;
+                });
+                
+                document.getElementById('utility-rotate-right-btn').addEventListener('click', function() {
+                    directionAngle = (directionAngle + 15) % 360;
+                    document.getElementById('utility-direction-arrow').style.transform = `rotate(${directionAngle}deg)`;
+                    document.getElementById('utility-direction-angle').textContent = `${directionAngle}°`;
+                });
+                
+                document.getElementById('confirm-utility-btn').addEventListener('click', function() {
+                    if (selectedElement && selectedElement.type === 'edit-utility') {
+                        updateUtility();
+                    } else {
+                        finalizeUtility();
+                    }
+                    hideAllModals();
+                });
+                
+                document.getElementById('cancel-utility-btn').addEventListener('click', function() {
+                    hideAllModals();
+                    tempUtilityLocation = null;
+                });
+                
+                // Line type radio buttons
+                document.querySelectorAll('input[name="line-type"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        selectedLineType = this.value;
+                    });
+                });
+                
+                // Structure modal
+                document.querySelectorAll('.structure-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        document.querySelectorAll('.structure-item').forEach(i => i.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Show custom name field if custom type is selected
+                        if (this.getAttribute('data-type') === 'custom') {
+                            document.getElementById('custom-structure-name-group').style.display = 'block';
+                        } else {
+                            document.getElementById('custom-structure-name-group').style.display = 'none';
+                        }
+                    });
+                });
+                
+                document.getElementById('confirm-structure-btn').addEventListener('click', function() {
+                    addStructure();
+                    hideAllModals();
+                });
+                
+                document.getElementById('cancel-structure-btn').addEventListener('click', function() {
+                    hideAllModals();
+                });
+                
+                // Measurement tag modal
+                document.getElementById('confirm-tag-btn').addEventListener('click', function() {
+                    addMeasurementTag();
+                    hideAllModals();
+                });
+                
+                document.getElementById('cancel-tag-btn').addEventListener('click', function() {
+                    hideAllModals();
+                });
+                
+                // Connection modal
+                document.getElementById('start-connection-btn').addEventListener('click', function() {
+                    startConnectionMode();
+                    hideAllModals();
+                });
+                
+                document.getElementById('cancel-connection-btn').addEventListener('click', function() {
+                    hideAllModals();
+                });
+                
+                // High accuracy controls
+                document.getElementById('cancel-high-accuracy-btn').addEventListener('click', function() {
+                    exitHighAccuracyMode();
+                });
+                
+                document.getElementById('save-high-accuracy-btn').addEventListener('click', function() {
+                    saveHighAccuracyChanges();
+                });
+                
+                // Utility info card
+                document.querySelector('.utility-info-close').addEventListener('click', function() {
+                    hideUtilityInfo();
+                });
+                
+                document.getElementById('info-edit-btn').addEventListener('click', function() {
+                    editSelectedUtility();
+                });
+                
+                document.getElementById('info-precision-btn').addEventListener('click', function() {
+                    if (selectedElement) {
+                        enterHighAccuracyMode(selectedElement.utility);
+                        hideUtilityInfo();
+                    }
+                });
+                
+                document.getElementById('info-delete-btn').addEventListener('click', function() {
+                    if (selectedElement && confirm('Are you sure you want to delete this utility?')) {
+                        deleteSelectedUtility();
+                    }
+                });
+                
+                // Context menu
+                document.getElementById('edit-item').addEventListener('click', function() {
+                    editSelectedUtility();
+                    hideContextMenu();
+                });
+                
+                document.getElementById('precision-item').addEventListener('click', function() {
+                    if (selectedElement) {
+                        enterHighAccuracyMode(selectedElement.utility);
+                    }
+                    hideContextMenu();
+                });
+                
+                document.getElementById('connect-item').addEventListener('click', function() {
+                    if (selectedElement) {
+                        startConnectionWithSelected();
+                    }
+                    hideContextMenu();
+                });
+                
+                document.getElementById('measure-item').addEventListener('click', function() {
+                    if (selectedElement) {
+                        startMeasurementFromUtility(selectedElement.utility);
+                    }
+                    hideContextMenu();
+                });
+                
+                document.getElementById('tag-item').addEventListener('click', function() {
+                    if (selectedElement) {
+                        showTagModalForUtility(selectedElement.utility);
+                    }
+                    hideContextMenu();
+                });
+                
+                document.getElementById('delete-item').addEventListener('click', function() {
+                    if (selectedElement && confirm('Are you sure you want to delete this item?')) {
+                        deleteSelectedUtility();
+                    }
+                    hideContextMenu();
+                });
+                
+                // Save data button
+                document.getElementById('save-data-btn').addEventListener('click', function() {
+                    exportData();
+                });
+                
+                // Help button
+                document.getElementById('help-btn').addEventListener('click', function() {
+                    showNotification('Help functionality coming soon');
+                });
+                
+                // Settings button
+                document.getElementById('settings-btn').addEventListener('click', function() {
+                    showNotification('Settings functionality coming soon');
+                });
+                
+                // Key listeners for escaping modes
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        if (isDrawing) {
+                            cancelDrawing();
+                        }
+                        if (isHighAccuracyMode) {
+                            exitHighAccuracyMode();
+                        }
+                        if (isMeasuring) {
+                            cancelMeasurement();
+                        }
+                        if (currentConnectionMode) {
+                            cancelConnectionMode();
+                        }
+                        hideContextMenu();
+                        hideUtilityInfo();
+                        hideAllModals();
+                    }
+                });
+            }
+            
+            function getUserLocation() {
+                updateStatus('Finding your location...');
+                
+                document.querySelector('.loading-overlay').style.display = 'flex';
+                
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        // Store position
+                        currentPosition = [position.coords.latitude, position.coords.longitude];
+                        
+                        // Update map center
+                        map.setView(currentPosition, 19);
+                        
+                        // Create or update user marker
+                        if (!userMarker) {
+                            // Create pulsing user location marker
+                            const userIcon = L.divIcon({
+                                html: '<div style="width: 24px; height: 24px; background-color: rgba(33, 150, 243, 0.4); border-radius: 50%; display: flex; justify-content: center; align-items: center;">' +
+                                      '<div style="width: 14px; height: 14px; background-color: #2196f3; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);" class="pulse-animation"></div>' +
+                                      '</div>',
+                                className: '',
+                                iconSize: [24, 24],
+                                iconAnchor: [12, 12]
+                            });
+                            
+                            userMarker = L.marker(currentPosition, {
+                                icon: userIcon,
+                                zIndexOffset: 1000
+                            }).addTo(map);
+                        } else {
+                            userMarker.setLatLng(currentPosition);
+                        }
+                        
+                        // Hide loading overlay
+                        document.querySelector('.loading-overlay').style.display = 'none';
+                        
+                        // Enable high-accuracy continuous location updates
+                        navigator.geolocation.watchPosition(function(position) {
+                            // Update current position
+                            currentPosition = [position.coords.latitude, position.coords.longitude];
+                            
+                            // Update user marker
+                            if (userMarker) {
+                                userMarker.setLatLng(currentPosition);
+                            }
+                        }, function(error) {
+                            console.error('Error watching position:', error);
+                        }, {
+                            enableHighAccuracy: true,
+                            maximumAge: 0,
+                            timeout: 5000
+                        });
+                        
+                        // Update status
+                        updateStatus('Location found. Select a utility type to begin mapping.');
+                        
+                    }, function(error) {
+                        // Hide loading overlay
+                        document.querySelector('.loading-overlay').style.display = 'none';
+                        
+                        // Show error message
+                        let errorMsg = 'Location access denied.';
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg = 'Location access denied. Please enable GPS and refresh.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg = 'Location unavailable. Maps will start in default position.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMsg = 'Location request timed out. Maps will start in default position.';
+                                break;
+                        }
+                        showNotification(errorMsg, 'error');
+                        updateStatus(errorMsg);
+                    }, {
+                        enableHighAccuracy: true,
+                        maximumAge: 0,
+                        timeout: 10000
+                    });
+                } else {
+                    // Hide loading overlay
+                    document.querySelector('.loading-overlay').style.display = 'none';
+                    
+                    // Show error message
+                    showNotification('Geolocation not supported in this browser', 'error');
+                    updateStatus('Geolocation not supported. Maps will start in default position.');
+                }
+            }
+            
+            function handleMapClick(e) {
+                // Hide any open UI elements
+                hideContextMenu();
+                hideUtilityInfo();
+                
+                // If in drawing mode, add point to path
+                if (isDrawing) {
+                    handleDrawingClick(e.latlng);
+                    return;
+                }
+                
+                // If in measurement mode, handle measurement
+                if (isMeasuring) {
+                    handleMeasurementClick(e.latlng);
+                    return;
+                }
+                
+                // If in connection mode, handle connection
+                if (currentConnectionMode) {
+                    handleConnectionClick(e.latlng);
+                    return;
+                }
+                
+                // Handle clicks based on active tool
+                switch (activeTool) {
+                    case 'find-utility':
+                        tempUtilityLocation = e.latlng;
+                        showModal('utility-found-modal');
+                        break;
+                    
+                    case 'map-utility':
+                        startUtilityDrawing(e.latlng);
+                        break;
+                    
+                    case 'edit-utility':
+                        // This is handled by the utility click event
+                        break;
+                        
+                    case 'high-accuracy':
+                        // This is handled by the utility click event
+                        break;
+                        
+                    case 'add-structure':
+                        tempUtilityLocation = e.latlng;
+                        showModal('structure-modal');
+                        break;
+                        
+                    case 'add-tag':
+                        tempUtilityLocation = e.latlng;
+                        showModal('measurement-tag-modal');
+                        break;
+                }
+            }
+            
+            function handleContextMenu(e) {
+                // Find clicked element
+                const element = findElementAtPoint(e.latlng);
+                
+                if (element) {
+                    // Store selected element
+                    selectedElement = element;
+                    
+                    // Show context menu
+                    const contextMenu = document.getElementById('context-menu');
+                    const containerPoint = map.latLngToContainerPoint(e.latlng);
+                    
+                    contextMenu.style.left = `${containerPoint.x}px`;
+                    contextMenu.style.top = `${containerPoint.y}px`;
+                    contextMenu.style.display = 'block';
+                    
+                    // Prevent default context menu
+                    return false;
+                }
+            }
+            
+            function findElementAtPoint(latlng) {
+                let foundElement = null;
+                let minDistance = 15; // meters
+                
+                // Check utilities
+                for (const type in utilities) {
+                    for (const utility of utilities[type]) {
+                        // Check if clicking on utility line
+                        if (utility.line) {
+                            const distance = getDistanceToLine(latlng, utility.line.getLatLngs());
+                            if (distance < minDistance) {
+                                foundElement = {
+                                    type: 'utility',
+                                    utility: utility,
+                                    element: utility.line
+                                };
+                                minDistance = distance;
+                            }
+                        }
+                        
+                        // Check if clicking on utility marker
+                        if (utility.marker) {
+                            const distance = map.distance(latlng, utility.marker.getLatLng());
+                            if (distance < minDistance) {
+                                foundElement = {
+                                    type: 'utility',
+                                    utility: utility,
+                                    element: utility.marker
+                                };
+                                minDistance = distance;
+                            }
+                        }
+                    }
+                }
+                
+                // Check structures
+                for (const structure of structures) {
+                    if (structure.marker) {
+                        const distance = map.distance(latlng, structure.marker.getLatLng());
+                        if (distance < minDistance) {
+                            foundElement = {
+                                type: 'structure',
+                                structure: structure,
+                                element: structure.marker
+                            };
+                            minDistance = distance;
+                        }
+                    }
+                }
+                
+                // Check measurement tags
+                for (const tag of measurementTags) {
+                    if (tag.marker) {
+                        const distance = map.distance(latlng, tag.marker.getLatLng());
+                        if (distance < minDistance) {
+                            foundElement = {
+                                type: 'tag',
+                                tag: tag,
+                                element: tag.marker
+                            };
+                            minDistance = distance;
+                        }
+                    }
+                }
+                
+                return foundElement;
+            }
+            
+            function getDistanceToLine(point, linePoints) {
+                if (!linePoints || linePoints.length < 2) return Infinity;
+                
+                let minDistance = Infinity;
+                
+                for (let i = 0; i < linePoints.length - 1; i++) {
+                    const start = linePoints[i];
+                    const end = linePoints[i + 1];
+                    
+                    // Calculate perpendicular distance to line segment
+                    const distance = getDistanceToSegment(point, start, end);
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                    }
+                }
+                
+                return minDistance;
+            }
+            
+            function getDistanceToSegment(point, start, end) {
+                // Convert to Cartesian coordinates for more accurate calculation at high zoom levels
+                const p = map.latLngToLayerPoint(point);
+                const s = map.latLngToLayerPoint(start);
+                const e = map.latLngToLayerPoint(end);
+                
+                // Vector from start to end
+                const dx = e.x - s.x;
+                const dy = e.y - s.y;
+                
+                // Calculate square length of segment
+                const segLenSq = dx * dx + dy * dy;
+                
+                // If segment is a point, return distance to start point
+                if (segLenSq === 0) {
+                    return map.distance(point, start);
+                }
+                
+                // Calculate projection of point onto segment
+                const t = ((p.x - s.x) * dx + (p.y - s.y) * dy) / segLenSq;
+                
+                // Clamp t to range [0,1]
+                const tClamped = Math.max(0, Math.min(1, t));
+                
+                // Find closest point on segment
+                const closestX = s.x + tClamped * dx;
+                const closestY = s.y + tClamped * dy;
+                
+                // Convert back to LatLng for distance calculation
+                const closestLatLng = map.layerPointToLatLng(L.point(closestX, closestY));
+                
+                // Return distance in meters
+                return map.distance(point, closestLatLng);
+            }
+            
+            function startUtilityDrawing(latlng) {
+                if (!selectedUtilityType) {
+                    showNotification('Please select a utility type first', 'error');
+                    return;
+                }
+                
+                isDrawing = true;
+                drawingPoints = [latlng];
+                
+                // Create temporary line
+                const colors = getUtilityColors();
+                tempLine = L.polyline([latlng, latlng], {
+                    color: colors[selectedUtilityType],
+                    weight: selectedLineType === 'main' ? 6 : 4,
+                    opacity: 0.7,
+                    dashArray: '5,5'
+                }).addTo(tempLayer);
+                
+                // Update status
+                updateStatus('Click to add points, double-click or press Escape to finish');
+                
+                // Add mousemove handler for line preview
+                map.on('mousemove', updateDrawingPreview);
+            }
+            
+            function updateDrawingPreview(e) {
+                if (!isDrawing || !tempLine) return;
+                
+                const points = [...drawingPoints, e.latlng];
+                tempLine.setLatLngs(points);
+            }
+            
+            function handleDrawingClick(latlng) {
+                // Add point to drawing
+                drawingPoints.push(latlng);
+                
+                // Check for double click (points very close together)
+                if (drawingPoints.length > 1) {
+                    const lastPoint = drawingPoints[drawingPoints.length - 2];
+                    const distance = map.distance(lastPoint, latlng);
+                    
+                    if (distance < 5) {
+                        // Remove the duplicate point
+                        drawingPoints.pop();
+                        finishUtilityDrawing();
+                        return;
+                    }
+                }
+                
+                // Update temp line
+                if (tempLine) {
+                    tempLine.setLatLngs(drawingPoints);
+                }
+                
+                // If many points, offer to finish
+                if (drawingPoints.length >= 10) {
+                    if (confirm('You have added many points. Finish drawing now?')) {
+                        finishUtilityDrawing();
+                    }
+                }
+            }
+            
+            function finishUtilityDrawing() {
+                // Remove mousemove handler
+                map.off('mousemove', updateDrawingPreview);
+                
+                // Clean up temp line
+                if (tempLine) {
+                    tempLayer.removeLayer(tempLine);
+                    tempLine = null;
+                }
+                
+                // Need at least 2 points
+                if (drawingPoints.length < 2) {
+                    isDrawing = false;
+                    drawingPoints = [];
+                    return;
+                }
+                
+                // Apply smoothing to line
+                const smoothedPoints = smoothLine(drawingPoints);
+                
+                // Create the utility
+                const utilityData = {
+                    id: generateId(),
+                    type: selectedUtilityType,
+                    lineType: selectedLineType,
+                    points: smoothedPoints,
+                    size: 4, // Default size
+                    depth: 3, // Default depth
+                    direction: calculateDirection(smoothedPoints),
+                    createdAt: new Date()
+                };
+                
+                // Add to utilities collection
+                createUtility(utilityData);
+                
+                // Reset drawing state
+                isDrawing = false;
+                drawingPoints = [];
+                
+                // Update status
+                updateStatus(`${selectedUtilityType} ${selectedLineType} mapped successfully`);
+                showNotification('Utility mapped successfully', 'success');
+            }
+            
+            function cancelDrawing() {
+                // Remove mousemove handler
+                map.off('mousemove', updateDrawingPreview);
+                
+                // Clean up temp line
+                if (tempLine) {
+                    tempLayer.removeLayer(tempLine);
+                    tempLine = null;
+                }
+                
+                // Reset drawing state
+                isDrawing = false;
+                drawingPoints = [];
+                
+                // Update status
+                updateStatus('Drawing cancelled');
+            }
+            
+            function finalizeUtility() {
+                if (!tempUtilityLocation) return;
+                
+                // Get form values
+                const type = document.getElementById('utility-type').value;
+                const lineType = document.querySelector('input[name="line-type"]:checked').value;
+                const size = parseFloat(document.getElementById('utility-size').value) || 4;
+                const depth = parseFloat(document.getElementById('utility-depth').value) || 3;
+                const notes = document.getElementById('utility-notes').value;
+                
+                // Calculate end point based on direction and a short distance
+                const endPoint = calculateEndPoint(tempUtilityLocation, directionAngle, 10); // 10 meters length
+                
+                // Create utility data
+                const utilityData = {
+                    id: generateId(),
+                    type: type,
+                    lineType: lineType,
+                    size: size,
+                    depth: depth,
+                    points: [tempUtilityLocation, endPoint],
+                    direction: directionAngle,
+                    notes: notes,
+                    createdAt: new Date()
+                };
+                
+                // Add media if uploaded
+                const mediaInput = document.getElementById('utility-media');
+                if (mediaInput.files && mediaInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        utilityData.mediaData = e.target.result;
+                        createUtility(utilityData);
+                    };
+                    reader.readAsDataURL(mediaInput.files[0]);
+                } else {
+                    // No media, create utility directly
+                    createUtility(utilityData);
+                }
+                
+                // Reset temp data
+                tempUtilityLocation = null;
+                
+                // Update UI
+                updateStatus(`Added ${type} ${lineType} utility segment`);
+                showNotification('Utility segment added successfully', 'success');
+                
+                // Reset form for next use
+                document.getElementById('utility-notes').value = '';
+                document.getElementById('utility-media').value = '';
+            }
+            
+            function updateUtility() {
+                if (!selectedElement || selectedElement.type !== 'edit-utility' || !selectedElement.utility) return;
+                
+                const utility = selectedElement.utility;
+                
+                // Get form values
+                const type = document.getElementById('utility-type').value;
+                const lineType = document.querySelector('input[name="line-type"]:checked').value;
+                const size = parseFloat(document.getElementById('utility-size').value) || 4;
+                const depth = parseFloat(document.getElementById('utility-depth').value) || 3;
+                const notes = document.getElementById('utility-notes').value;
+                
+                // Update utility data
+                utility.type = type;
+                utility.lineType = lineType;
+                utility.size = size;
+                utility.depth = depth;
+                utility.direction = directionAngle;
+                utility.notes = notes;
+                
+                // Update media if uploaded
+                const mediaInput = document.getElementById('utility-media');
+                if (mediaInput.files && mediaInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        utility.mediaData = e.target.result;
+                        updateUtilityVisuals(utility);
+                    };
+                    reader.readAsDataURL(mediaInput.files[0]);
+                } else {
+                    // No new media, update utility directly
+                    updateUtilityVisuals(utility);
+                }
+                
+                // Update UI
+                updateStatus(`Updated ${type} ${lineType} utility segment`);
+                showNotification('Utility updated successfully', 'success');
+                
+                // Reset selected element
+                selectedElement = null;
+            }
+            
+            function createUtility(utilityData) {
+                // Get utility colors based on type
+                const colors = getUtilityColors();
+                
+                // Create polyline for utility
+                const line = L.polyline(utilityData.points, {
+                    color: colors[utilityData.type],
+                    weight: utilityData.lineType === 'main' ? 6 : 4,
+                    opacity: 1,
+                    className: `utility-line ${utilityData.lineType}`
+                }).addTo(utilitiesLayer);
+                
+                // Create marker icon
+                const markerIcon = createUtilityMarkerIcon(utilityData);
+                
+                // Create marker at start of line
+                const marker = L.marker(utilityData.points[0], {
+                    icon: markerIcon,
+                    draggable: false
+                }).addTo(utilitiesLayer);
+                
+                // Store references
+                utilityData.line = line;
+                utilityData.marker = marker;
+                
+                // Add click handlers
+                line.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    handleUtilityClick(utilityData);
+                });
+                
+                marker.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    handleUtilityClick(utilityData);
+                });
+                
+                // Add to storage
+                utilities[utilityData.type].push(utilityData);
+                
+                return utilityData;
+            }
+            
+            function updateUtilityVisuals(utility) {
+                // Remove existing visuals
+                if (utility.line) {
+                    utilitiesLayer.removeLayer(utility.line);
+                }
+                
+                if (utility.marker) {
+                    utilitiesLayer.removeLayer(utility.marker);
+                }
+                
+                // Get utility colors
+                const colors = getUtilityColors();
+                
+                // Create new polyline
+                const line = L.polyline(utility.points, {
+                    color: colors[utility.type],
+                    weight: utility.lineType === 'main' ? 6 : 4,
+                    opacity: 1,
+                    className: `utility-line ${utility.lineType}`
+                }).addTo(utilitiesLayer);
+                
+                // Create new marker icon
+                const markerIcon = createUtilityMarkerIcon(utility);
+                
+                // Create new marker
+                const marker = L.marker(utility.points[0], {
+                    icon: markerIcon,
+                    draggable: false
+                }).addTo(utilitiesLayer);
+                
+                // Store references
+                utility.line = line;
+                utility.marker = marker;
+                
+                // Add click handlers
+                line.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    handleUtilityClick(utility);
+                });
+                
+                marker.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    handleUtilityClick(utility);
+                });
+            }
+            
+            function handleUtilityClick(utility) {
+                // Handle based on active tool
+                if (activeTool === 'edit-utility') {
+                    editUtility(utility);
+                } else if (activeTool === 'high-accuracy') {
+                    enterHighAccuracyMode(utility);
+                } else if (currentConnectionMode) {
+                    handleConnectionToUtility(utility);
+                } else {
+                    // Default: show utility info
+                    showUtilityInfo(utility);
+                }
+            }
+            
+            function editUtility(utility) {
+                // Store selected element
+                selectedElement = {
+                    type: 'edit-utility',
+                    utility: utility
+                };
+                
+                // Set form values
+                document.getElementById('utility-type').value = utility.type;
+                
+                // Set line type radio
+                const radioElement = document.getElementById(`${utility.lineType}-type`);
+                if (radioElement) {
+                    radioElement.checked = true;
+                }
+                
+                // Set other values
+                document.getElementById('utility-size').value = utility.size || 4;
+                document.getElementById('utility-depth').value = utility.depth || 3;
+                document.getElementById('utility-notes').value = utility.notes || '';
+                
+                // Set direction angle
+                directionAngle = utility.direction || 0;
+                document.getElementById('utility-direction-arrow').style.transform = `rotate(${directionAngle}deg)`;
+                document.getElementById('utility-direction-angle').textContent = `${directionAngle}°`;
+                
+                // Show modal
+                showModal('utility-found-modal');
+            }
+            
+            function showUtilityInfo(utility) {
+                // Store selected element
+                selectedElement = {
+                    type: 'utility-info',
+                    utility: utility
+                };
+                
+                // Update info card contents
+                document.getElementById('info-type').textContent = formatUtilityTypeName(utility.type);
+                document.getElementById('info-line-type').textContent = utility.lineType === 'main' ? 'Main' : 'Service';
+                document.getElementById('info-size').textContent = `${utility.size || 4} inches`;
+                document.getElementById('info-depth').textContent = `${utility.depth || 3} feet`;
+                document.getElementById('info-direction').textContent = getDirectionName(utility.direction || 0);
+                
+                // Show/hide notes
+                if (utility.notes) {
+                    document.getElementById('info-notes-row').style.display = 'flex';
+                    document.getElementById('info-notes').textContent = utility.notes;
+                } else {
+                    document.getElementById('info-notes-row').style.display = 'none';
+                }
+                
+                // Position the info card
+                const markerPoint = map.latLngToContainerPoint(utility.marker.getLatLng());
+                const infoCard = document.getElementById('utility-info-card');
+                infoCard.style.left = `${markerPoint.x + 20}px`;
+                infoCard.style.top = `${markerPoint.y - 100}px`;
+                
+                // Show the card
+                infoCard.style.display = 'block';
+            }
+            
+            function hideUtilityInfo() {
+                document.getElementById('utility-info-card').style.display = 'none';
+                
+                if (selectedElement && selectedElement.type === 'utility-info') {
+                    selectedElement = null;
+                }
+            }
+            
+            function deleteSelectedUtility() {
+                if (!selectedElement) return;
+                
+                if (selectedElement.type === 'utility' || selectedElement.type === 'utility-info') {
+                    const utility = selectedElement.utility;
+                    
+                    // Remove from map
+                    if (utility.line) {
+                        utilitiesLayer.removeLayer(utility.line);
+                    }
+                    
+                    if (utility.marker) {
+                        utilitiesLayer.removeLayer(utility.marker);
+                    }
+                    
+                    // Remove from storage
+                    const utilityIndex = utilities[utility.type].findIndex(u => u.id === utility.id);
+                    if (utilityIndex !== -1) {
+                        utilities[utility.type].splice(utilityIndex, 1);
+                    }
+                    
+                    // Hide utility info if open
+                    hideUtilityInfo();
+                    
+                    // Update UI
+                    showNotification('Utility deleted', 'success');
+                    updateStatus('Utility deleted');
+                }
+                
+                // Reset selected element
+                selectedElement = null;
+            }
+            
+            function enterHighAccuracyMode(utility) {
+                // Store editing utility
+                editingUtility = utility;
+                isHighAccuracyMode = true;
+                
+                // Zoom in to the utility
+                const bounds = L.latLngBounds(utility.points);
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 21 });
+                
+                // Show high accuracy controls
+                document.getElementById('high-accuracy-controls').style.display = 'block';
+                
+                // Hide toolbar
+                document.getElementById('main-toolbar').style.transform = 'translateY(100%)';
+                
+                // Hide floating action button
+                document.getElementById('fab-btn').style.display = 'none';
+                
+                // Create control points
+                createControlPoints(utility);
+                
+                // Update status
+                updateStatus('Precision Edit Mode: Drag control points to reposition utility precisely');
+            }
+            
+            function exitHighAccuracyMode() {
+                // Remove control points
+                controlPointsLayer.clearLayers();
+                controlPoints = [];
+                
+                // Hide high accuracy controls
+                document.getElementById('high-accuracy-controls').style.display = 'none';
+                
+                // Show toolbar
+                document.getElementById('main-toolbar').style.transform = 'translateY(calc(100% - 80px))';
+                
+                // Show floating action button
+                document.getElementById('fab-btn').style.display = 'block';
+                
+                // Reset editing utility
+                editingUtility = null;
+                isHighAccuracyMode = false;
+                
+                // Update status
+                updateStatus('Exited precision edit mode');
+            }
+            
+            function createControlPoints(utility) {
+                // Clear existing control points
+                controlPointsLayer.clearLayers();
+                controlPoints = [];
+                
+                // Create control point for each point in the utility line
+                utility.points.forEach((point, index) => {
+                    // Create control point marker
+                    const controlPointIcon = L.divIcon({
+                        html: '<div class="control-point"></div>',
+                        className: '',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    });
+                    
+                    const marker = L.marker(point, {
+                        icon: controlPointIcon,
+                        draggable: true,
+                        zIndexOffset: 1000
+                    }).addTo(controlPointsLayer);
+                    
+                    // Store control point data
+                    const controlPoint = {
+                        marker: marker,
+                        index: index,
+                        originalPosition: L.latLng(point)
+                    };
+                    
+                    controlPoints.push(controlPoint);
+                    
+                    // Add drag events
+                    marker.on('drag', function(e) {
+                        updateControlPointPosition(controlPoint);
+                    });
+                    
+                    marker.on('dragend', function(e) {
+                        updateControlPointPosition(controlPoint);
+                    });
+                });
+                
+                // Add click handler to utility line for adding intermediate control points
+                if (utility.line) {
+                    utility.line.on('click', function(e) {
+                        if (isHighAccuracyMode) {
+                            addIntermediateControlPoint(e.latlng);
+                        }
+                    });
+                }
+            }
+            
+            function updateControlPointPosition(controlPoint) {
+                if (!editingUtility) return;
+                
+                // Update the corresponding point in the utility
+                const newPosition = controlPoint.marker.getLatLng();
+                editingUtility.points[controlPoint.index] = newPosition;
+                
+                // Update utility line
+                if (editingUtility.line) {
+                    editingUtility.line.setLatLngs(editingUtility.points);
+                }
+                
+                // Update marker position if first point
+                if (controlPoint.index === 0 && editingUtility.marker) {
+                    editingUtility.marker.setLatLng(newPosition);
+                }
+            }
+            
+            function addIntermediateControlPoint(latlng) {
+                if (!editingUtility || !isHighAccuracyMode) return;
+                
+                // Find the nearest segment of the line
+                const linePoints = editingUtility.points;
+                let minDistance = Infinity;
+                let insertIndex = -1;
+                
+                for (let i = 0; i < linePoints.length - 1; i++) {
+                    const dist = getDistanceToSegment(latlng, linePoints[i], linePoints[i + 1]);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        insertIndex = i + 1;
+                    }
+                }
+                
+                if (insertIndex > 0) {
+                    // Insert the new point
+                    editingUtility.points.splice(insertIndex, 0, latlng);
+                    
+                    // Recreate control points
+                    createControlPoints(editingUtility);
+                    
+                    // Update utility line
+                    if (editingUtility.line) {
+                        editingUtility.line.setLatLngs(editingUtility.points);
+                    }
+                }
+            }
+            
+            function saveHighAccuracyChanges() {
+                if (!editingUtility) return;
+                
+                // Update utility visuals
+                updateUtilityVisuals(editingUtility);
+                
+                // Exit high accuracy mode
+                exitHighAccuracyMode();
+                
+                // Show notification
+                showNotification('Utility position updated precisely', 'success');
+            }
+            
+            function addStructure() {
+                if (!tempUtilityLocation) return;
+                
+                // Get structure type
+                const structureItem = document.querySelector('.structure-item.active');
+                const structureType = structureItem.getAttribute('data-type');
+                
+                // Get structure name for custom types
+                let structureName = structureType;
+                if (structureType === 'custom') {
+                    structureName = document.getElementById('custom-structure-name').value || 'Custom Structure';
+                }
+                
+                // Get notes
+                const notes = document.getElementById('structure-notes').value;
+                
+                // Create structure data
+                const structureData = {
+                    id: generateId(),
+                    type: structureType,
+                    name: structureName,
+                    location: tempUtilityLocation,
+                    notes: notes,
+                    createdAt: new Date()
+                };
+                
+                // Add media if uploaded
+                const mediaInput = document.getElementById('structure-media');
+                if (mediaInput.files && mediaInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        structureData.mediaData = e.target.result;
+                        createStructure(structureData);
+                    };
+                    reader.readAsDataURL(mediaInput.files[0]);
+                } else {
+                    // No media, create structure directly
+                    createStructure(structureData);
+                }
+                
+                // Reset temp data
+                tempUtilityLocation = null;
+                
+                // Update UI
+                updateStatus(`Added ${structureName}`);
+                showNotification('Structure added successfully', 'success');
+            }
+            
+            function createStructure(structureData) {
+                // Create structure marker icon
+                const markerIcon = createStructureMarkerIcon(structureData);
+                
+                // Create marker
+                const marker = L.marker(structureData.location, {
+                    icon: markerIcon,
+                    draggable: false
+                }).addTo(structuresLayer);
+                
+                // Store reference
+                structureData.marker = marker;
+                
+                // Add click handler
+                marker.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    showStructureInfo(structureData);
+                });
+                
+                // Add to storage
+                structures.push(structureData);
+                
+                return structureData;
+            }
+            
+            function showStructureInfo(structure) {
+                // TODO: Implement structure info display
+                alert(`Structure: ${structure.name}\nType: ${structure.type}\nNotes: ${structure.notes || 'None'}`);
+            }
+            
+            function addMeasurementTag() {
+                if (!tempUtilityLocation) return;
+                
+                // Get tag data
+                const measurement = document.getElementById('tag-measurement').value;
+                const unit = document.getElementById('tag-unit').value;
+                const description = document.getElementById('tag-description').value;
+                const color = document.getElementById('tag-color').value;
+                
+                // Create tag text
+                const tagText = `${measurement}${unit} ${description}`;
+                
+                // Create tag data
+                const tagData = {
+                    id: generateId(),
+                    text: tagText,
+                    location: tempUtilityLocation,
+                    color: color,
+                    createdAt: new Date()
+                };
+                
+                // Create the tag
+                createMeasurementTag(tagData);
+                
+                // Reset temp data
+                tempUtilityLocation = null;
+                
+                // Update UI
+                updateStatus('Measurement tag added');
+                showNotification('Tag added successfully', 'success');
+            }
+            
+            function createMeasurementTag(tagData) {
+                // Create marker icon
+                const style = tagData.color !== 'default' ? 
+                    `background-color: var(--${tagData.color}-color); color: white;` : '';
+                    
+                const tagIcon = L.divIcon({
+                    html: `<div class="measurement-tag" style="${style}">${tagData.text}</div>`,
+                    className: '',
+                    iconSize: [100, 24],
+                    iconAnchor: [50, 12]
+                });
+                
+                // Create marker
+                const marker = L.marker(tagData.location, {
+                    icon: tagIcon,
+                    draggable: true
+                }).addTo(measurementLayer);
+                
+                // Store reference
+                tagData.marker = marker;
+                
+                // Add click handler
+                marker.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    
+                    // Toggle additional info or edit mode
+                    // TODO: Implement tag editing
+                });
+                
+                // Add to storage
+                measurementTags.push(tagData);
+                
+                return tagData;
+            }
+            
+            function startMeasurement() {
+                // Enable measurement mode
+                isMeasuring = true;
+                measureStartPoint = null;
+                
+                // Clear existing measurements
+                clearMeasurements();
+                
+                // Update status
+                setActiveTool('measure');
+                updateStatus('Click on the map to start measuring');
+            }
+            
+            function handleMeasurementClick(latlng) {
+                if (!measureStartPoint) {
+                    // First click - set start point
+                    measureStartPoint = latlng;
+                    
+                    // Create start marker
+                    const startMarker = L.marker(latlng, {
+                        icon: L.divIcon({
+                            html: '<div class="measure-point"></div>',
+                            className: '',
+                            iconSize: [12, 12],
+                            iconAnchor: [6, 6]
+                        })
+                    }).addTo(measurementLayer);
+                    
+                    measureMarkers.push(startMarker);
+                    
+                    // Update status
+                    updateStatus('Click on another point to complete measurement');
+                    
+                    // Add mousemove handler for live measurement preview
+                    map.on('mousemove', updateMeasurementPreview);
+                } else {
+                    // Second click - complete measurement
+                    const distance = map.distance(measureStartPoint, latlng).toFixed(2);
+                    
+                    // Create end marker
+                    const endMarker = L.marker(latlng, {
+                        icon: L.divIcon({
+                            html: '<div class="measure-point"></div>',
+                            className: '',
+                            iconSize: [12, 12],
+                            iconAnchor: [6, 6]
+                        })
+                    }).addTo(measurementLayer);
+                    
+                    measureMarkers.push(endMarker);
+                    
+                    // Create permanent measurement line
+                    if (measureLine) {
+                        measurementLayer.removeLayer(measureLine);
+                    }
+                    
+                    measureLine = L.polyline([measureStartPoint, latlng], {
+                        color: '#ff6f00',
+                        weight: 3,
+                        opacity: 0.8,
+                        dashArray: '5, 5'
+                    }).addTo(measurementLayer);
+                    
+                    // Add distance label
+                    const midPoint = L.latLng(
+                        (measureStartPoint.lat + latlng.lat) / 2,
+                        (measureStartPoint.lng + latlng.lng) / 2
+                    );
+                    
+                    const labelIcon = L.divIcon({
+                        html: `<div class="measure-label">${distance}m</div>`,
+                        className: '',
+                        iconSize: [80, 24],
+                        iconAnchor: [40, 12]
+                    });
+                    
+                    const labelMarker = L.marker(midPoint, {
+                        icon: labelIcon,
+                        interactive: false
+                    }).addTo(measurementLayer);
+                    
+                    measureMarkers.push(labelMarker);
+                    
+                    // Show result
+                    showNotification(`Measured distance: ${distance} meters`);
+                    
+                    // Reset for new measurement
+                    measureStartPoint = null;
+                    
+                    // Remove mousemove handler
+                    map.off('mousemove', updateMeasurementPreview);
+                    
+                    // Exit measurement mode
+                    isMeasuring = false;
+                    setActiveTool(null);
+                }
+            }
+            
+            function updateMeasurementPreview(e) {
+                if (!isMeasuring || !measureStartPoint) return;
+                
+                // Update temporary line
+                if (measureLine) {
+                    measurementLayer.removeLayer(measureLine);
+                }
+                
+                measureLine = L.polyline([measureStartPoint, e.latlng], {
+                    color: '#ff6f00',
+                    weight: 3,
+                    opacity: 0.8,
+                    dashArray: '5, 5'
+                }).addTo(measurementLayer);
+                
+                // Update distance in status bar
+                const distance = map.distance(measureStartPoint, e.latlng).toFixed(2);
+                updateStatus(`Current distance: ${distance} meters. Click to finish measurement.`);
+            }
+            
+            function clearMeasurements() {
+                // Remove all measurement markers
+                measureMarkers.forEach(marker => {
+                    measurementLayer.removeLayer(marker);
+                });
+                
+                measureMarkers = [];
+                
+                // Remove measurement line
+                if (measureLine) {
+                    measurementLayer.removeLayer(measureLine);
+                    measureLine = null;
+                }
+            }
+            
+            function cancelMeasurement() {
+                // Clear existing measurements
+                clearMeasurements();
+                
+                // Reset measurement state
+                isMeasuring = false;
+                measureStartPoint = null;
+                
+                // Remove mousemove handler
+                map.off('mousemove', updateMeasurementPreview);
+                
+                // Update status
+                updateStatus('Measurement cancelled');
+                setActiveTool(null);
+            }
+            
+            function startMeasurementFromUtility(utility) {
+                // Start measurement with the utility's start point
+                startMeasurement();
+                handleMeasurementClick(utility.points[0]);
+                
+                // Update status
+                updateStatus('Click on another point to complete measurement from utility');
+            }
+            
+            function startConnectionMode() {
+                // Get connection type
+                const connectionItem = document.querySelector('#connection-modal .structure-item.active');
+                const connectType = connectionItem.getAttribute('data-connect-type');
+                
+                // Enable connection mode
+                currentConnectionMode = connectType;
+                connectionSource = null;
+                
+                // Update status
+                setActiveTool('connect');
+                updateStatus('Select a utility segment to start connection');
+            }
+            
+            function handleConnectionClick(latlng) {
+                // Find element at click point
+                const element = findElementAtPoint(latlng);
+                
+                if (element && (element.type === 'utility' || element.type === 'structure')) {
+                    handleConnectionToUtility(element.type === 'utility' ? element.utility : element.structure);
+                } else {
+                    showNotification('Please click on a utility or structure to connect', 'error');
+                }
+            }
+            
+            function handleConnectionToUtility(utility) {
+                if (!connectionSource) {
+                    // First selection - set as source
+                    connectionSource = utility;
+                    showNotification('Source selected. Now select destination to connect to.');
+                    updateStatus('Select destination utility or structure to connect to');
+                } else {
+                    // Second selection - create connection
+                    createConnection(connectionSource, utility);
+                    
+                    // Reset connection mode
+                    cancelConnectionMode();
+                }
+            }
+            
+            function createConnection(source, destination) {
+                // Calculate connection points
+                let sourcePoint, destPoint;
+                
+                if (source.points) {
+                    // Source is a utility
+                    sourcePoint = source.points[source.points.length - 1];
+                } else {
+                    // Source is a structure
+                    sourcePoint = source.location;
+                }
+                
+                if (destination.points) {
+                    // Destination is a utility
+                    destPoint = destination.points[0];
+                } else {
+                    // Destination is a structure
+                    destPoint = destination.location;
+                }
+                
+                // Determine connection type and style
+                const connectType = currentConnectionMode;
+                let connectionPath;
+                
+                if (connectType === 'direct') {
+                    // Direct connection - straight line
+                    connectionPath = [sourcePoint, destPoint];
+                } else {
+                    // Offset connection - create a smooth curve
+                    connectionPath = createOffsetConnectionPath(sourcePoint, destPoint);
+                }
+                
+                // Create connection line
+                const connectionLine = L.polyline(connectionPath, {
+                    color: getUtilityColors()[source.type] || '#3949ab',
+                    weight: 4,
+                    opacity: 0.8,
+                    dashArray: '5, 5'
+                }).addTo(utilitiesLayer);
+                
+                // Create connection data
+                const connectionData = {
+                    id: generateId(),
+                    sourceId: source.id,
+                    sourceType: source.points ? 'utility' : 'structure',
+                    destinationId: destination.id,
+                    destinationType: destination.points ? 'utility' : 'structure',
+                    connectionType: connectType,
+                    points: connectionPath,
+                    line: connectionLine,
+                    createdAt: new Date()
+                };
+                
+                // Add connection to source and destination
+                if (!source.connections) source.connections = [];
+                if (!destination.connections) destination.connections = [];
+                
+                source.connections.push({
+                    id: connectionData.id,
+                    targetId: destination.id,
+                    targetType: connectionData.destinationType
+                });
+                
+                destination.connections.push({
+                    id: connectionData.id,
+                    targetId: source.id,
+                    targetType: connectionData.sourceType
+                });
+                
+                // Add click handler to connection line
+                connectionLine.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    // TODO: Implement connection info/editing
+                });
+                
+                // Show notification
+                showNotification('Utilities connected successfully', 'success');
+                updateStatus('Connection created');
+            }
+            
+            function createOffsetConnectionPath(start, end) {
+                // Create a smooth path between two points
+                const path = [];
+                
+                // Add start point
+                path.push(start);
+                
+                // Calculate intermediate control points for a curved path
+                const dx = end.lng - start.lng;
+                const dy = end.lat - start.lat;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Create two control points at 1/3 and 2/3 distance with offset
+                const offsetFactor = 0.2; // Controls the curve amount
+                
+                // Calculate perpendicular vector for offset
+                const nx = -dy / distance;
+                const ny = dx / distance;
+                
+                // Add intermediate points for a smooth curve
+                for (let t = 0.1; t < 1; t += 0.1) {
+                    // Apply quadratic bezier formula with offset
+                    const offset = Math.sin(t * Math.PI) * offsetFactor * distance;
+                    
+                    const px = start.lng + dx * t + nx * offset;
+                    const py = start.lat + dy * t + ny * offset;
+                    
+                    path.push(L.latLng(py, px));
+                }
+                
+                // Add end point
+                path.push(end);
+                
+                return path;
+            }
+            
+            function cancelConnectionMode() {
+                currentConnectionMode = false;
+                connectionSource = null;
+                setActiveTool(null);
+                updateStatus('Connection mode cancelled');
+            }
+            
+            function startConnectionWithSelected() {
+                if (!selectedElement || !selectedElement.utility) return;
+                
+                // Start connection mode with direct connection type
+                currentConnectionMode = 'direct';
+                connectionSource = selectedElement.utility;
+                
+                // Update status
+                setActiveTool('connect');
+                updateStatus('Source selected. Now select destination to connect to');
+                showNotification('Select destination utility or structure to connect to');
+            }
+            
+            function showTagModalForUtility(utility) {
+                // Store utility for tag placement
+                tempUtilityLocation = utility.points[0];
+                
+                // Set default values based on utility
+                document.getElementById('tag-measurement').value = utility.depth || 3;
+                document.getElementById('tag-unit').value = 'ft';
+                document.getElementById('tag-description').value = 'depth';
+                document.getElementById('tag-color').value = utility.type;
+                
+                // Show modal
+                showModal('measurement-tag-modal');
+            }
+            
+            function clearUtilities(type) {
+                if (!type) return;
+                
+                // Remove all utilities of the selected type from map
+                utilities[type].forEach(utility => {
+                    if (utility.line) {
+                        utilitiesLayer.removeLayer(utility.line);
+                    }
+                    
+                    if (utility.marker) {
+                        utilitiesLayer.removeLayer(utility.marker);
+                    }
+                });
+                
+                // Clear storage
+                utilities[type] = [];
+                
+                // Update UI
+                updateStatus(`Cleared all ${type} utilities`);
+                showNotification(`All ${type} utilities cleared`, 'success');
+            }
+            
+            function exportData() {
+                // Create export data object
+                const exportData = {
+                    version: '1.0',
+                    timestamp: new Date().toISOString(),
+                    mapCenter: map.getCenter(),
+                    mapZoom: map.getZoom(),
+                    utilities: utilities,
+                    structures: structures,
+                    measurementTags: measurementTags
+                };
+                
+                try {
+                    // Convert to JSON
+                    const jsonString = JSON.stringify(exportData, null, 2);
+                    
+                    // Create blob and download link
+                    const blob = new Blob([jsonString], {type: 'application/json'});
+                    const url = URL.createObjectURL(blob);
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = url;
+                    downloadLink.download = `cac-utilitytracer-export-${new Date().toISOString().slice(0, 10)}.json`;
+                    
+                    // Trigger download
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                    
+                    // Show notification
+                    showNotification('Data exported successfully', 'success');
+                } catch (error) {
+                    console.error('Export error:', error);
+                    showNotification('Error exporting data', 'error');
+                }
+            }
+            
+            function importData() {
+                // Create file input
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+                
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            try {
+                                // Parse JSON
+                                const importData = JSON.parse(e.target.result);
+                                
+                                // Validate data format
+                                if (!importData.version || !importData.utilities) {
+                                    throw new Error('Invalid file format');
+                                }
+                                
+                                // Clear existing data (optional)
+                                if (confirm('Do you want to clear existing data before importing?')) {
+                                    clearAllData();
+                                }
+                                
+                                // Import utilities
+                                for (const type in importData.utilities) {
+                                    importData.utilities[type].forEach(utilityData => {
+                                        // Create utility but without duplicating markers and lines
+                                        utilityData.line = null;
+                                        utilityData.marker = null;
+                                        
+                                        // Create utility
+                                        createUtility(utilityData);
+                                    });
+                                }
+                                
+                                // Import structures
+                                if (importData.structures) {
+                                    importData.structures.forEach(structureData => {
+                                        // Create structure but without duplicating marker
+                                        structureData.marker = null;
+                                        
+                                        // Create structure
+                                        createStructure(structureData);
+                                    });
+                                }
+                                
+                                // Import measurement tags
+                                if (importData.measurementTags) {
+                                    importData.measurementTags.forEach(tagData => {
+                                        // Create tag but without duplicating marker
+                                        tagData.marker = null;
+                                        
+                                        // Create tag
+                                        createMeasurementTag(tagData);
+                                    });
+                                }
+                                
+                                // Set map view if provided
+                                if (importData.mapCenter && importData.mapZoom) {
+                                    map.setView(
+                                        [importData.mapCenter.lat, importData.mapCenter.lng],
+                                        importData.mapZoom
+                                    );
+                                }
+                                
+                                // Show notification
+                                showNotification('Data imported successfully', 'success');
+                            } catch (error) {
+                                console.error('Import error:', error);
+                                showNotification('Error importing data: ' + error.message, 'error');
+                            }
+                        };
+                        
+                        reader.readAsText(file);
+                    }
+                });
+                
+                // Trigger file selection dialog
+                fileInput.click();
+            }
+            
+            function clearAllData() {
+                // Clear utilities
+                for (const type in utilities) {
+                    clearUtilities(type);
+                }
+                
+                // Clear structures
+                structures.forEach(structure => {
+                    if (structure.marker) {
+                        structuresLayer.removeLayer(structure.marker);
+                    }
+                });
+                structures = [];
+                
+                // Clear measurement tags
+                measurementTags.forEach(tag => {
+                    if (tag.marker) {
+                        measurementLayer.removeLayer(tag.marker);
+                    }
+                });
+                measurementTags = [];
+                
+                // Clear measurements
+                clearMeasurements();
+            }
+            
+            function setActiveTool(tool) {
+                // Reset active state of all action buttons
+                document.querySelectorAll('.action-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Set active state for selected tool button
+                if (tool) {
+                    const toolButton = document.getElementById(`${tool}-btn`);
+                    if (toolButton) {
+                        toolButton.classList.add('active');
+                    }
+                }
+                
+                // Update active tool
+                activeTool = tool;
+            }
+            
+            function toggleFloatMenu() {
+                const floatMenu = document.getElementById('float-menu');
+                floatMenu.classList.toggle('visible');
+            }
+            
+            function showModal(modalId) {
+                // Hide all modals first
+                hideAllModals();
+                
+                // Show the requested modal
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.classList.add('active');
+                }
+            }
+            
+            function hideAllModals() {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+            
+            function hideContextMenu() {
+                document.getElementById('context-menu').style.display = 'none';
+            }
+            
+            function showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                const notificationText = document.getElementById('notification-text');
+                
+                // Update icon based on type
+                const icon = notification.querySelector('i');
+                
+                switch (type) {
+                    case 'success':
+                        icon.className = 'fas fa-check-circle';
+                        notification.className = 'notification success';
+                        break;
+                    case 'error':
+                        icon.className = 'fas fa-exclamation-circle';
+                        notification.className = 'notification error';
+                        break;
+                    default:
+                        icon.className = 'fas fa-info-circle';
+                        notification.className = 'notification';
+                }
+                
+                // Set message
+                notificationText.textContent = message;
+                
+                // Add visible class
+                notification.classList.add('visible');
+                
+                // Set timeout to hide notification
+                setTimeout(() => {
+                    notification.classList.remove('visible');
+                }, 3000);
+            }
+            
+            function updateStatus(message) {
+                document.getElementById('status-text').textContent = message;
+            }
+            
+            function createUtilityMarkerIcon(utility) {
+                const colors = getUtilityColors();
+                const icons = getUtilityIcons();
+                
+                const color = colors[utility.type] || '#3949ab';
+                const icon = icons[utility.type] || 'tint';
+                
+                // Create HTML for icon
+                const html = `
+                    <div class="utility-marker" style="background-color: ${color};">
+                        <i class="fas fa-${icon}"></i>
+                        ${utility.lineType === 'main' ? '<div class="main-indicator">M</div>' : ''}
+                    </div>
+                `;
+                
+                return L.divIcon({
+                    html: html,
+                    className: '',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+            }
+            
+            function createStructureMarkerIcon(structure) {
+                // Determine icon based on structure type
+                let iconClass = 'fas fa-box';
+                let className = 'structure-marker';
+                
+                switch (structure.type) {
+                    case 'elec-box':
+                        iconClass = 'fas fa-bolt';
+                        className += ' elec-box';
+                        break;
+                    case 'manhole':
+                        iconClass = 'fas fa-circle';
+                        className += ' manhole';
+                        break;
+                    case 'catch-basin':
+                        iconClass = 'fas fa-water';
+                        className += ' catch-basin';
+                        break;
+                    case 'custom':
+                        iconClass = 'fas fa-plus-square';
+                        break;
+                }
+                
+                // Create HTML for icon
+                const html = `
+                    <div class="${className}">
+                        <i class="${iconClass}"></i>
+                    </div>
+                `;
+                
+                return L.divIcon({
+                    html: html,
+                    className: '',
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 24]
+                });
+            }
+            
+            function getUtilityColors() {
+                return {
+                    water: '#03a9f4',
+                    gas: '#ff9800',
+                    electric: '#fdd835',
+                    sewer: '#795548',
+                    telecom: '#9c27b0'
+                };
+            }
+            
+            function getUtilityIcons() {
+                return {
+                    water: 'tint',
+                    gas: 'fire',
+                    electric: 'bolt',
+                    sewer: 'toilet',
+                    telecom: 'phone'
+                };
+            }
+            
+            function formatUtilityTypeName(type) {
+                return type.charAt(0).toUpperCase() + type.slice(1);
+            }
+            
+            function calculateEndPoint(startLatLng, angleDegrees, lengthMeters) {
+                // Convert angle to radians (0 is North, clockwise)
+                const angleRadians = (90 - angleDegrees) * Math.PI / 180;
+                
+                // Earth's radius in meters
+                const R = 6378137;
+                
+                // Convert length to radians
+                const d = lengthMeters / R;
+                
+                // Convert start point to radians
+                const lat1 = startLatLng.lat * Math.PI / 180;
+                const lng1 = startLatLng.lng * Math.PI / 180;
+                
+                // Calculate end point
+                const lat2 = Math.asin(Math.sin(lat1) * Math.cos(d) + 
+                                    Math.cos(lat1) * Math.sin(d) * Math.cos(angleRadians));
+                
+                const lng2 = lng1 + Math.atan2(
+                    Math.sin(angleRadians) * Math.sin(d) * Math.cos(lat1),
+                    Math.cos(d) - Math.sin(lat1) * Math.sin(lat2)
+                );
+                
+                // Convert back to degrees
+                return L.latLng(lat2 * 180 / Math.PI, lng2 * 180 / Math.PI);
+            }
+            
+            function calculateDirection(points) {
+                if (!points || points.length < 2) return 0;
+                
+                // Calculate direction from first two points
+                const start = points[0];
+                const end = points[1];
+                
+                // Calculate angle in degrees (0 = North, clockwise)
+                const dx = end.lng - start.lng;
+                const dy = end.lat - start.lat;
+                
+                const angle = Math.atan2(dx, dy) * 180 / Math.PI;
+                
+                // Normalize to 0-360
+                return (angle + 360) % 360;
+            }
+            
+            function getDirectionName(angle) {
+                // Convert angle to compass direction
+                const directions = ['North', 'Northeast', 'East', 'Southeast', 
+                                   'South', 'Southwest', 'West', 'Northwest'];
+                const index = Math.round(((angle + 22.5) % 360) / 45) % 8;
+                return directions[index];
+            }
+            
+            function smoothLine(points) {
+                if (points.length <= 2) return points;
+                
+                const smoothed = [];
+                
+                // Add first point
+                smoothed.push(points[0]);
+                
+                // Add intermediate points with Bezier smoothing
+                for (let i = 1; i < points.length - 1; i++) {
+                    const p0 = points[i - 1];
+                    const p1 = points[i];
+                    const p2 = points[i + 1];
+                    
+                    // Calculate control points
+                    const cp1 = {
+                        lat: p0.lat + 0.7 * (p1.lat - p0.lat),
+                        lng: p0.lng + 0.7 * (p1.lng - p0.lng)
+                    };
+                    
+                    const cp2 = {
+                        lat: p1.lat + 0.7 * (p2.lat - p1.lat),
+                        lng: p1.lng + 0.7 * (p2.lng - p1.lng)
+                    };
+                    
+                    // Add intermediate points on the curve
+                    for (let t = 0.1; t < 1; t += 0.1) {
+                        const lat = (1-t)*(1-t)*p0.lat + 2*(1-t)*t*cp1.lat + t*t*p1.lat;
+                        const lng = (1-t)*(1-t)*p0.lng + 2*(1-t)*t*cp1.lng + t*t*p1.lng;
+                        
+                        smoothed.push(L.latLng(lat, lng));
+                    }
+                    
+                    // Add the actual point
+                    smoothed.push(p1);
+                }
+                
+                // Add last point
+                smoothed.push(points[points.length - 1]);
+                
+                return smoothed;
+            }
+            
+            function generateId() {
+                return 'id_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+            }
+        });
+    </script>
+</body>
+</html>
