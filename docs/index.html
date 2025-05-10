@@ -112,6 +112,7 @@
             overflow: hidden;
             background-color: var(--bg-main);
             color: var(--text-primary);
+            touch-action: pan-x pan-y; /* Prevent double-tap zoom on UI elements */
         }
         
         button, 
@@ -165,12 +166,14 @@
             width: 100%;
             overflow: hidden;
             z-index: var(--z-normal);
+            touch-action: manipulation;
         }
         
         #map {
             width: 100%;
             height: 100%;
             z-index: var(--z-normal);
+            touch-action: manipulation;
         }
         
         /*********************************
@@ -262,6 +265,7 @@
             z-index: var(--z-fixed);
             transform: translateY(0);
             transition: transform var(--transition-normal);
+            touch-action: none; /* Prevent dragging UI elements */
         }
         
         .nav-bar.hidden {
@@ -309,56 +313,57 @@
         }
         
         /* Utility Toolbar */
-        .utility-toolbar {
-            position: absolute;
-            top: calc(var(--space-lg) + 50px);
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            background-color: var(--bg-card);
-            border-radius: var(--radius-full);
-            box-shadow: var(--shadow-md);
-            padding: var(--space-xs);
-            z-index: var(--z-fixed);
-            overflow-x: auto;
-            max-width: 85%;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+        #utility-toolbar, .utility-toolbar {
+            position: absolute !important;
+            top: 5px !important; /* Moved higher */
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            display: flex !important;
+            background-color: var(--bg-card) !important;
+            border-radius: var(--radius-full) !important;
+            box-shadow: var(--shadow-md) !important;
+            padding: 2px !important; /* Reduced padding */
+            z-index: var(--z-fixed) !important;
+            overflow-x: auto !important;
+            max-width: 60% !important; /* Reduced width */
+            scrollbar-width: none !important;
+            -ms-overflow-style: none !important;
+            touch-action: none !important;
         }
         
-        .utility-toolbar::-webkit-scrollbar {
+        #utility-toolbar::-webkit-scrollbar, .utility-toolbar::-webkit-scrollbar {
             display: none; /* Hide scrollbar for Chrome, Safari and Opera */
         }
         
+        /* Make utility buttons smaller */
         .utility-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-xs) var(--space-sm);
-            color: var(--gray-600);
-            border-radius: var(--radius-full);
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 1px 4px !important; /* Reduced padding */
+            color: var(--gray-600) !important;
+            border-radius: var(--radius-full) !important;
             transition: background-color var(--transition-fast),
                         color var(--transition-fast),
-                        transform var(--transition-fast);
-            gap: 2px;
-            min-width: 48px; /* Reduced from 60px */
+                        transform var(--transition-fast) !important;
+            gap: 0px !important; /* Remove gap */
+            min-width: 32px !important; /* Smaller width */
+        }
+        
+        .utility-button i {
+            font-size: 0.75rem !important; /* Smaller icon */
+        }
+        
+        .utility-label {
+            font-size: 0.45rem !important; /* Smaller text */
+            font-weight: 500 !important;
         }
         
         .utility-button:active {
             transform: scale(0.95);
         }
         
-        .utility-button i {
-            font-size: 1rem; /* Reduced from 1.25rem */
-        }
-        
-        .utility-label {
-            font-size: 0.6rem; /* Reduced from 0.65rem */
-            font-weight: 500;
-        }
-        
-        /* Utility Type Coloring */
         .utility-button.water {
             color: var(--water-color);
         }
@@ -405,14 +410,14 @@
         }
         
         /* Action Buttons */
-        .action-buttons {
-            position: absolute;
-            right: var(--space-md);
-            bottom: 100px; /* Above navbar */
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-md);
-            z-index: var(--z-fixed);
+        #action-buttons, .action-buttons {
+            position: absolute !important;
+            right: 15px !important;
+            bottom: 150px !important; /* Lowered from 280px to 150px */
+            display: flex !important;
+            flex-direction: column !important;
+            gap: var(--space-md) !important;
+            z-index: 2000 !important; /* Ensure high z-index */
         }
         
         .action-button {
@@ -1042,14 +1047,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 26px; /* Reduced from 36px */
+            height: 26px; /* Reduced from 36px */
             border-radius: 50%;
             background-color: white;
             color: var(--primary);
             border: 2px solid currentColor;
             box-shadow: var(--shadow-md);
-            font-size: 1rem;
+            font-size: 0.8rem; /* Reduced from 1rem */
             position: relative;
         }
         
@@ -1058,8 +1063,8 @@
             position: absolute;
             top: 100%;
             left: 50%;
-            margin-left: -8px;
-            border-width: 8px;
+            margin-left: -6px; /* Reduced from -8px */
+            border-width: 6px; /* Reduced from 8px */
             border-style: solid;
             border-color: white transparent transparent transparent;
         }
@@ -1191,6 +1196,26 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            position: relative;
+        }
+        
+        .annotation-delete-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--danger);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            z-index: 1;
         }
         
         /*********************************
@@ -1927,17 +1952,17 @@
         }
 
         /* Line type selector for mapping mode */
-        .line-type-selector {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: calc(var(--space-lg) + 110px); /* Position below utility toolbar */
+        #line-type-selector, .line-type-selector {
+            position: absolute !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            top: calc(var(--space-lg) + 120px) !important; /* Ensures it's in the right position */
+            z-index: var(--z-fixed) !important;
             display: flex;
             background-color: var(--bg-card);
             border-radius: var(--radius-full);
             box-shadow: var(--shadow-md);
-            padding: var(--space-xs);
-            z-index: var(--z-fixed);
+            padding: 2px;
             overflow: hidden;
             opacity: 0;
             visibility: hidden;
@@ -1945,7 +1970,7 @@
                         visibility var(--transition-normal);
         }
 
-        .line-type-selector.visible {
+        #line-type-selector.visible, .line-type-selector.visible {
             opacity: 1;
             visibility: visible;
         }
@@ -1954,11 +1979,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-xs);
-            padding: var(--space-xs) var(--space-md);
+            gap: 3px; /* Reduced from var(--space-xs) */
+            padding: 4px 8px; /* Reduced from var(--space-xs) var(--space-md) */
             color: var(--gray-600);
             font-weight: 500;
-            font-size: 0.8rem;
+            font-size: 0.7rem; /* Reduced from 0.8rem */
             border-radius: var(--radius-full);
             transition: background-color var(--transition-fast),
                         color var(--transition-fast);
@@ -2070,14 +2095,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 26px; /* Reduced from 36px */
+            height: 26px; /* Reduced from 36px */
             border-radius: 50%;
             background-color: white;
             color: var(--primary);
             border: 2px solid currentColor;
             box-shadow: var(--shadow-md);
-            font-size: 1rem;
+            font-size: 0.8rem; /* Reduced from 1rem */
             position: relative;
         }
 
@@ -2087,8 +2112,8 @@
             position: absolute;
             top: 100%;
             left: 50%;
-            margin-left: -8px;
-            border-width: 8px;
+            margin-left: -6px; /* Reduced from -8px */
+            border-width: 6px; /* Reduced from 8px */
             border-style: solid;
             border-color: white transparent transparent transparent;
         }
@@ -2159,6 +2184,516 @@
             animation: pulse-connection 1.5s ease-in-out infinite;
             opacity: 0.8;
         }
+
+        /* Add this CSS after the connector-point CSS section around line 1380 */
+        .user-location-marker {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .location-accuracy-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: rgba(33, 150, 243, 0.15);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            animation: accuracy-pulse 3s infinite ease-out;
+        }
+
+        .location-marker-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+        }
+
+        .location-marker-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.5));
+            transition: transform 0.15s ease;
+            transform-origin: center;
+        }
+
+        @keyframes accuracy-pulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: scale(0.95);
+                opacity: 0.6;
+            }
+        }
+
+        .location-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: rgba(33, 150, 243, 0.4);
+            opacity: 0;
+            animation: location-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        .location-pulse-inner {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            left: 10%;
+            top: 10%;
+            border-radius: 50%;
+            background-color: rgba(33, 150, 243, 0.6);
+            opacity: 0;
+            animation: location-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+            animation-delay: 0.5s;
+        }
+
+        .location-center {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            left: 25%;
+            top: 25%;
+            border-radius: 50%;
+            background-color: rgb(33, 150, 243);
+            border: 2px solid white;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .location-heading {
+            position: absolute;
+            width: 0;
+            height: 0;
+            left: 50%;
+            top: -3px;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 16px solid rgb(33, 150, 243);
+            transform-origin: center bottom;
+            transform: translateX(-50%) rotate(0deg);
+            opacity: 0; /* Initially hidden */
+            transition: transform 0.15s ease, opacity 0.3s ease;
+            z-index: 2; /* Ensure arrow is above the pulse animations */
+        }
+
+        .user-location-marker.with-heading .location-heading {
+            opacity: 1;
+        }
+
+        @keyframes location-pulse {
+            0% {
+                transform: scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Add user location marker styles immediately after the connector-point CSS section around line 1380 */
+        .user-location-marker {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        /* Add excavation mode styles immediately after the line-type-selector CSS section around line 1440 */
+        /* Excavation Mode Styles */
+        .excavation-mode-button {
+            background-color: var(--danger);
+            color: white;
+            margin-left: var(--space-md);
+        }
+
+        .excavation-mode-button.active {
+            background-color: var(--danger);
+            color: white;
+            animation: pulse-warning 2s infinite;
+        }
+
+        .excavation-mode-indicator {
+            position: absolute;
+            top: calc(var(--space-lg) + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--danger);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            z-index: var(--z-fixed);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-normal),
+                        visibility var(--transition-normal);
+        }
+
+        .excavation-mode-indicator.visible {
+            opacity: 1;
+            visibility: visible;
+            animation: pulse-warning 2s infinite;
+        }
+
+        .proximity-alert-container {
+            position: absolute;
+            top: calc(var(--space-xl) * 2);
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+            z-index: var(--z-toast);
+            pointer-events: none;
+            padding: 0 var(--space-md);
+        }
+
+        .proximity-alert {
+            width: 100%;
+            max-width: 300px; /* Reduced from 400px */
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity var(--transition-normal),
+                        transform var(--transition-normal);
+            margin-bottom: var(--space-sm); /* Add margin between alerts */
+            font-size: 0.85rem; /* Smaller text */
+        }
+
+        .proximity-alert.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .proximity-alert.danger {
+            border: 3px solid var(--danger);
+        }
+
+        .proximity-alert-header {
+            padding: var(--space-sm); /* Reduced padding */
+            background-color: var(--danger);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .proximity-alert-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs); /* Smaller gap */
+            font-size: 1rem; /* Reduced from 1.25rem */
+            font-weight: 700;
+        }
+
+        .proximity-alert-dismiss {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .proximity-alert-body {
+            padding: var(--space-sm); /* Reduced padding */
+        }
+
+        .proximity-alert-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-sm);
+        }
+
+        .proximity-info-item {
+            background-color: var(--gray-100);
+            padding: var(--space-xs); /* Reduced padding */
+            border-radius: var(--radius-md);
+        }
+
+        .proximity-info-label {
+            font-size: 0.7rem; /* Smaller text */
+            color: var(--gray-600);
+            font-weight: 500;
+        }
+
+        .proximity-info-value {
+            font-size: 1rem; /* Reduced from 1.25rem */
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .proximity-alert-footer {
+            padding: var(--space-xs) var(--space-sm); /* Reduced padding */
+            background-color: var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .proximity-distance {
+            font-size: 1rem; /* Reduced from 1.125rem */
+            font-weight: 700;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .exit-excavation-btn {
+            position: fixed;
+            bottom: calc(100px + var(--space-xl) * 2);
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--danger);
+            color: white;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            z-index: var(--z-fixed);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-normal),
+                        visibility var(--transition-normal);
+        }
+
+        .exit-excavation-btn.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Proximity highlight styles */
+        .utility-line.proximity-warning {
+            stroke-width: 8px;
+            stroke: var(--warning);
+            stroke-opacity: 0.7;
+            animation: pulse-line 2s infinite;
+        }
+
+        .utility-line.proximity-caution {
+            stroke-width: 9px;
+            stroke: #ff9800; /* Orange */
+            stroke-opacity: 0.8;
+            animation: pulse-line 1.5s infinite;
+        }
+
+        .utility-line.proximity-danger {
+            stroke-width: 10px;
+            stroke: var(--danger);
+            stroke-opacity: 0.9;
+            animation: pulse-line 1s infinite;
+        }
+
+        .utility-line.proximity-critical {
+            stroke-width: 12px;
+            stroke: var(--danger);
+            stroke-opacity: 1;
+            animation: pulse-line 0.5s infinite;
+        }
+
+        /* Confirm exit dialog */
+        .exit-confirmation {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .exit-confirmation-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+
+        .exit-confirmation-message {
+            margin-bottom: var(--space-lg);
+            color: var(--text-secondary);
+        }
+
+        .exit-confirmation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--space-md);
+        }
+
+        /* Animation for excavation mode pulse */
+        @keyframes pulse-warning {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse-line {
+            0% {
+                stroke-opacity: 0.6;
+            }
+            50% {
+                stroke-opacity: 1;
+            }
+            100% {
+                stroke-opacity: 0.6;
+            }
+        }
+
+        /* Add this additional style block to control touch interactions */
+        /* Disable touch dragging on UI elements */
+        button, 
+        .utility-toolbar,
+        .tool-options,
+        .map-controls,
+        .action-buttons,
+        .mode-toggle,
+        .nav-bar,
+        .status-bar,
+        .measurement-toolbar,
+        .modal-container,
+        .panel-container,
+        .utility-info-card,
+        .context-menu,
+        .line-type-selector,
+        .confirm-drawing-btn,
+        .connection-indicator,
+        .annotation-marker,
+        .modal-header,
+        .modal-footer,
+        .modal-title,
+        .panel-header,
+        .form-control,
+        .btn {
+            touch-action: none !important;
+            -webkit-touch-action: none !important;
+            -ms-touch-action: none !important;
+            pointer-events: auto;
+        }
+
+        /* Allow map panning */
+        .map-container, #map {
+            touch-action: manipulation !important;
+            -webkit-touch-action: manipulation !important;
+            -ms-touch-action: manipulation !important;
+        }
+        
+        /* Ensure html and body don't enable unwanted touch behaviors */
+        html, body {
+            touch-action: pan-x pan-y !important;
+            -webkit-touch-action: pan-x pan-y !important;
+            -ms-touch-action: pan-x pan-y !important;
+        }
+
+        /* Critical position overrides */
+        /* Force utility toolbar to correct position */
+        #utility-toolbar {
+            position: absolute !important;
+            top: 5px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            max-width: 70% !important; /* Increased from 60% */
+            padding: 4px !important; /* Increased from 2px */
+            z-index: 2000 !important;
+        }
+        
+        /* Force action buttons position */
+        #action-buttons {
+            position: absolute !important;
+            right: 15px !important;
+            bottom: 150px !important; /* Lowered from 280px to 150px */
+            z-index: 2000 !important;
+        }
+        
+        /* Ensure buttons are slightly bigger */
+        .utility-button {
+            min-width: 38px !important; /* Increased from 32px */
+            padding: 2px 6px !important; /* Increased from 1px 4px */
+        }
+        
+        .utility-button i {
+            font-size: 0.85rem !important; /* Increased from 0.75rem */
+        }
+        
+        .utility-label {
+            font-size: 0.5rem !important; /* Increased from 0.45rem */
+        }
+
+        /* Move mode toggle lower */
+        .mode-toggle {
+            position: absolute !important;
+            left: 50% !important;
+            bottom: 80px !important; /* Lower position - was calc(100px + var(--space-lg)) */
+            transform: translateX(-50%) !important;
+            z-index: var(--z-fixed) !important;
+        }
+
+        /* Add this additional style block to enhance utility drawing line visibility */
+        /* Animation for drawing lines */
+        @keyframes drawing-pulse {
+            0% {
+                filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+            }
+            50% {
+                filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+            }
+            100% {
+                filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.8));
+            }
+        }
+        
+        .utility-line-drawing {
+            animation: drawing-pulse 2s infinite;
+            stroke-width: 6px !important;
+        }
+        
+        .utility-line-drawing.water {
+            filter: drop-shadow(0 0 3px var(--water-color));
+        }
+        
+        .utility-line-drawing.gas {
+            filter: drop-shadow(0 0 3px var(--gas-color));
+        }
+        
+        .utility-line-drawing.electric {
+            filter: drop-shadow(0 0 3px var(--electric-color));
+        }
+        
+        .utility-line-drawing.sewer {
+            filter: drop-shadow(0 0 3px var(--sewer-color));
+        }
+        
+        .utility-line-drawing.telecom {
+            filter: drop-shadow(0 0 3px var(--telecom-color));
+        }
+        
+        /* Critical position overrides */
     </style>
 </head>
 
@@ -2264,6 +2799,10 @@
                 <button class="mode-button" data-mode="mapping">
                     <i class="fas fa-draw-polygon"></i>
                     <span>Mapping</span>
+                </button>
+                <button class="mode-button excavation-mode-button" data-mode="excavation">
+                    <i class="fas fa-hard-hat"></i>
+                    <span>Excavation</span>
                 </button>
             </div>
             
@@ -2863,7 +3402,7 @@
             *********************************/
             // Application State
             const AppState = {
-                mode: 'discovery', // 'discovery' or 'mapping'
+                mode: 'discovery', // 'discovery', 'mapping', or 'excavation'
                 activeUtilityType: 'water', // Selected utility type
                 activeLineType: 'service', // 'service' or 'main'
                 activeTool: null, // Current active tool
@@ -2876,6 +3415,18 @@
                 measureLine: null, // Current measurement line
                 repositioningUtility: null, // Utility being repositioned
                 controlPoints: [], // Control points for repositioning
+                
+                // Excavation mode properties
+                isExcavationMode: false, // Whether excavation mode is active
+                activeAlerts: [], // List of active proximity alerts
+                distanceThresholds: {
+                    warning: 50, // Yellow warning (feet)
+                    caution: 25, // Orange warning (feet)
+                    danger: 14,  // Red warning (feet)
+                    critical: 15  // Critical alert (feet)
+                },
+                lastLocationUpdate: null, // Timestamp of last location update
+                highAccuracyWatchId: null // ID for high accuracy location watch
             };
             
             // Data Collections
@@ -3114,6 +3665,98 @@
                 annotationLayer: null,
                 measurementLayer: null,
                 
+                // Position filtering system
+                locationFilter: {
+                    positions: [],
+                    maxPositions: 5,  // Number of positions to keep for filtering
+                    accuracyThreshold: 20, // Meters - reject positions worse than this
+                    headings: [],
+                    maxHeadings: 8,   // Heading samples to keep
+                    
+                    addPosition(position) {
+                        // Only add positions with good accuracy
+                        if (position.coords.accuracy <= this.accuracyThreshold) {
+                            this.positions.push(position);
+                            
+                            // Keep only the most recent positions
+                            if (this.positions.length > this.maxPositions) {
+                                this.positions.shift();
+                            }
+                        }
+                        
+                        return this.getFilteredPosition();
+                    },
+                    
+                    getFilteredPosition() {
+                        if (this.positions.length === 0) return null;
+                        
+                        // Weight positions by recency and accuracy
+                        let totalWeight = 0;
+                        let weightedLat = 0;
+                        let weightedLng = 0;
+                        
+                        this.positions.forEach((pos, index) => {
+                            // More recent positions get higher weight
+                            const recencyWeight = (index + 1) / this.positions.length;
+                            // More accurate positions get higher weight
+                            const accuracyWeight = 1 / Math.max(1, pos.coords.accuracy);
+                            const weight = recencyWeight * accuracyWeight;
+                            
+                            weightedLat += pos.coords.latitude * weight;
+                            weightedLng += pos.coords.longitude * weight;
+                            totalWeight += weight;
+                        });
+                        
+                        // Return weighted average position
+                        return {
+                            latitude: weightedLat / totalWeight,
+                            longitude: weightedLng / totalWeight
+                        };
+                    },
+                    
+                    addHeading(heading) {
+                        if (isNaN(heading)) return this.getFilteredHeading();
+                        
+                        this.headings.push(heading);
+                        
+                        if (this.headings.length > this.maxHeadings) {
+                            this.headings.shift();
+                        }
+                        
+                        return this.getFilteredHeading();
+                    },
+                    
+                    getFilteredHeading() {
+                        if (this.headings.length === 0) return 0;
+                        
+                        // Special handling for heading values that wrap around 0/360
+                        // Convert headings to vectors, average them, then convert back to angle
+                        let sumSin = 0;
+                        let sumCos = 0;
+                        
+                        this.headings.forEach((heading) => {
+                            // Convert heading to radians
+                            const rad = heading * Math.PI / 180;
+                            sumSin += Math.sin(rad);
+                            sumCos += Math.cos(rad);
+                        });
+                        
+                        // Convert average vector back to degrees
+                        const avgRad = Math.atan2(sumSin, sumCos);
+                        let avgHeading = avgRad * 180 / Math.PI;
+                        
+                        // Normalize to 0-360 range
+                        if (avgHeading < 0) avgHeading += 360;
+                        
+                        return avgHeading;
+                    },
+                    
+                    reset() {
+                        this.positions = [];
+                        this.headings = [];
+                    }
+                },
+                
                 // Initialize the map
                 init: function() {
                     // Create map with default view (centered on user's location if available)
@@ -3121,7 +3764,8 @@
                         zoomControl: false,
                         attributionControl: true,
                         maxZoom: 22,  // Increased from default to allow deeper zoom
-                        preferCanvas: true // Better performance for high detail rendering
+                        preferCanvas: true, // Better performance for high detail rendering
+                        doubleClickZoom: false // Disable double-click zoom
                     }).setView([40.7128, -74.0060], 16); // Default to NYC
                     
                     // Add multiple tile layers for different map views with high zoom support
@@ -3253,6 +3897,7 @@
                             function(position) {
                                 const lat = position.coords.latitude;
                                 const lng = position.coords.longitude;
+                                const accuracy = position.coords.accuracy;
                                 
                                 // Center map on user location
                                 MapController.map.setView([lat, lng], 18);
@@ -3260,7 +3905,7 @@
                                 // Add a marker for user location
                                 MapController.addUserLocationMarker(lat, lng);
                                 
-                                UI.showStatusBar('Location found. Ready to track utilities.');
+                                UI.showStatusBar(`Location found (±${Math.round(accuracy)}m). Ready to track utilities.`);
                                 setTimeout(() => UI.hideStatusBar(), 3000);
                             },
                             // Error
@@ -3272,7 +3917,7 @@
                             // Options
                             {
                                 enableHighAccuracy: true,
-                                timeout: 10000,
+                                timeout: 15000,  // Extended timeout for high accuracy
                                 maximumAge: 0
                             }
                         );
@@ -3284,12 +3929,41 @@
                 
                 // Add user location marker
                 addUserLocationMarker: function(lat, lng) {
-                    // Create pulsing marker style
+                    // Remove existing marker if any
+                    if (this.userLocationMarker) {
+                        this.map.removeLayer(this.userLocationMarker);
+                    }
+                    
+                    // Create a professional map pin SVG with a direction indicator
+                    const svgIcon = `
+                        <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg" class="location-marker-svg">
+                            <defs>
+                                <radialGradient id="accuracy-gradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                                    <stop offset="0%" style="stop-color:#2196F3;stop-opacity:0.6" />
+                                    <stop offset="100%" style="stop-color:#2196F3;stop-opacity:0" />
+                                </radialGradient>
+                            </defs>
+                            <path d="M12,2C8.13,2 5,5.13 5,9c0,5.25 7,13 7,13s7,-7.75 7,-13c0,-3.87 -3.13,-7 -7,-7zM12,11.5c-1.38,0 -2.5,-1.12 -2.5,-2.5s1.12,-2.5 2.5,-2.5 2.5,1.12 2.5,2.5 -1.12,2.5 -2.5,2.5z" 
+                                fill="#2196F3" stroke="white" stroke-width="1" />
+                            <circle cx="12" cy="9" r="2.5" fill="white" />
+                        </svg>
+                    `;
+                    
+                    // Create the icon with accuracy circle
                     const userLocationIcon = L.divIcon({
-                        className: 'user-location-marker',
-                        html: '<div class="location-pulse"></div><div class="location-center"></div>',
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12]
+                        className: 'user-location-marker with-heading',
+                        html: `
+                            <div class="location-accuracy-circle"></div>
+                            <div class="location-pulse"></div>
+                            <div class="location-pulse-inner"></div>
+                            <div class="location-marker-container">
+                                ${svgIcon}
+                                <div class="location-center"></div>
+                                <div class="location-heading"></div>
+                            </div>
+                        `,
+                        iconSize: [48, 48],
+                        iconAnchor: [24, 24]
                     });
                     
                     // Add marker to map
@@ -3298,8 +3972,88 @@
                         zIndexOffset: 1000
                     }).addTo(this.map);
                     
+                    // Add click handler to center map on user location
+                    marker.on('click', () => {
+                        this.map.setView([lat, lng], this.map.getZoom());
+                        UI.showToast('Centered on your location', 'info');
+                    });
+                    
                     // Store reference to marker
                     this.userLocationMarker = marker;
+                    
+                    // Start watching position if not already
+                    this.startWatchingPosition();
+                    
+                    return marker;
+                },
+
+                // Start watching user position
+                startWatchingPosition: function() {
+                    if (this.watchPositionId) return; // Already watching
+                    
+                    // Store initial heading
+                    this.currentHeading = 0;
+                    
+                    // Start watching device orientation for compass heading
+                    this.setupOrientationTracking();
+                    
+                    if (navigator.geolocation) {
+                        this.watchPositionId = navigator.geolocation.watchPosition(
+                            // Success callback
+                            (position) => {
+                                const lat = position.coords.latitude;
+                                const lng = position.coords.longitude;
+                                const accuracy = position.coords.accuracy;
+                                
+                                // Update marker position
+                                if (this.userLocationMarker) {
+                                    this.userLocationMarker.setLatLng([lat, lng]);
+                                    
+                                    // Update the accuracy circle size based on accuracy
+                                    const markerElement = this.userLocationMarker.getElement();
+                                    if (markerElement) {
+                                        const accuracyCircle = markerElement.querySelector('.location-accuracy-circle');
+                                        if (accuracyCircle && accuracy) {
+                                            // Scale the accuracy circle based on the accuracy value
+                                            // Limit to reasonable sizes (between 0.9 and 2.0 times the marker size)
+                                            const scale = Math.min(2.0, Math.max(0.9, accuracy / 20));
+                                            accuracyCircle.style.transform = `scale(${scale})`;
+                                        }
+                                    }
+                                }
+                                
+                                // Update heading indicator if available from GPS
+                                if (position.coords.heading !== null && position.coords.heading !== undefined) {
+                                    this.updateHeading(position.coords.heading);
+                                }
+                            },
+                            // Error callback
+                            (error) => {
+                                console.error('Error watching position:', error);
+                                // Don't stop watching on error - just log it
+                            },
+                            // Options
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 15000,  // Extended timeout for high accuracy
+                                maximumAge: 0
+                            }
+                        );
+                    }
+                },
+
+                // Stop watching user position
+                stopWatchingPosition: function() {
+                    if (this.watchPositionId) {
+                        navigator.geolocation.clearWatch(this.watchPositionId);
+                        this.watchPositionId = null;
+                    }
+                    
+                    // Remove orientation listener if added
+                    if (this.orientationListenerAdded) {
+                        window.removeEventListener('deviceorientation', this.handleOrientation.bind(this), false);
+                        this.orientationListenerAdded = false;
+                    }
                 },
                 
                 // Add a utility line to the map
@@ -4009,10 +4763,13 @@
                 addAnnotation: function(annotation) {
                     if (!annotation || !annotation.latlng || !annotation.text) return;
                     
-                    // Create custom HTML icon
+                    // Create custom HTML icon with delete button
                     const markerHtml = `
                         <div class="annotation-marker">
                             ${annotation.text}
+                            <button class="annotation-delete-btn" data-annotation-id="${annotation.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     `;
                     
@@ -4035,11 +4792,46 @@
                     // Add to annotation layer
                     marker.addTo(this.annotationLayer);
                     
+                    // Add click handler for delete button
+                    setTimeout(() => {
+                        const deleteBtn = document.querySelector(`.annotation-delete-btn[data-annotation-id="${annotation.id}"]`);
+                        if (deleteBtn) {
+                            deleteBtn.addEventListener('click', (e) => {
+                                e.stopPropagation(); // Prevent event from bubbling to marker
+                                this.deleteAnnotation(annotation.id);
+                            });
+                        }
+                    }, 100);
+                    
                     // Store reference to the marker
                     annotation.marker = marker;
                     
                     // Return the created marker
                     return marker;
+                },
+
+                // Add method to delete an annotation
+                deleteAnnotation: function(annotationId) {
+                    // Find the annotation
+                    const index = DataStore.annotations.findIndex(a => a.id === annotationId);
+                    
+                    if (index >= 0) {
+                        const annotation = DataStore.annotations[index];
+                        
+                        // Remove marker from map
+                        if (annotation.marker) {
+                            this.annotationLayer.removeLayer(annotation.marker);
+                        }
+                        
+                        // Remove from data store
+                        DataStore.annotations.splice(index, 1);
+                        
+                        // Save data
+                        DataStore.saveData();
+                        
+                        // Show confirmation
+                        UI.showToast('Annotation deleted', 'success');
+                    }
                 },
 
                 // Show temporary drawing line during mapping
@@ -4061,12 +4853,22 @@
                         telecom: 'var(--telecom-color)'
                     };
                     
-                    // Create line options based on line type
+                    // Get utility type name for display
+                    const utilityNames = {
+                        water: 'Water',
+                        gas: 'Gas',
+                        electric: 'Electric',
+                        sewer: 'Sewer',
+                        telecom: 'Telecom'
+                    };
+                    
+                    // Create line options based on line type with enhanced visibility
                     const lineOptions = {
                         color: colors[AppState.activeUtilityType],
-                        weight: AppState.activeLineType === 'main' ? 6 : 4,
-                        opacity: 0.7,
-                        lineJoin: 'round'
+                        weight: AppState.activeLineType === 'main' ? 8 : 6, // Increased from 6/4 to 8/6
+                        opacity: 0.9, // Increased from 0.7 to 0.9
+                        lineJoin: 'round',
+                        className: `utility-line-drawing ${AppState.activeUtilityType}`
                     };
                     
                     // Add dash style for service lines
@@ -4080,9 +4882,9 @@
                     // Create temporary polyline
                     AppState.tempLine = L.polyline(points, lineOptions).addTo(this.map);
                     
-                    // Show current line type in the status bar
+                    // Show current line type in the status bar with color highlight
                     const lineTypeText = AppState.activeLineType === 'main' ? 'Main Line' : 'Service Line';
-                    UI.showStatusBar(`Drawing ${AppState.activeUtilityType} ${lineTypeText}. Click to add more points or use Finish Drawing button.`);
+                    UI.showStatusBar(`Drawing <span style="color:${colors[AppState.activeUtilityType]}; font-weight:bold">${utilityNames[AppState.activeUtilityType]} ${lineTypeText}</span>. Click to add more points or use Finish Drawing button.`);
                     
                     // If this is a service line, check for nearby mains to connect to
                     if (AppState.activeLineType === 'service' && points.length >= 2) {
@@ -4127,6 +4929,798 @@
                                 this.map.removeLayer(AppState.connectionPointMarker);
                                 AppState.connectionPointMarker = null;
                             }
+                        }
+                    }
+                },
+
+                // Add device orientation tracking methods
+                setupOrientationTracking: function() {
+                    // Store initial settings
+                    this.isOrientationActive = false;
+                    this.motionActive = false;
+                    
+                    // Check for orientation API
+                    if (window.DeviceOrientationEvent) {
+                        // For iOS 13+ we need to request permission
+                        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                            // Add a request permission function that can be called on user interaction
+                            this.requestOrientationPermission = () => {
+                                DeviceOrientationEvent.requestPermission()
+                                    .then(permissionState => {
+                                        if (permissionState === 'granted') {
+                                            this.addOrientationListener();
+                                            UI.showToast('Compass access granted', 'success');
+                                        } else {
+                                            UI.showToast('Compass access denied - direction indicator may be less accurate', 'warning');
+                                        }
+                                    })
+                                    .catch(console.error);
+                            };
+                            
+                            // Add the button listener once
+                            if (!this.orientationPermissionListener) {
+                                const locateBtn = document.getElementById('locate-btn');
+                                locateBtn.addEventListener('click', () => {
+                                    if (!this.isOrientationActive) {
+                                        this.requestOrientationPermission();
+                                    }
+                                });
+                                this.orientationPermissionListener = true;
+                            }
+                        } else {
+                            // For non-iOS devices, just add the listener
+                            this.addOrientationListener();
+                        }
+                    }
+                    
+                    // Check for motion API (for better orientation in low GPS signal)
+                    if (window.DeviceMotionEvent) {
+                        // For iOS 13+ we need to request permission
+                        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                            // Add a request permission function that can be called on user interaction
+                            this.requestMotionPermission = () => {
+                                DeviceMotionEvent.requestPermission()
+                                    .then(permissionState => {
+                                        if (permissionState === 'granted') {
+                                            this.addMotionListener();
+                                            UI.showToast('Motion sensors activated for better accuracy', 'success');
+                                        }
+                                    })
+                                    .catch(console.error);
+                            };
+                            
+                            // Add the button listener once
+                            if (!this.motionPermissionListener) {
+                                const locateBtn = document.getElementById('locate-btn');
+                                locateBtn.addEventListener('click', () => {
+                                    if (!this.motionActive) {
+                                        this.requestMotionPermission();
+                                    }
+                                });
+                                this.motionPermissionListener = true;
+                            }
+                        } else {
+                            // For non-iOS devices, just add the listener
+                            this.addMotionListener();
+                        }
+                    }
+                },
+
+                addOrientationListener: function() {
+                    if (!this.isOrientationActive) {
+                        window.addEventListener('deviceorientation', this.handleOrientation.bind(this), false);
+                        this.isOrientationActive = true;
+                        console.log('Orientation tracking activated');
+                    }
+                },
+
+                addMotionListener: function() {
+                    if (!this.motionActive) {
+                        window.addEventListener('devicemotion', this.handleMotion.bind(this), false);
+                        this.motionActive = true;
+                        console.log('Motion tracking activated');
+                    }
+                },
+
+                handleOrientation: function(event) {
+                    // Check if we have compass heading data
+                    if (event.webkitCompassHeading !== undefined) {
+                        // iOS uses webkitCompassHeading (degrees from north, clockwise)
+                        const heading = event.webkitCompassHeading;
+                        this.processHeading(heading, event.webkitCompassAccuracy || 0);
+                    } else if (event.alpha !== null && event.alpha !== undefined) {
+                        // For Android and other devices
+                        // Alpha is a value from 0 to 360, representing the orientation
+                        let heading;
+                        
+                        if (event.absolute === true) {
+                            // If device provides absolute orientation (relative to Earth's coordinate system)
+                            heading = 360 - event.alpha;
+                        } else if (window.screen && window.screen.orientation) {
+                            // If we have screen orientation API, try to correct the heading
+                            const screenOrientation = window.screen.orientation.angle || 0;
+                            heading = 360 - event.alpha;
+                            
+                            // Apply screen orientation correction
+                            heading = (heading + screenOrientation) % 360;
+                        } else {
+                            // Fallback to basic alpha conversion
+                            heading = 360 - event.alpha;
+                        }
+                        
+                        this.processHeading(heading, 0);
+                    }
+                },
+
+                handleMotion: function(event) {
+                    // Extract acceleration data
+                    const acceleration = event.accelerationIncludingGravity;
+                    
+                    if (!acceleration || acceleration.x === null) return;
+                    
+                    // Store motion data for fusion with compass
+                    this.lastMotion = {
+                        x: acceleration.x,
+                        y: acceleration.y,
+                        z: acceleration.z,
+                        timestamp: new Date().getTime()
+                    };
+                    
+                    // If we're in excavation mode and haven't received heading updates,
+                    // attempt to derive heading from motion
+                    if (AppState.isExcavationMode && (!this.lastHeadingUpdate || 
+                        (new Date().getTime() - this.lastHeadingUpdate > 2000))) {
+                        
+                        this.attemptMotionBasedHeading();
+                    }
+                },
+
+                // New method to attempt deriving heading from motion when compass isn't available
+                attemptMotionBasedHeading: function() {
+                    // Need at least two motion samples
+                    if (!this.lastMotion || !this.previousMotion) {
+                        this.previousMotion = this.lastMotion;
+                        return;
+                    }
+                    
+                    // Check if we're moving (acceleration significant enough)
+                    const accelMagnitude = Math.sqrt(
+                        Math.pow(this.lastMotion.x, 2) + 
+                        Math.pow(this.lastMotion.y, 2)
+                    );
+                    
+                    if (accelMagnitude > 1.5) { // Threshold to determine movement
+                        // Very simple heading approximation based on acceleration vector
+                        const heading = Math.atan2(this.lastMotion.y, this.lastMotion.x) * 180 / Math.PI;
+                        
+                        // Normalize to 0-360 range
+                        const normalizedHeading = (heading + 360) % 360;
+                        
+                        // Use this heading with low confidence
+                        this.processHeading(normalizedHeading, 45); // Higher value = lower confidence
+                    }
+                    
+                    this.previousMotion = this.lastMotion;
+                },
+
+                // Improved heading processing with confidence weighting
+                processHeading: function(heading, uncertainty) {
+                    if (isNaN(heading)) return;
+                    
+                    this.lastHeadingUpdate = new Date().getTime();
+                    
+                    // Filter heading through weighted average
+                    const filteredHeading = this.locationFilter.addHeading(heading);
+                    
+                    // Update the marker
+                    this.updateHeading(filteredHeading);
+                },
+
+                updateHeading: function(heading) {
+                    if (isNaN(heading)) return;
+                    
+                    // No need for manual smoothing now - the filter handles it
+                    this.currentHeading = heading;
+                    
+                    // Apply to the marker
+                    if (this.userLocationMarker) {
+                        const markerElement = this.userLocationMarker.getElement();
+                        
+                        if (markerElement) {
+                            // Update both the SVG icon and the heading arrow
+                            const iconElement = markerElement.querySelector('.location-marker-svg');
+                            const headingElement = markerElement.querySelector('.location-heading');
+                            
+                            if (iconElement) {
+                                // Rotate the SVG icon to match the heading
+                                iconElement.style.transform = `rotate(${this.currentHeading}deg)`;
+                            }
+                            
+                            if (headingElement) {
+                                // Make sure the arrow is visible
+                                headingElement.style.opacity = '1';
+                                // Update arrow rotation
+                                headingElement.style.transform = `translateX(-50%) rotate(${this.currentHeading}deg)`;
+                            }
+                            
+                            // Add heading indicator class if not already there
+                            markerElement.classList.add('with-heading');
+                        }
+                    }
+                },
+
+                smoothHeading: function(newHeading, oldHeading) {
+                    // If the difference is more than 180 degrees, take the shorter path
+                    let diff = newHeading - oldHeading;
+                    if (diff > 180) diff -= 360;
+                    if (diff < -180) diff += 360;
+                    
+                    // Apply adaptive smoothing - more smoothing for smaller changes, less for bigger ones
+                    const smoothingFactor = Math.min(0.5, Math.max(0.1, Math.abs(diff) / 180));
+                    
+                    let smoothedHeading = oldHeading + (diff * smoothingFactor);
+                    
+                    // Normalize to 0-360 range
+                    if (smoothedHeading >= 360) smoothedHeading -= 360;
+                    if (smoothedHeading < 0) smoothedHeading += 360;
+                    
+                    return smoothedHeading;
+                },
+
+                // Add these methods just before the end of the MapController object
+
+                // Enable Excavation Mode
+                enableExcavationMode: function() {
+                    // Already in excavation mode
+                    if (AppState.isExcavationMode) return;
+                    
+                    // Set state
+                    AppState.isExcavationMode = true;
+                    AppState.activeAlerts = [];
+                    
+                    // Show excavation mode UI
+                    UI.showExcavationModeIndicator();
+                    UI.showExitExcavationButton();
+                    
+                    // Set a more focused zoom level and follow user
+                    this.map.setZoom(21); // Increased from 18 for much closer zoom
+                    
+                    // Go to user's location if available
+                    if (this.userLocationMarker) {
+                        this.map.setView(this.userLocationMarker.getLatLng());
+                    }
+                    
+                    // Start high accuracy location tracking
+                    this.startHighAccuracyLocationTracking();
+                    
+                    // Begin proximity monitoring
+                    this.startProximityMonitoring();
+                    
+                    // Disable other controls
+                    UI.disableDrawingControls();
+                    
+                    // Set the map to follow the user's location
+                    this.enableLocationFollowing();
+                    
+                    // Show toast
+                    UI.showToast("Excavation Mode Activated", "warning");
+                },
+                
+                // Disable Excavation Mode
+                disableExcavationMode: function() {
+                    // Not in excavation mode
+                    if (!AppState.isExcavationMode) return;
+                    
+                    // Set state
+                    AppState.isExcavationMode = false;
+                    
+                    // Hide excavation mode UI
+                    UI.hideExcavationModeIndicator();
+                    UI.hideExitExcavationButton();
+                    UI.closeAllProximityAlerts();
+                    
+                    // Stop high accuracy location tracking
+                    this.stopHighAccuracyLocationTracking();
+                    
+                    // Stop proximity monitoring
+                    this.stopProximityMonitoring();
+                    
+                    // Reset utility line styles
+                    this.resetAllUtilityHighlights();
+                    
+                    // Disable location following
+                    this.disableLocationFollowing();
+                    
+                    // Re-enable other controls
+                    UI.enableDrawingControls();
+                    
+                    // Show toast
+                    UI.showToast("Excavation Mode Deactivated", "info");
+                },
+                
+                // Start high accuracy location tracking
+                startHighAccuracyLocationTracking: function() {
+                    // Stop existing watch if any
+                    this.stopHighAccuracyLocationTracking();
+                    
+                    // Reset position filter
+                    this.locationFilter.reset();
+                    
+                    if (navigator.geolocation) {
+                        // Initialize position prediction system
+                        this.lastPosition = null;
+                        this.lastPositionTime = null;
+                        this.velocityLat = 0;
+                        this.velocityLng = 0;
+                        
+                        // First get a single high-accuracy position
+                        UI.showStatusBar('Getting precise location...');
+                        
+                        navigator.geolocation.getCurrentPosition(
+                            // Initial position success
+                            (initialPosition) => {
+                                // Store initial position
+                                this.lastPosition = {
+                                    latitude: initialPosition.coords.latitude,
+                                    longitude: initialPosition.coords.longitude,
+                                    accuracy: initialPosition.coords.accuracy
+                                };
+                                this.lastPositionTime = new Date().getTime();
+                                
+                                // Add to filter
+                                this.locationFilter.addPosition(initialPosition);
+                                
+                                // Update marker position
+                                this.updateLocationMarker(initialPosition);
+                                
+                                // Then start watching position with optimized parameters
+                                AppState.highAccuracyWatchId = navigator.geolocation.watchPosition(
+                                    // Position update success
+                                    (position) => {
+                                        const now = new Date().getTime();
+                                        const timeDelta = (now - this.lastPositionTime) / 1000; // in seconds
+                                        
+                                        // Calculate velocity if we have previous position
+                                        if (this.lastPosition && timeDelta > 0) {
+                                            // Calculate speed in lat/lng per second (simple velocity)
+                                            const latDelta = position.coords.latitude - this.lastPosition.latitude;
+                                            const lngDelta = position.coords.longitude - this.lastPosition.longitude;
+                                            
+                                            // Use exponential smoothing for velocity (alpha = 0.3)
+                                            this.velocityLat = 0.3 * (latDelta / timeDelta) + 0.7 * this.velocityLat;
+                                            this.velocityLng = 0.3 * (lngDelta / timeDelta) + 0.7 * this.velocityLng;
+                                        }
+                                        
+                                        // Store position for next calculation
+                                        this.lastPosition = {
+                                            latitude: position.coords.latitude,
+                                            longitude: position.coords.longitude,
+                                            accuracy: position.coords.accuracy
+                                        };
+                                        this.lastPositionTime = now;
+                                        
+                                        // Add to filter and get smoothed position
+                                        const filteredPosition = this.locationFilter.addPosition(position);
+                                        
+                                        // Update marker position with filtered position
+                                        if (filteredPosition) {
+                                            const enhancedPosition = {
+                                                coords: {
+                                                    latitude: filteredPosition.latitude,
+                                                    longitude: filteredPosition.longitude,
+                                                    accuracy: position.coords.accuracy,
+                                                    heading: position.coords.heading || null
+                                                },
+                                                timestamp: position.timestamp
+                                            };
+                                            
+                                            this.updateLocationMarker(enhancedPosition);
+                                        } else {
+                                            this.updateLocationMarker(position);
+                                        }
+                                                        
+                                        // Update heading indicator if available from GPS
+                                        if (position.coords.heading !== null && position.coords.heading !== undefined) {
+                                            const filteredHeading = this.locationFilter.addHeading(position.coords.heading);
+                                            this.updateHeading(filteredHeading);
+                                        }
+                                        
+                                        // Store timestamp for frequency monitoring
+                                        AppState.lastLocationUpdate = now;
+                                        
+                                        // Update proximity calculations
+                                        if (AppState.isExcavationMode) {
+                                            this.updateProximityCalculations();
+                                        }
+                                        
+                                        // Center map on user if following is enabled
+                                        if (AppState.isExcavationMode && this.locationFollowingEnabled) {
+                                            if (filteredPosition) {
+                                                this.map.setView([filteredPosition.latitude, filteredPosition.longitude]);
+                                            } else {
+                                                this.map.setView([position.coords.latitude, position.coords.longitude]);
+                                            }
+                                        }
+                                    },
+                                    // Error callback
+                                    (error) => {
+                                        console.error('Error watching high accuracy position:', error);
+                                        UI.showToast("Location error: " + error.message, "error");
+                                        
+                                        // If there was a previous position, use prediction based on velocity
+                                        if (this.lastPosition && this.lastPositionTime) {
+                                            const now = new Date().getTime();
+                                            const timeDelta = (now - this.lastPositionTime) / 1000; // in seconds
+                                            
+                                            // Only predict for a reasonable time (5 seconds max)
+                                            if (timeDelta < 5) {
+                                                // Predict new position based on velocity
+                                                const predictedLat = this.lastPosition.latitude + (this.velocityLat * timeDelta);
+                                                const predictedLng = this.lastPosition.longitude + (this.velocityLng * timeDelta);
+                                                
+                                                const predictedPosition = {
+                                                    coords: {
+                                                        latitude: predictedLat,
+                                                        longitude: predictedLng,
+                                                        accuracy: this.lastPosition.accuracy * 1.5, // Increase uncertainty
+                                                        heading: null
+                                                    },
+                                                    timestamp: now
+                                                };
+                                                
+                                                // Update with predicted position
+                                                this.updateLocationMarker(predictedPosition);
+                                            }
+                                        }
+                                    },
+                                    // Options for high accuracy with optimized parameters
+                                    {
+                                        enableHighAccuracy: true,
+                                        timeout: 5000,          // Faster timeout for more responsive updates
+                                        maximumAge: 1000        // Allow very recent cached results (1 second)
+                                    }
+                                );
+                            },
+                            // Initial position error
+                            (error) => {
+                                console.error('Error getting initial high accuracy position:', error);
+                                UI.showToast("Could not get precise location. Using standard accuracy.", "warning");
+                                
+                                // Fall back to standard watch
+                                this.startStandardLocationWatch();
+                            },
+                            // Options for initial position
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,        // Longer timeout for initial position
+                                maximumAge: 0          // No cached position for initial location
+                            }
+                        );
+                    } else {
+                        UI.showToast("Geolocation is not supported by your browser", "error");
+                    }
+                },
+
+                // Add helper method for standard location watch
+                startStandardLocationWatch: function() {
+                    AppState.highAccuracyWatchId = navigator.geolocation.watchPosition(
+                        (position) => {
+                            this.updateLocationMarker(position);
+                            
+                            // Update heading if available
+                            if (position.coords.heading !== null) {
+                                this.updateHeading(position.coords.heading);
+                            }
+                            
+                            // Update proximity if in excavation mode
+                            if (AppState.isExcavationMode) {
+                                this.updateProximityCalculations();
+                            }
+                        },
+                        (error) => {
+                            console.error('Error watching position:', error);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 2000
+                        }
+                    );
+                },
+
+                // Add helper method to update the location marker
+                updateLocationMarker: function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    // Create marker if it doesn't exist
+                    if (!this.userLocationMarker) {
+                        this.addUserLocationMarker(lat, lng);
+                    } else {
+                        // Update marker position
+                        this.userLocationMarker.setLatLng([lat, lng]);
+                        
+                        // Update accuracy circle
+                        const markerElement = this.userLocationMarker.getElement();
+                        if (markerElement) {
+                            const accuracyCircle = markerElement.querySelector('.location-accuracy-circle');
+                            if (accuracyCircle && accuracy) {
+                                // Scale the accuracy circle based on the accuracy value (more precise)
+                                // Use a logarithmic scale to prevent too large or too small circles
+                                const scale = Math.min(2.0, Math.max(0.8, 0.7 + (Math.log10(accuracy) / 5)));
+                                accuracyCircle.style.transform = `scale(${scale})`;
+                                
+                                // Color the accuracy circle based on accuracy
+                                if (accuracy < 5) {
+                                    accuracyCircle.style.backgroundColor = 'rgba(76, 175, 80, 0.15)'; // Green for high accuracy
+                                } else if (accuracy < 10) {
+                                    accuracyCircle.style.backgroundColor = 'rgba(33, 150, 243, 0.15)'; // Blue for good accuracy
+                                } else if (accuracy < 20) {
+                                    accuracyCircle.style.backgroundColor = 'rgba(255, 152, 0, 0.15)'; // Orange for moderate accuracy
+                                } else {
+                                    accuracyCircle.style.backgroundColor = 'rgba(244, 67, 54, 0.15)'; // Red for low accuracy
+                                }
+                            }
+                        }
+                    }
+                },
+                
+                // Stop high accuracy location tracking
+                stopHighAccuracyLocationTracking: function() {
+                    if (AppState.highAccuracyWatchId !== null) {
+                        navigator.geolocation.clearWatch(AppState.highAccuracyWatchId);
+                        AppState.highAccuracyWatchId = null;
+                    }
+                },
+                
+                // Enable the map to follow user location
+                enableLocationFollowing: function() {
+                    this.locationFollowingEnabled = true;
+                    
+                    // Add a visual indicator that following is enabled
+                    if (this.userLocationMarker) {
+                        const markerElement = this.userLocationMarker.getElement();
+                        if (markerElement) {
+                            markerElement.classList.add('following-enabled');
+                        }
+                    }
+                },
+                
+                // Disable location following
+                disableLocationFollowing: function() {
+                    this.locationFollowingEnabled = false;
+                    
+                    // Remove the visual indicator
+                    if (this.userLocationMarker) {
+                        const markerElement = this.userLocationMarker.getElement();
+                        if (markerElement) {
+                            markerElement.classList.remove('following-enabled');
+                        }
+                    }
+                },
+                
+                // Start proximity monitoring for nearby utilities
+                startProximityMonitoring: function() {
+                    // Set up interval for monitoring
+                    this.proximityMonitoringInterval = setInterval(() => {
+                        if (AppState.isExcavationMode) {
+                            this.updateProximityCalculations();
+                        }
+                    }, 1000); // Check every second
+                },
+                
+                // Stop proximity monitoring
+                stopProximityMonitoring: function() {
+                    if (this.proximityMonitoringInterval) {
+                        clearInterval(this.proximityMonitoringInterval);
+                        this.proximityMonitoringInterval = null;
+                    }
+                },
+                
+                // Update proximity calculations for all utilities
+                updateProximityCalculations: function() {
+                    // Need user location
+                    if (!this.userLocationMarker) return;
+                    
+                    const userLocation = this.userLocationMarker.getLatLng();
+                    const nearbyUtilities = [];
+                    
+                    // Check each utility type
+                    for (const type in DataStore.utilities) {
+                        DataStore.utilities[type].forEach(utility => {
+                            if (!utility.line) return;
+                            
+                            // Calculate distance to line
+                            const distance = this.distanceToPolyline(userLocation, utility.line.getLatLngs());
+                            const distanceFeet = distance * 3.28084; // Convert to feet
+                            
+                            // Store utility with its distance
+                            nearbyUtilities.push({
+                                utility: utility,
+                                distance: distanceFeet
+                            });
+                            
+                            // Apply appropriate highlight based on distance
+                            this.updateUtilityHighlight(utility, distanceFeet);
+                        });
+                    }
+                    
+                    // Sort by distance (closest first)
+                    nearbyUtilities.sort((a, b) => a.distance - b.distance);
+                    
+                    // Update proximity alerts
+                    this.updateProximityAlerts(nearbyUtilities);
+                },
+                
+                // Update utility highlight based on distance
+                updateUtilityHighlight: function(utility, distanceFeet) {
+                    if (!utility.line) return;
+                    
+                    try {
+                        // Get the DOM element safely
+                        const lineElement = utility.line._path || utility.line.getElement();
+                        
+                        if (!lineElement) return;
+                        
+                        // Reset existing proximity classes
+                        lineElement.classList.remove(
+                            'proximity-warning',
+                            'proximity-caution',
+                            'proximity-danger',
+                            'proximity-critical'
+                        );
+                        
+                        // Apply appropriate class based on distance thresholds
+                        if (distanceFeet <= AppState.distanceThresholds.critical) {
+                            lineElement.classList.add('proximity-critical');
+                        } else if (distanceFeet <= AppState.distanceThresholds.danger) {
+                            lineElement.classList.add('proximity-danger');
+                        } else if (distanceFeet <= AppState.distanceThresholds.caution) {
+                            lineElement.classList.add('proximity-caution');
+                        } else if (distanceFeet <= AppState.distanceThresholds.warning) {
+                            lineElement.classList.add('proximity-warning');
+                        }
+                    } catch (error) {
+                        console.error('Error updating utility highlight:', error);
+                    }
+                },
+                
+                // Reset all utility highlights
+                resetAllUtilityHighlights: function() {
+                    for (const type in DataStore.utilities) {
+                        DataStore.utilities[type].forEach(utility => {
+                            if (utility.line) {
+                                try {
+                                    const lineElement = utility.line._path || utility.line.getElement();
+                                    if (lineElement) {
+                                        lineElement.classList.remove(
+                                            'proximity-warning',
+                                            'proximity-caution',
+                                            'proximity-danger',
+                                            'proximity-critical'
+                                        );
+                                    }
+                                } catch (error) {
+                                    console.error('Error resetting utility highlight:', error);
+                                }
+                            }
+                        });
+                    }
+                },
+                
+                // Update proximity alerts based on nearby utilities
+                updateProximityAlerts: function(nearbyUtilities) {
+                    // Get utilities within critical distance
+                    const criticalUtilities = nearbyUtilities.filter(
+                        item => item.distance <= AppState.distanceThresholds.critical
+                    );
+                    
+                    // Current time for checking dismissed alerts
+                    const currentTime = new Date().getTime();
+                    
+                    // Process critical utilities
+                    criticalUtilities.forEach(item => {
+                        const utility = item.utility;
+                        const distance = item.distance;
+                        
+                        // Check if this utility alert was dismissed and is still in timeout
+                        const isDismissed = AppState.dismissedAlerts && 
+                                          AppState.dismissedAlerts.some(alert => 
+                                              alert.utilityId === utility.id && 
+                                              alert.dismissedUntil > currentTime);
+                        
+                        // Skip if dismissed
+                        if (isDismissed) return;
+                        
+                        // Check if we already have an alert for this utility
+                        const existingAlert = AppState.activeAlerts.find(
+                            alert => alert.utilityId === utility.id
+                        );
+                        
+                        if (!existingAlert) {
+                            // Create new alert
+                            const alert = {
+                                utilityId: utility.id,
+                                utility: utility,
+                                distance: distance,
+                                timestamp: currentTime,
+                                element: null,
+                                leftRadiusTime: null // Track when utility left the critical radius
+                            };
+                            
+                            // Add to active alerts
+                            AppState.activeAlerts.push(alert);
+                            
+                            // Create alert UI
+                            UI.createProximityAlert(alert);
+                            
+                            // Provide haptic feedback if available
+                            if (navigator.vibrate) {
+                                navigator.vibrate([200, 100, 200]);
+                            }
+                        } else {
+                            // Update existing alert
+                            existingAlert.distance = distance;
+                            existingAlert.leftRadiusTime = null; // Reset left radius time when back in range
+                            UI.updateProximityAlert(existingAlert);
+                        }
+                    });
+                    
+                    // Check if any alerts need to be flagged as outside critical range
+                    AppState.activeAlerts.forEach(alert => {
+                        const stillCritical = criticalUtilities.some(
+                            item => item.utility.id === alert.utilityId
+                        );
+                        
+                        if (!stillCritical) {
+                            // If just left the radius, set the leftRadiusTime
+                            if (alert.leftRadiusTime === null) {
+                                alert.leftRadiusTime = currentTime;
+                            }
+                        }
+                    });
+                    
+                    // Find alerts to remove - outside radius for 30+ seconds
+                    const alertsToRemove = [];
+                    AppState.activeAlerts.forEach(alert => {
+                        // Only remove if outside radius for 30+ seconds
+                        if (alert.leftRadiusTime !== null) {
+                            const timeOutsideRadius = currentTime - alert.leftRadiusTime;
+                            if (timeOutsideRadius > 30000) { // 30 seconds in milliseconds
+                                alertsToRemove.push(alert);
+                            }
+                        }
+                    });
+                    
+                    // Remove alerts that have been outside the critical range for 30+ seconds
+                    alertsToRemove.forEach(alert => {
+                        const index = AppState.activeAlerts.findIndex(
+                            a => a.utilityId === alert.utilityId
+                        );
+                        
+                        if (index >= 0) {
+                            AppState.activeAlerts.splice(index, 1);
+                            UI.removeProximityAlert(alert);
+                        }
+                    });
+                    
+                    // Clean up expired dismissed alerts
+                    if (AppState.dismissedAlerts && AppState.dismissedAlerts.length > 0) {
+                        AppState.dismissedAlerts = AppState.dismissedAlerts.filter(
+                            alert => alert.dismissedUntil > currentTime
+                        );
+                    }
+                    
+                    // Limit active alerts to 5 (increased from 3)
+                    if (AppState.activeAlerts.length > 5) {
+                        // Sort by distance (closest first)
+                        AppState.activeAlerts.sort((a, b) => a.distance - b.distance);
+                        
+                        // Keep only the 5 closest alerts
+                        while (AppState.activeAlerts.length > 5) {
+                            const removedAlert = AppState.activeAlerts.pop();
+                            UI.removeProximityAlert(removedAlert);
                         }
                     }
                 },
@@ -4448,6 +6042,22 @@
                         btn.classList.remove('active');
                     });
                     document.querySelector(`#line-type-selector .line-type-button[data-type="${AppState.activeLineType}"]`).classList.add('active');
+                    
+                    // Add these event listeners for excavation mode
+                    
+                    // Exit Excavation Button
+                    document.getElementById('exit-excavation-btn').addEventListener('click', () => {
+                        EventHandlers.handleExitExcavation();
+                    });
+                    
+                    // Exit Confirmation Dialog
+                    document.getElementById('cancel-exit-excavation').addEventListener('click', () => {
+                        EventHandlers.cancelExitExcavation();
+                    });
+                    
+                    document.getElementById('confirm-exit-excavation').addEventListener('click', () => {
+                        EventHandlers.confirmExitExcavation();
+                    });
                 },
                 
                 // Update UI based on current app state
@@ -4482,9 +6092,13 @@
                     if (AppState.mode === 'discovery') {
                         addBtn.innerHTML = '<i class="fas fa-plus"></i>';
                         addBtn.title = 'Add Utility';
-                    } else {
+                        addBtn.style.display = AppState.isExcavationMode ? 'none' : 'flex';
+                    } else if (AppState.mode === 'mapping') {
                         addBtn.innerHTML = '<i class="fas fa-draw-polygon"></i>';
                         addBtn.title = 'Draw Utility';
+                        addBtn.style.display = AppState.isExcavationMode ? 'none' : 'flex';
+                    } else if (AppState.mode === 'excavation') {
+                        addBtn.style.display = 'none';
                     }
                 },
                 
@@ -4982,76 +6596,6 @@
                 
                 // Update UI positions based on current view
                 updateUIPositions: function() {
-                    // Update position of floating elements based on current view
-                    const navBar = document.getElementById('nav-bar');
-                    const navHeight = navBar ? navBar.offsetHeight : 60;
-                    
-                    // Update confirm button position
-                    const confirmBtn = document.getElementById('confirm-drawing-btn');
-                    if (confirmBtn) {
-                        confirmBtn.style.bottom = `${navHeight + 60}px`;
-                    }
-                    
-                    // Update reposition panel position
-                    const repositionPanel = document.getElementById('reposition-panel');
-                    if (repositionPanel) {
-                        repositionPanel.style.bottom = `${navHeight + 20}px`;
-                    }
-                    
-                    // Update mode toggle position to avoid overlap
-                    const modeToggle = document.getElementById('mode-toggle');
-                    if (modeToggle) {
-                        modeToggle.style.bottom = `${navHeight + 20}px`;
-                    }
-                    
-                    // Adjust action buttons position
-                    const actionButtons = document.getElementById('action-buttons');
-                    if (actionButtons) {
-                        actionButtons.style.bottom = `${navHeight + 20}px`;
-                        
-                        // Ensure action buttons don't overlap with mode toggle
-                        if (modeToggle && modeToggle.offsetParent !== null) {
-                            // Get mode toggle position
-                            const toggleRect = modeToggle.getBoundingClientRect();
-                            const actionRect = actionButtons.getBoundingClientRect();
-                            
-                            // If overlapping horizontally, adjust position
-                            if (Math.abs(toggleRect.left + toggleRect.width/2 - actionRect.left) < 80) {
-                                // Use a fixed value instead of CSS variable in JS
-                                const minMargin = 16; // equivalent to var(--space-md)
-                                actionButtons.style.right = `${Math.max(minMargin, (window.innerWidth - toggleRect.left) + 20)}px`;
-                            }
-                        }
-                    }
-                    
-                    // Position utility toolbar to avoid overlap with other controls
-                    const toolbar = document.querySelector('.utility-toolbar');
-                    const mapControls = document.querySelector('.map-controls');
-                    const layerControl = document.querySelector('.leaflet-control-layers');
-                    
-                    if (toolbar && mapControls && layerControl) {
-                        // Check if layer control is expanded
-                        const isExpanded = layerControl.classList.contains('leaflet-control-layers-expanded');
-                        
-                        if (isExpanded) {
-                            // Move toolbar down to avoid overlap
-                            const defaultTop = 80; // equivalent to calc(var(--space-lg) + 50px)
-                            toolbar.style.top = `${Math.max(defaultTop, layerControl.getBoundingClientRect().bottom + 10)}px`;
-                        }
-                    }
-                    
-                    // Check for other UI elements that might need positioning adjustments
-                    this.adjustOverlappingElements();
-                    
-                    // Position line type selector
-                    const lineTypeSelector = document.getElementById('line-type-selector');
-                    const utilityToolbar = document.querySelector('.utility-toolbar');
-                    
-                    if (lineTypeSelector && utilityToolbar) {
-                        const toolbarRect = utilityToolbar.getBoundingClientRect();
-                        lineTypeSelector.style.top = `${toolbarRect.bottom + 10}px`;
-                    }
-                    
                     // Position connection indicator when it's visible
                     const connectionIndicator = document.getElementById('connection-indicator');
                     if (connectionIndicator && connectionIndicator.classList.contains('visible') && AppState.potentialConnection) {
@@ -5059,6 +6603,12 @@
                         connectionIndicator.style.left = `${point.x + 20}px`;
                         connectionIndicator.style.top = `${point.y - 20}px`;
                     }
+                    
+                    // Skip repositioning for elements we've fixed with !important styles
+                    // DO NOT modify the position of these elements:
+                    // - utility-toolbar
+                    // - action-buttons
+                    // - line-type-selector
                 },
                 
                 // Method to check for and fix any overlapping elements
@@ -5138,6 +6688,253 @@
                         indicator.style.left = `${point.x + 20}px`;
                         indicator.style.top = `${point.y - 20}px`;
                     }
+                },
+
+                // Add these methods just before the end of the UI object
+
+                // Show excavation mode indicator
+                showExcavationModeIndicator: function() {
+                    const indicator = document.getElementById('excavation-indicator');
+                    indicator.classList.add('visible');
+                },
+                
+                // Hide excavation mode indicator
+                hideExcavationModeIndicator: function() {
+                    const indicator = document.getElementById('excavation-indicator');
+                    indicator.classList.remove('visible');
+                },
+                
+                // Show exit excavation button
+                showExitExcavationButton: function() {
+                    const button = document.getElementById('exit-excavation-btn');
+                    button.classList.add('visible');
+                },
+                
+                // Hide exit excavation button
+                hideExitExcavationButton: function() {
+                    const button = document.getElementById('exit-excavation-btn');
+                    button.classList.remove('visible');
+                },
+                
+                // Show exit confirmation dialog
+                showExitConfirmation: function() {
+                    const modal = document.getElementById('exit-excavation-modal');
+                    modal.classList.add('visible');
+                },
+                
+                // Hide exit confirmation dialog
+                hideExitConfirmation: function() {
+                    const modal = document.getElementById('exit-excavation-modal');
+                    modal.classList.remove('visible');
+                },
+                
+                // Disable drawing controls
+                disableDrawingControls: function() {
+                    document.getElementById('add-utility-btn').style.display = 'none';
+                    document.getElementById('measure-btn').style.display = 'none';
+                    document.getElementById('layers-btn').style.display = 'none';
+                },
+                
+                // Enable drawing controls
+                enableDrawingControls: function() {
+                    document.getElementById('add-utility-btn').style.display = 'flex';
+                    document.getElementById('measure-btn').style.display = 'flex';
+                    document.getElementById('layers-btn').style.display = 'flex';
+                },
+                
+                // Create a proximity alert
+                createProximityAlert: function(alert) {
+                    const container = document.getElementById('proximity-alerts');
+                    const utility = alert.utility;
+                    const distance = alert.distance;
+                    
+                    // Create alert element
+                    const alertElement = document.createElement('div');
+                    alertElement.className = 'proximity-alert danger';
+                    alertElement.id = `alert-${utility.id}`;
+                    
+                    // Get utility type icon
+                    const icons = {
+                        water: 'tint',
+                        gas: 'fire',
+                        electric: 'bolt',
+                        sewer: 'toilet',
+                        telecom: 'phone'
+                    };
+                    
+                    // Get utility type name
+                    const typeNames = {
+                        water: 'Water',
+                        gas: 'Gas',
+                        electric: 'Electric',
+                        sewer: 'Sewer',
+                        telecom: 'Telecom'
+                    };
+                    
+                    // Utility type color
+                    const typeColors = {
+                        water: 'var(--water-color)',
+                        gas: 'var(--gas-color)',
+                        electric: 'var(--electric-color)',
+                        sewer: 'var(--sewer-color)',
+                        telecom: 'var(--telecom-color)'
+                    };
+                    
+                    // Create HTML content
+                    alertElement.innerHTML = `
+                        <div class="proximity-alert-header" style="background-color: ${typeColors[utility.type]}">
+                            <div class="proximity-alert-title">
+                                <i class="fas fa-${icons[utility.type]}"></i>
+                                <span>${typeNames[utility.type]} Line Nearby</span>
+                            </div>
+                            <button class="proximity-alert-dismiss" data-utility-id="${utility.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="proximity-alert-body">
+                            <div class="proximity-alert-info">
+                                <div class="proximity-info-item">
+                                    <div class="proximity-info-label">Line Type</div>
+                                    <div class="proximity-info-value">${utility.lineType === 'main' ? 'Main Line' : 'Service Line'}</div>
+                                </div>
+                                <div class="proximity-info-item">
+                                    <div class="proximity-info-label">Size</div>
+                                    <div class="proximity-info-value">${utility.size ? utility.size + ' in' : 'UNKNOWN'}</div>
+                                </div>
+                                <div class="proximity-info-item">
+                                    <div class="proximity-info-label">Depth</div>
+                                    <div class="proximity-info-value">${utility.depth ? utility.depth + ' ft' : 'UNKNOWN'}</div>
+                                </div>
+                                <div class="proximity-info-item">
+                                    <div class="proximity-info-label">Material</div>
+                                    <div class="proximity-info-value">${utility.material || 'UNKNOWN'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="proximity-alert-footer">
+                            <div class="proximity-distance">
+                                <i class="fas fa-ruler-horizontal"></i>
+                                <span id="distance-${utility.id}">${distance.toFixed(1)} ft</span>
+                            </div>
+                            <div class="proximity-timer" id="timer-${utility.id}">15:00</div>
+                        </div>
+                    `;
+                    
+                    // Add to container
+                    container.appendChild(alertElement);
+                    
+                    // Add dismiss handler
+                    alertElement.querySelector('.proximity-alert-dismiss').addEventListener('click', function() {
+                        const utilityId = this.getAttribute('data-utility-id');
+                        UI.dismissProximityAlert(utilityId);
+                    });
+                    
+                    // Store element reference
+                    alert.element = alertElement;
+                    
+                    // Start timer
+                    this.startAlertTimer(alert);
+                    
+                    // Show with animation
+                    setTimeout(() => {
+                        alertElement.classList.add('visible');
+                    }, 10);
+                },
+                
+                // Update a proximity alert
+                updateProximityAlert: function(alert) {
+                    const distance = alert.distance;
+                    const distanceElement = document.getElementById(`distance-${alert.utilityId}`);
+                    
+                    if (distanceElement) {
+                        distanceElement.textContent = `${distance.toFixed(1)} ft`;
+                        
+                        // Update color based on distance
+                        let color = 'var(--danger)';
+                        if (distance < 5) color = 'var(--danger)';
+                        else if (distance < 10) color = 'var(--warning)';
+                        
+                        distanceElement.parentElement.style.color = color;
+                    }
+                },
+                
+                // Remove a proximity alert
+                removeProximityAlert: function(alert) {
+                    const element = alert.element;
+                    
+                    if (element) {
+                        element.classList.remove('visible');
+                        
+                        setTimeout(() => {
+                            const container = document.getElementById('proximity-alerts');
+                            if (container.contains(element)) {
+                                container.removeChild(element);
+                            }
+                        }, 300);
+                    }
+                },
+                
+                // Dismiss a proximity alert by utility ID
+                dismissProximityAlert: function(utilityId) {
+                    const alertIndex = AppState.activeAlerts.findIndex(a => a.utilityId === utilityId);
+                    
+                    if (alertIndex >= 0) {
+                        const alert = AppState.activeAlerts[alertIndex];
+                        this.removeProximityAlert(alert);
+                        
+                        // Remove from active alerts but don't add it again for 15 minutes
+                        AppState.activeAlerts.splice(alertIndex, 1);
+                        
+                        // Initialize dismissedAlerts array if it doesn't exist
+                        if (!AppState.dismissedAlerts) {
+                            AppState.dismissedAlerts = [];
+                        }
+                        
+                        // Add to dismissed alerts with 5-minute timeout (300,000 ms)
+                        const dismissedUntil = new Date().getTime() + (5 * 60 * 1000);
+                        
+                        // Store in dismissed alerts
+                        AppState.dismissedAlerts.push({
+                            utilityId: utilityId,
+                            dismissedUntil: dismissedUntil
+                        });
+                        
+                        // Show toast confirming dismissal
+                        this.showToast(`Alert dismissed for 5 minutes`, 'info');
+                    }
+                },
+                
+                // Start alert timer for 15 minutes
+                startAlertTimer: function(alert) {
+                    const timerElement = document.getElementById(`timer-${alert.utilityId}`);
+                    
+                    // No countdown timer needed anymore - we're using dismissal timeout instead
+                    if (timerElement) {
+                        timerElement.textContent = "Tap × to dismiss";
+                    }
+                    
+                    // Clear any existing timer
+                    if (alert.timer) {
+                        clearInterval(alert.timer);
+                    }
+                    
+                    // We don't need to set a timer anymore
+                    alert.timer = null;
+                },
+                
+                // Close all proximity alerts
+                closeAllProximityAlerts: function() {
+                    const container = document.getElementById('proximity-alerts');
+                    container.innerHTML = '';
+                    
+                    AppState.activeAlerts.forEach(alert => {
+                        if (alert.timer) {
+                            clearInterval(alert.timer);
+                        }
+                    });
+                    
+                    AppState.activeAlerts = [];
+                    AppState.dismissedAlerts = []; // Clear dismissed alerts too
                 },
             };
             
@@ -5254,11 +7051,20 @@
                     if (mode === AppState.mode) return;
                     
                     // Update state
+                    const previousMode = AppState.mode;
                     AppState.mode = mode;
                     
                     // Cancel any active drawing or measurement
                     this.cancelDrawing();
                     this.cancelMeasurement();
+                    
+                    // Handle excavation mode separately
+                    if (mode === 'excavation') {
+                        MapController.enableExcavationMode();
+                    } else if (previousMode === 'excavation') {
+                        // Exiting excavation mode
+                        MapController.disableExcavationMode();
+                    }
                     
                     // Update UI
                     UI.updateButtons();
@@ -5267,19 +7073,18 @@
                     if (mode === 'discovery') {
                         UI.showToast('Switched to Discovery Mode', 'info');
                         UI.showStatusBar('Discovery Mode: Mark utilities as you find them');
-                    } else {
+                        UI.hideLineTypeSelector();
+                    } else if (mode === 'mapping') {
                         UI.showToast('Switched to Mapping Mode', 'info');
                         UI.showStatusBar('Mapping Mode: Draw complete utility lines');
+                        UI.showLineTypeSelector();
+                    } else if (mode === 'excavation') {
+                        UI.showToast('Excavation Mode Activated', 'warning');
+                        UI.showStatusBar('CAUTION: Excavation Mode - Monitoring utility proximity');
+                        UI.hideLineTypeSelector();
                     }
                     
                     setTimeout(() => UI.hideStatusBar(), 3000);
-
-                    // Show or hide line type selector based on mode
-                    if (mode === 'mapping') {
-                        UI.showLineTypeSelector();
-                    } else {
-                        UI.hideLineTypeSelector();
-                    }
                 },
                 
                 // Set active utility type
@@ -6119,7 +7924,25 @@
                     
                     // Show toast
                     UI.showToast(`Selected ${type} line type`, 'info');
-                }
+                },
+
+                // Add these methods to the EventHandlers object
+                
+                // Handle exit excavation button click
+                handleExitExcavation: function() {
+                    UI.showExitConfirmation();
+                },
+                
+                // Confirm exit from excavation mode
+                confirmExitExcavation: function() {
+                    UI.hideExitConfirmation();
+                    this.setMode('discovery');
+                },
+                
+                // Cancel exit from excavation mode
+                cancelExitExcavation: function() {
+                    UI.hideExitConfirmation();
+                },
             };
             
             /*********************************
@@ -6153,6 +7976,8 @@
             if (AppState.repositioningUtility) {
                 UI.updateRepositionPanelPosition();
             }
+            
+            // Don't update positions of fixed elements
         });
 
         // Update position of floating buttons based on window size and navbar position
@@ -6172,6 +7997,17 @@
             panel.style.bottom = `${navHeight + 20}px`;
         };
 
+        // Call updateUIPositions when window is resized
+        window.addEventListener('resize', function() {
+            // Only update positioning for non-fixed elements
+            const connectionIndicator = document.getElementById('connection-indicator');
+            if (connectionIndicator && connectionIndicator.classList.contains('visible') && AppState.potentialConnection) {
+                const point = MapController.map.latLngToContainerPoint(AppState.potentialConnection.connectionPoint);
+                connectionIndicator.style.left = `${point.x + 20}px`;
+                connectionIndicator.style.top = `${point.y - 20}px`;
+            }
+        });
+        
         // Ensure drawing can be canceled with escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
@@ -6229,6 +8065,160 @@
                     }
                 });
             }
+        });
+    </script>
+
+    <!-- Add this to the end of the file, just before the closing </body> tag -->
+    <script>
+        // Add window unload event to clean up resources
+        window.addEventListener('beforeunload', function() {
+            // Stop watching position when page is closed
+            if (MapController && typeof MapController.stopWatchingPosition === 'function') {
+                MapController.stopWatchingPosition();
+            }
+        });
+        
+        // Add recenter button in the Map Controls section
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add recenter button after the locate button
+            const locateBtn = document.getElementById('locate-btn');
+            if (locateBtn && locateBtn.parentNode) {
+                const recenterBtn = document.createElement('button');
+                recenterBtn.className = 'map-control-button';
+                recenterBtn.id = 'recenter-btn';
+                recenterBtn.innerHTML = '<i class="fas fa-location-arrow"></i>';
+                recenterBtn.title = 'Center on your location';
+                
+                locateBtn.parentNode.insertBefore(recenterBtn, locateBtn.nextSibling);
+                
+                // Add click handler
+                recenterBtn.addEventListener('click', function() {
+                    // If we have a user location marker, center on it
+                    if (MapController.userLocationMarker) {
+                        const latlng = MapController.userLocationMarker.getLatLng();
+                        MapController.map.setView(latlng, MapController.map.getZoom());
+                        UI.showToast('Centered on your location', 'info');
+                            } else {
+                        // Otherwise try to get location
+                        MapController.getUserLocation();
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- Add these elements just before the closing body tag -->
+    <!-- Excavation Mode Indicator -->
+    <div class="excavation-mode-indicator" id="excavation-indicator">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>EXCAVATION MODE ACTIVE</span>
+    </div>
+
+    <!-- Proximity Alert Container -->
+    <div class="proximity-alert-container" id="proximity-alerts"></div>
+
+    <!-- Exit Excavation Button -->
+    <button class="exit-excavation-btn" id="exit-excavation-btn">
+        <i class="fas fa-times-circle"></i>
+        <span>Exit Excavation Mode</span>
+    </button>
+
+    <!-- Exit Confirmation Dialog -->
+    <div class="modal-overlay" id="exit-excavation-modal">
+        <div class="exit-confirmation">
+            <div class="exit-confirmation-title">
+                <i class="fas fa-exclamation-triangle"></i> Exit Excavation Mode?
+            </div>
+            <div class="exit-confirmation-message">
+                Are you sure you want to exit excavation mode? This will disable real-time proximity alerts.
+            </div>
+            <div class="exit-confirmation-buttons">
+                <button class="btn btn-secondary" id="cancel-exit-excavation">Cancel</button>
+                <button class="btn btn-danger" id="confirm-exit-excavation">Exit Mode</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Force element positioning script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force positions immediately after DOM loads
+            setTimeout(function() {
+                // Position utility toolbar
+                const utilityToolbar = document.getElementById('utility-toolbar');
+                if (utilityToolbar) {
+                    utilityToolbar.style.position = 'absolute';
+                    utilityToolbar.style.top = '5px';
+                    utilityToolbar.style.left = '50%';
+                    utilityToolbar.style.transform = 'translateX(-50%)';
+                    utilityToolbar.style.maxWidth = '70%';
+                    utilityToolbar.style.padding = '4px';
+                    utilityToolbar.style.zIndex = '2000';
+                    
+                    // Make buttons smaller
+                    const buttons = utilityToolbar.querySelectorAll('.utility-button');
+                    buttons.forEach(function(btn) {
+                        btn.style.minWidth = '38px';
+                        btn.style.padding = '2px 6px';
+                        btn.style.gap = '0px';
+                        
+                        const icon = btn.querySelector('i');
+                        if (icon) icon.style.fontSize = '0.85rem';
+                        
+                        const label = btn.querySelector('.utility-label');
+                        if (label) label.style.fontSize = '0.5rem';
+                    });
+                }
+                
+                // Position action buttons
+                const actionButtons = document.getElementById('action-buttons');
+                if (actionButtons) {
+                    actionButtons.style.position = 'absolute';
+                    actionButtons.style.right = '15px';
+                    actionButtons.style.bottom = '150px'; /* Lowered from 280px to 150px */
+                    actionButtons.style.zIndex = '2000';
+                }
+                
+                // Position line type selector lower
+                const lineSelector = document.getElementById('line-type-selector');
+                if (lineSelector) {
+                    lineSelector.style.top = 'calc(var(--space-lg) + 120px)';
+                }
+                
+                // Position mode toggle lower
+                const modeToggle = document.getElementById('mode-toggle');
+                if (modeToggle) {
+                    modeToggle.style.position = 'absolute';
+                    modeToggle.style.left = '50%';
+                    modeToggle.style.bottom = '80px';
+                    modeToggle.style.transform = 'translateX(-50%)';
+                    modeToggle.style.zIndex = '2000';
+                }
+            }, 500);
+            
+            // Ensure positions are maintained
+            setInterval(function() {
+                const utilityToolbar = document.getElementById('utility-toolbar');
+                if (utilityToolbar) {
+                    utilityToolbar.style.top = '5px';
+                    utilityToolbar.style.maxWidth = '70%';
+                }
+                
+                const actionButtons = document.getElementById('action-buttons');
+                if (actionButtons) {
+                    actionButtons.style.bottom = '150px'; /* Lowered from 280px to 150px */
+                }
+                
+                const lineSelector = document.getElementById('line-type-selector');
+                if (lineSelector) {
+                    lineSelector.style.top = 'calc(var(--space-lg) + 120px)';
+                }
+                
+                const modeToggle = document.getElementById('mode-toggle');
+                if (modeToggle) {
+                    modeToggle.style.bottom = '80px';
+                }
+            }, 1000);
         });
     </script>
 </body>
