@@ -1,0 +1,4468 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CAC Utili-Track</title>
+
+```
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<!-- Google Fonts -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap">
+
+<style>
+    :root {
+        /* Premium Color Palette */
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --bg-tertiary: #1a1a25;
+        --bg-glass: rgba(18, 18, 26, 0.85);
+        --bg-glass-light: rgba(255, 255, 255, 0.05);
+        
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0b8;
+        --text-tertiary: #6b6b80;
+        
+        --border-color: rgba(255, 255, 255, 0.1);
+        --border-active: rgba(255, 255, 255, 0.2);
+        
+        /* Premium Shadows */
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+        --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.6);
+        --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.5);
+        
+        /* Utility Colors - Premium Vibrant */
+        --water-color: #00b4d8;
+        --gas-color: #ffd60a;
+        --electric-color: #ff006e;
+        --sewer-color: #a8763e;
+        --telecom-color: #b565d8;
+        
+        /* UI Accent Colors */
+        --danger-color: #ff0054;
+        --success-color: #00f5a0;
+        --warning-color: #ffd60a;
+        --info-color: #00b4d8;
+        
+        /* Premium Gradients */
+        --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-danger: linear-gradient(135deg, #ff0054 0%, #ff006e 100%);
+        --gradient-success: linear-gradient(135deg, #00f5a0 0%, #00d084 100%);
+        --gradient-premium: linear-gradient(180deg, #0a0a0f 0%, #1a1a25 100%);
+        --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        --gradient-gold: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+        
+        /* Spacing */
+        --spacing-xs: 4px;
+        --spacing-sm: 8px;
+        --spacing-md: 16px;
+        --spacing-lg: 24px;
+        --spacing-xl: 32px;
+        --spacing-2xl: 48px;
+        
+        /* Border Radius */
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --radius-2xl: 32px;
+        --radius-full: 9999px;
+        
+        /* Transitions */
+        --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        --transition-bounce: 600ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    /* Light Mode */
+    [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #e9ecef;
+        --bg-glass: rgba(255, 255, 255, 0.85);
+        --bg-glass-light: rgba(0, 0, 0, 0.05);
+        --text-primary: #1a1d21;
+        --text-secondary: #6c757d;
+        --text-tertiary: #adb5bd;
+        --border-color: rgba(0, 0, 0, 0.1);
+        --border-active: rgba(0, 0, 0, 0.2);
+        --gradient-premium: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    }
+    
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    html, body {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        font-family: 'Inter', -apple-system, sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        touch-action: manipulation;
+        -webkit-text-size-adjust: 100%;
+        overscroll-behavior: none;
+    }
+    
+    /* Prevent all zooming */
+    input, select, textarea {
+        font-size: 16px !important;
+        touch-action: manipulation;
+    }
+    
+    /* App Container */
+    .app-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        background: var(--bg-primary);
+    }
+    
+    /* Map Container */
+    #map {
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: var(--bg-primary);
+    }
+    
+    /* Premium Splash Screen */
+    .splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #000000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 1;
+        transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .splash-screen.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    /* Premium Animated Logo */
+    .splash-logo-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin-bottom: var(--spacing-2xl);
+    }
+    
+    .splash-logo {
+        position: absolute;
+        inset: 0;
+        animation: logoFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-10px) scale(1.02); }
+    }
+    
+    .logo-hexagon {
+        width: 200px;
+        height: 200px;
+        position: relative;
+        filter: drop-shadow(0 0 40px rgba(102, 126, 234, 0.8));
+    }
+    
+    .hex-inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform: rotate(30deg);
+        overflow: hidden;
+        border-radius: 20%;
+    }
+    
+    .hex-inner::before {
+        content: '';
+        position: absolute;
+        inset: -50%;
+        background: conic-gradient(from 0deg, #667eea, #764ba2, #ff006e, #ffd60a, #00f5a0, #00b4d8, #b565d8, #667eea);
+        animation: gradientRotate 3s linear infinite;
+    }
+    
+    @keyframes gradientRotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .hex-inner::after {
+        content: '';
+        position: absolute;
+        inset: 3px;
+        background: #000000;
+        border-radius: 20%;
+    }
+    
+    .logo-content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+    }
+    
+    .logo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        transform: rotate(-30deg);
+    }
+    
+    .logo-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        animation: dotPulse 2s ease-in-out infinite;
+    }
+    
+    .logo-dot:nth-child(1) { background: var(--water-color); animation-delay: 0s; }
+    .logo-dot:nth-child(2) { background: var(--gas-color); animation-delay: 0.1s; }
+    .logo-dot:nth-child(3) { background: var(--electric-color); animation-delay: 0.2s; }
+    .logo-dot:nth-child(4) { background: var(--sewer-color); animation-delay: 0.3s; }
+    .logo-dot:nth-child(5) { background: var(--gradient-primary); animation-delay: 0.4s; }
+    .logo-dot:nth-child(6) { background: var(--telecom-color); animation-delay: 0.5s; }
+    .logo-dot:nth-child(7) { background: var(--success-color); animation-delay: 0.6s; }
+    .logo-dot:nth-child(8) { background: var(--warning-color); animation-delay: 0.7s; }
+    .logo-dot:nth-child(9) { background: var(--info-color); animation-delay: 0.8s; }
+    
+    @keyframes dotPulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.5); opacity: 1; }
+    }
+    
+    .splash-title {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ffffff 0%, #667eea 50%, #ffffff 100%);
+        background-size: 200% 100%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -1px;
+        animation: titleShimmer 3s ease-in-out infinite;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    @keyframes titleShimmer {
+        0%, 100% { background-position: 200% center; }
+        50% { background-position: 0% center; }
+    }
+    
+    .splash-subtitle {
+        font-size: 14px;
+        font-weight: 500;
+        color: #666;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        opacity: 0;
+        animation: fadeInUp 1s ease-out 0.5s forwards;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .splash-loader {
+        position: absolute;
+        bottom: 80px;
+        width: 200px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+    }
+    
+    .splash-loader::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--gradient-primary);
+        transform: translateX(-100%);
+        animation: loadProgress 2.5s ease-out forwards;
+    }
+    
+    @keyframes loadProgress {
+        to { transform: translateX(0); }
+    }
+    
+    /* Premium Top Bar */
+    .top-bar {
+        position: absolute;
+        top: env(safe-area-inset-top, 0);
+        left: 0;
+        right: 0;
+        padding: var(--spacing-md);
+        z-index: 100;
+        pointer-events: none;
+    }
+    
+    .top-bar > * {
+        pointer-events: auto;
+    }
+    
+    /* Utility Selector - Premium Glass Design */
+    .utility-selector {
+        display: flex;
+        gap: 2px;
+        justify-content: center;
+        margin: 0 auto;
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-radius: var(--radius-2xl);
+        padding: 6px;
+        box-shadow: var(--shadow-lg), inset 0 1px 0 var(--border-color);
+        max-width: fit-content;
+        border: 1px solid var(--border-color);
+        position: relative;
+    }
+    
+    .utility-selector::before {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: var(--gradient-primary);
+        border-radius: inherit;
+        opacity: 0;
+        filter: blur(20px);
+        transition: opacity var(--transition-normal);
+        z-index: -1;
+    }
+    
+    .utility-selector:hover::before {
+        opacity: 0.3;
+    }
+    
+    .utility-btn {
+        width: 48px;
+        height: 48px;
+        border: none;
+        background: transparent;
+        border-radius: var(--radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .utility-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, currentColor, transparent);
+        opacity: 0;
+        transition: opacity var(--transition-fast);
+    }
+    
+    .utility-btn.active::before {
+        opacity: 0.2;
+    }
+    
+    .utility-btn::after {
+        content: '';
+        position: absolute;
+        inset: -50%;
+        background: radial-gradient(circle at center, currentColor, transparent);
+        opacity: 0;
+        transform: scale(0);
+        transition: all var(--transition-spring);
+    }
+    
+    .utility-btn.active::after {
+        opacity: 0.1;
+        transform: scale(1);
+    }
+    
+    .utility-btn:active {
+        transform: scale(0.92);
+    }
+    
+    .utility-btn i {
+        font-size: 22px;
+        color: var(--text-tertiary);
+        position: relative;
+        z-index: 1;
+        transition: all var(--transition-normal);
+    }
+    
+    .utility-btn.active i {
+        color: currentColor;
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+    
+    .utility-btn.water { color: var(--water-color); }
+    .utility-btn.gas { color: var(--gas-color); }
+    .utility-btn.electric { color: var(--electric-color); }
+    .utility-btn.sewer { color: var(--sewer-color); }
+    .utility-btn.telecom { color: var(--telecom-color); }
+    
+    /* Premium Bottom Controls */
+    .bottom-controls {
+        position: absolute;
+        bottom: calc(env(safe-area-inset-bottom, 0) + var(--spacing-md));
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        z-index: 100;
+        pointer-events: none;
+        gap: var(--spacing-md);
+    }
+    
+    .bottom-controls > * {
+        pointer-events: auto;
+    }
+    
+    /* Control Groups */
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .control-group.center {
+        position: relative;
+    }
+    
+    /* Premium Control Buttons */
+    .control-btn {
+        width: 56px;
+        height: 56px;
+        border: none;
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-lg);
+        transition: all var(--transition-normal);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+    
+    .control-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--gradient-glass);
+        opacity: 0;
+        transition: opacity var(--transition-normal);
+    }
+    
+    .control-btn:hover::before {
+        opacity: 1;
+    }
+    
+    .control-btn:active {
+        transform: scale(0.92);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .control-btn.active {
+        background: var(--gradient-primary);
+        border-color: transparent;
+    }
+    
+    .control-btn i {
+        font-size: 24px;
+        color: var(--text-primary);
+        transition: all var(--transition-normal);
+        z-index: 1;
+    }
+    
+    .control-btn.active i {
+        color: white;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    }
+    
+    /* Main Action Button Group */
+    .main-action-group {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--spacing-sm);
+        position: relative;
+    }
+    
+    /* Line Type Toggle - Premium Floating Design */
+    .line-type-toggle {
+        display: flex;
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-radius: var(--radius-full);
+        padding: 4px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--border-color);
+        margin-bottom: 4px;
+    }
+    
+    .line-type-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        border: none;
+        background: transparent;
+        border-radius: var(--radius-full);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-normal);
+        white-space: nowrap;
+        position: relative;
+    }
+    
+    .line-type-btn.active {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Main Draw Button - Premium Animated */
+    .main-action-btn {
+        width: 72px;
+        height: 72px;
+        border: none;
+        background: var(--gradient-primary);
+        border-radius: var(--radius-2xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-xl), 0 0 40px rgba(102, 126, 234, 0.3);
+        transition: all var(--transition-spring);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .main-action-btn::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: var(--gradient-primary);
+        border-radius: inherit;
+        opacity: 0;
+        filter: blur(15px);
+        transition: opacity var(--transition-normal);
+    }
+    
+    .main-action-btn:hover::before {
+        opacity: 0.5;
+    }
+    
+    .main-action-btn:active {
+        transform: scale(0.92);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .main-action-btn.active {
+        animation: drawPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes drawPulse {
+        0%, 100% { 
+            box-shadow: var(--shadow-xl), 0 0 40px rgba(102, 126, 234, 0.3);
+        }
+        50% { 
+            box-shadow: var(--shadow-xl), 0 0 60px rgba(102, 126, 234, 0.6);
+        }
+    }
+    
+    .main-action-btn i {
+        font-size: 32px;
+        color: white;
+        z-index: 1;
+    }
+    
+    /* Excavation Button - Premium Danger Style */
+    .excavation-btn {
+        background: var(--gradient-danger) !important;
+        position: relative;
+        overflow: visible !important;
+    }
+    
+    .excavation-btn::after {
+        content: '';
+        position: absolute;
+        inset: -20px;
+        background: var(--gradient-danger);
+        border-radius: 50%;
+        opacity: 0;
+        filter: blur(20px);
+        animation: none;
+        transition: all var(--transition-normal);
+        z-index: -1;
+    }
+    
+    .excavation-btn.active::after {
+        animation: excavationPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes excavationPulse {
+        0%, 100% { 
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        50% { 
+            opacity: 0.5;
+            transform: scale(1.2);
+        }
+    }
+    
+    .excavation-btn i {
+        color: white !important;
+    }
+    
+    /* Right Side Controls */
+    .right-controls {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        position: absolute;
+        right: var(--spacing-md);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+    }
+    
+    /* Measurement Tools */
+    .measurement-tools {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        position: absolute;
+        left: var(--spacing-md);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 100;
+    }
+    
+    .measurement-btn {
+        width: 52px;
+        height: 52px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-normal);
+    }
+    
+    .measurement-btn.active {
+        background: var(--gradient-primary);
+        border-color: transparent;
+    }
+    
+    .measurement-btn i {
+        font-size: 22px;
+        color: var(--text-primary);
+    }
+    
+    .measurement-btn.active i {
+        color: white;
+    }
+    
+    /* Premium User Location Marker */
+    .user-location-marker {
+        pointer-events: none;
+        z-index: 1000;
+    }
+    
+    .location-container {
+        position: relative;
+        width: 60px;
+        height: 60px;
+    }
+    
+    .location-accuracy {
+        position: absolute;
+        inset: -30px;
+        border-radius: 50%;
+        background: radial-gradient(circle at center, 
+            rgba(102, 126, 234, 0.3) 0%, 
+            rgba(102, 126, 234, 0.1) 50%, 
+            transparent 100%);
+        animation: accuracyPulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes accuracyPulse {
+        0%, 100% { 
+            transform: scale(1); 
+            opacity: 0.3; 
+        }
+        50% { 
+            transform: scale(1.2); 
+            opacity: 0.1; 
+        }
+    }
+    
+    .location-outer-ring {
+        position: absolute;
+        inset: 10px;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            var(--gradient-primary) 90deg,
+            transparent 180deg
+        );
+        animation: locationSpin 2s linear infinite;
+    }
+    
+    @keyframes locationSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .location-inner {
+        position: absolute;
+        inset: 15px;
+        border-radius: 50%;
+        background: var(--bg-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .location-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+    }
+    
+    .location-direction {
+        position: absolute;
+        width: 4px;
+        height: 35px;
+        background: var(--gradient-primary);
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        transform-origin: center bottom;
+        transition: transform 0.1s linear;
+        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.8));
+    }
+    
+    /* Drawing UI - Premium Floating */
+    .drawing-ui {
+        position: absolute;
+        top: calc(env(safe-area-inset-top, 0) + 80px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-lg);
+        box-shadow: var(--shadow-xl);
+        z-index: 200;
+        display: none;
+        text-align: center;
+        min-width: 280px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .drawing-ui.active {
+        display: block;
+        animation: slideInDown var(--transition-bounce) ease-out;
+    }
+    
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -30px);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+    
+    .drawing-ui h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: var(--spacing-sm);
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .drawing-ui p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-lg);
+        font-weight: 500;
+    }
+    
+    .drawing-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        justify-content: center;
+    }
+    
+    .drawing-btn {
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+    }
+    
+    .drawing-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .drawing-btn.secondary {
+        background: var(--bg-glass-light);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+    }
+    
+    .drawing-btn:active {
+        transform: scale(0.95);
+    }
+    
+    /* Refine Mode Overlay */
+    .refine-overlay {
+        position: absolute;
+        top: calc(env(safe-area-inset-top, 0) + 80px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-md) var(--spacing-lg);
+        box-shadow: var(--shadow-xl);
+        z-index: 250;
+        display: none;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+    
+    .refine-overlay.active {
+        display: block;
+        animation: slideInDown var(--transition-bounce) ease-out;
+    }
+    
+    .refine-overlay span {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-right: var(--spacing-md);
+    }
+    
+    /* Utility Info Modal - Premium Glass */
+    .info-modal {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        box-shadow: var(--shadow-xl);
+        z-index: 300;
+        transform: translateY(100%);
+        transition: transform var(--transition-spring);
+        max-height: 85vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border-color);
+    }
+    
+    .info-modal.active {
+        transform: translateY(0);
+    }
+    
+    .modal-handle {
+        width: 48px;
+        height: 5px;
+        background: var(--text-tertiary);
+        border-radius: var(--radius-full);
+        margin: var(--spacing-sm) auto;
+        opacity: 0.5;
+    }
+    
+    .modal-header {
+        padding: 0 var(--spacing-lg) var(--spacing-md);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .modal-title {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-size: 20px;
+        font-weight: 700;
+    }
+    
+    .modal-title i {
+        font-size: 24px;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+    
+    .modal-close {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: var(--bg-glass-light);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+    }
+    
+    .modal-close:active {
+        transform: scale(0.9);
+    }
+    
+    .modal-body {
+        padding: var(--spacing-lg);
+        overflow-y: auto;
+        flex: 1;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+    
+    .info-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .modal-btn {
+        flex: 1;
+        padding: var(--spacing-md);
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .modal-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .modal-btn.danger {
+        background: var(--gradient-danger);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .modal-btn:active {
+        transform: scale(0.95);
+    }
+    
+    /* Edit Form */
+    .edit-form {
+        display: none;
+    }
+    
+    .edit-form.active {
+        display: block;
+    }
+    
+    .form-group {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: var(--spacing-md);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-glass-light);
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 500;
+        transition: all var(--transition-normal);
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: var(--bg-secondary);
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c757d' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px;
+    }
+    
+    /* Premium Excavation Mode */
+    .excavation-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 400;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition-slow);
+    }
+    
+    .excavation-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    /* Radar Effect */
+    .excavation-radar {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        height: 300px;
+        pointer-events: none;
+    }
+    
+    .radar-ring {
+        position: absolute;
+        inset: 0;
+        border: 2px solid var(--danger-color);
+        border-radius: 50%;
+        opacity: 0;
+        animation: radarPing 3s linear infinite;
+    }
+    
+    .radar-ring:nth-child(2) {
+        animation-delay: 1s;
+    }
+    
+    .radar-ring:nth-child(3) {
+        animation-delay: 2s;
+    }
+    
+    @keyframes radarPing {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            transform: scale(2);
+            opacity: 0;
+        }
+    }
+    
+    .excavation-header {
+        position: absolute;
+        top: env(safe-area-inset-top, 0);
+        left: 0;
+        right: 0;
+        padding: var(--spacing-lg);
+        background: linear-gradient(180deg, rgba(255, 0, 84, 0.2) 0%, transparent 100%);
+        color: white;
+        text-align: center;
+        z-index: 401;
+    }
+    
+    .excavation-header h2 {
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: var(--spacing-xs);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 20px rgba(255, 0, 84, 0.8);
+    }
+    
+    .excavation-header p {
+        font-size: 14px;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+    
+    /* Premium Proximity Alerts */
+    .proximity-alerts {
+        position: absolute;
+        top: calc(env(safe-area-inset-top, 0) + 120px);
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        z-index: 402;
+        max-height: 50vh;
+        overflow-y: auto;
+        pointer-events: none;
+    }
+    
+    .proximity-alerts > * {
+        pointer-events: auto;
+    }
+    
+    .proximity-alert {
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        animation: alertSlideIn var(--transition-bounce) ease-out;
+        position: relative;
+        border: 2px solid;
+        transform-origin: top center;
+    }
+    
+    .proximity-alert.water { 
+        border-color: var(--water-color);
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(0, 180, 216, 0.3);
+    }
+    .proximity-alert.gas { 
+        border-color: var(--gas-color);
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(255, 214, 10, 0.3);
+    }
+    .proximity-alert.electric { 
+        border-color: var(--electric-color);
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(255, 0, 110, 0.3);
+    }
+    .proximity-alert.sewer { 
+        border-color: var(--sewer-color);
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(168, 118, 62, 0.3);
+    }
+    .proximity-alert.telecom { 
+        border-color: var(--telecom-color);
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(181, 101, 216, 0.3);
+    }
+    
+    @keyframes alertSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px) scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    .alert-header {
+        padding: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .alert-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, currentColor 0%, transparent 100%);
+        opacity: 0.2;
+        z-index: -1;
+    }
+    
+    .alert-type {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .alert-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .alert-icon i {
+        font-size: 20px;
+    }
+    
+    .alert-header.water .alert-icon i { color: var(--water-color); }
+    .alert-header.gas .alert-icon i { color: var(--gas-color); }
+    .alert-header.electric .alert-icon i { color: var(--electric-color); }
+    .alert-header.sewer .alert-icon i { color: var(--sewer-color); }
+    .alert-header.telecom .alert-icon i { color: var(--telecom-color); }
+    
+    .alert-title {
+        flex: 1;
+    }
+    
+    .alert-title h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .alert-title p {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .alert-close {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--transition-normal);
+    }
+    
+    .alert-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .alert-close:active {
+        transform: scale(0.9);
+    }
+    
+    .alert-body {
+        padding: var(--spacing-md);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+    }
+    
+    .alert-info {
+        font-size: 13px;
+    }
+    
+    .alert-info strong {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 4px;
+        color: var(--text-primary);
+    }
+    
+    .alert-info span {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+    
+    .alert-distance {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        background: white;
+        color: var(--bg-primary);
+        padding: 6px 12px;
+        border-radius: var(--radius-full);
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .alert-distance.water { color: var(--water-color); }
+    .alert-distance.gas { color: var(--gas-color); }
+    .alert-distance.electric { color: var(--electric-color); }
+    .alert-distance.sewer { color: var(--sewer-color); }
+    .alert-distance.telecom { color: var(--telecom-color); }
+    
+    /* Exit Excavation Button */
+    .exit-excavation {
+        position: absolute;
+        bottom: calc(env(safe-area-inset-bottom, 0) + var(--spacing-xl));
+        left: 50%;
+        transform: translateX(-50%);
+        padding: var(--spacing-md) var(--spacing-xl);
+        background: white;
+        color: var(--danger-color);
+        border: none;
+        border-radius: var(--radius-full);
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: var(--shadow-xl);
+        transition: all var(--transition-spring);
+        z-index: 403;
+    }
+    
+    .exit-excavation:active {
+        transform: translateX(-50%) scale(0.95);
+    }
+    
+    /* Settings Panel - Premium Slide */
+    .settings-panel {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        bottom: 0;
+        width: 85%;
+        max-width: 380px;
+        background: var(--bg-primary);
+        box-shadow: -8px 0 32px var(--shadow-xl);
+        z-index: 500;
+        transition: right var(--transition-spring);
+        overflow-y: auto;
+        padding-top: env(safe-area-inset-top, 0);
+    }
+    
+    .settings-panel.active {
+        right: 0;
+    }
+    
+    .settings-header {
+        padding: var(--spacing-lg);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .settings-header h2 {
+        font-size: 24px;
+        font-weight: 800;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .settings-section {
+        padding: var(--spacing-lg);
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .settings-section h3 {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-lg);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    /* Premium Toggle Switch */
+    .toggle-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        width: 56px;
+        height: 32px;
+        border: none;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: all var(--transition-normal);
+    }
+    
+    .toggle-switch.active {
+        background: var(--gradient-success);
+    }
+    
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 24px;
+        height: 24px;
+        background: white;
+        border-radius: var(--radius-full);
+        transition: all var(--transition-spring);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .toggle-switch.active::after {
+        transform: translateX(24px);
+    }
+    
+    /* Map Style Selector */
+    .map-styles {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-sm);
+    }
+    
+    .map-style-btn {
+        padding: var(--spacing-md);
+        border: 2px solid var(--border-color);
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-normal);
+        text-align: center;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .map-style-btn.active {
+        border-color: transparent;
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Utility Line Styles */
+    .utility-line {
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        cursor: pointer;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+    }
+    
+    .utility-line.main {
+        stroke-width: 8;
+    }
+    
+    .utility-line.service {
+        stroke-width: 6;
+        stroke-dasharray: 15, 5;
+    }
+    
+    .utility-line.water { stroke: var(--water-color); }
+    .utility-line.gas { stroke: var(--gas-color); }
+    .utility-line.electric { stroke: var(--electric-color); }
+    .utility-line.sewer { stroke: var(--sewer-color); }
+    .utility-line.telecom { stroke: var(--telecom-color); }
+    
+    .utility-line.drawing {
+        opacity: 0.7;
+        animation: drawingPulse 1.5s ease-in-out infinite;
+    }
+    
+    .utility-line.highlighted {
+        filter: drop-shadow(0 0 20px currentColor);
+        stroke-width: 10 !important;
+        opacity: 1 !important;
+    }
+    
+    @keyframes drawingPulse {
+        0%, 100% { 
+            opacity: 0.5; 
+            stroke-width: 6;
+        }
+        50% { 
+            opacity: 1; 
+            stroke-width: 8;
+        }
+    }
+    
+    /* Connection Markers */
+    .connection-marker {
+        fill: white;
+        stroke-width: 3;
+        cursor: pointer;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+    }
+    
+    .connection-marker.t-junction {
+        r: 10;
+    }
+    
+    .connection-marker.endpoint {
+        r: 8;
+    }
+    
+    .connection-marker.structure {
+        r: 12;
+    }
+    
+    .connection-marker.water { stroke: var(--water-color); }
+    .connection-marker.gas { stroke: var(--gas-color); }
+    .connection-marker.electric { stroke: var(--electric-color); }
+    .connection-marker.sewer { stroke: var(--sewer-color); }
+    .connection-marker.telecom { stroke: var(--telecom-color); }
+    
+    /* Refine Points */
+    .refine-point {
+        fill: white;
+        stroke: #667eea;
+        stroke-width: 3;
+        cursor: move;
+        r: 12;
+        filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.5));
+        transition: all var(--transition-normal);
+    }
+    
+    .refine-point:hover {
+        r: 14;
+        filter: drop-shadow(0 6px 16px rgba(102, 126, 234, 0.7));
+    }
+    
+    .refine-point.dragging {
+        r: 16;
+        stroke: #00f5a0;
+        filter: drop-shadow(0 8px 20px rgba(0, 245, 160, 0.7));
+    }
+    
+    /* Connection Dialog - Premium */
+    .connection-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-xl);
+        z-index: 600;
+        min-width: 320px;
+        opacity: 0;
+        pointer-events: none;
+        transition: all var(--transition-spring);
+        border: 1px solid var(--border-color);
+    }
+    
+    .connection-dialog.active {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        pointer-events: auto;
+    }
+    
+    .connection-dialog h3 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: var(--spacing-md);
+        text-align: center;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .connection-dialog p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-lg);
+        text-align: center;
+        line-height: 1.5;
+    }
+    
+    .connection-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        justify-content: center;
+    }
+    
+    /* Structure Markers - Premium Icons */
+    .structure-marker {
+        width: 48px;
+        height: 48px;
+        background: var(--bg-glass);
+        backdrop-filter: blur(20px);
+        border: 3px solid;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        box-shadow: var(--shadow-lg);
+        cursor: pointer;
+        transition: all var(--transition-spring);
+    }
+    
+    .structure-marker.water { 
+        border-color: var(--water-color); 
+        color: var(--water-color); 
+    }
+    .structure-marker.gas { 
+        border-color: var(--gas-color); 
+        color: var(--gas-color); 
+    }
+    .structure-marker.electric { 
+        border-color: var(--electric-color); 
+        color: var(--electric-color); 
+    }
+    .structure-marker.sewer { 
+        border-color: var(--sewer-color); 
+        color: var(--sewer-color); 
+    }
+    .structure-marker.telecom { 
+        border-color: var(--telecom-color); 
+        color: var(--telecom-color); 
+    }
+    
+    .structure-marker:hover {
+        transform: scale(1.1);
+        box-shadow: var(--shadow-xl), 0 0 20px currentColor;
+    }
+    
+    /* Add Structure Button - Premium Floating */
+    .add-structure-btn {
+        position: absolute;
+        right: var(--spacing-md);
+        bottom: calc(env(safe-area-inset-bottom, 0) + 96px);
+        width: 64px;
+        height: 64px;
+        background: var(--gradient-success);
+        border: none;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-xl), 0 0 30px rgba(0, 245, 160, 0.3);
+        cursor: pointer;
+        transition: all var(--transition-spring);
+        z-index: 90;
+    }
+    
+    .add-structure-btn:active {
+        transform: scale(0.92);
+    }
+    
+    .add-structure-btn i {
+        font-size: 28px;
+        color: white;
+    }
+    
+    /* Structure Menu - Premium Grid */
+    .structure-menu {
+        position: absolute;
+        bottom: calc(100% + var(--spacing-sm));
+        right: 0;
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-xl);
+        padding: var(--spacing-md);
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-sm);
+        width: 320px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .structure-menu.active {
+        display: grid;
+        animation: menuPopIn var(--transition-bounce) ease-out;
+    }
+    
+    @keyframes menuPopIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    
+    .structure-type-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-md);
+        background: var(--bg-glass-light);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-normal);
+    }
+    
+    .structure-type-btn:hover {
+        background: var(--bg-tertiary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .structure-type-btn:active {
+        transform: scale(0.95);
+    }
+    
+    .structure-type-btn i {
+        font-size: 26px;
+    }
+    
+    .structure-type-btn span {
+        font-size: 11px;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    /* Toast Notifications - Premium */
+    .toast-container {
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0) + var(--spacing-md));
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        z-index: 1000;
+        pointer-events: none;
+    }
+    
+    .toast {
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md) var(--spacing-lg);
+        box-shadow: var(--shadow-xl);
+        margin-bottom: var(--spacing-sm);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        opacity: 0;
+        transform: translateY(-20px) scale(0.9);
+        transition: all var(--transition-spring);
+        pointer-events: auto;
+        border: 1px solid var(--border-color);
+    }
+    
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    
+    .toast i {
+        font-size: 24px;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+    
+    .toast span {
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .toast.success i { color: var(--success-color); }
+    .toast.error i { color: var(--danger-color); }
+    .toast.warning i { color: var(--warning-color); }
+    .toast.info i { color: var(--info-color); }
+    
+    /* Measurement Display */
+    .measurement-display {
+        position: absolute;
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-sm) var(--spacing-md);
+        box-shadow: var(--shadow-lg);
+        font-size: 14px;
+        font-weight: 700;
+        pointer-events: none;
+        z-index: 200;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+    }
+    
+    /* Notes Section */
+    .notes-section {
+        margin-top: var(--spacing-lg);
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--border-color);
+    }
+    
+    .notes-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .notes-title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+    
+    .add-note-btn {
+        padding: var(--spacing-sm) var(--spacing-md);
+        background: var(--bg-glass-light);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        transition: all var(--transition-normal);
+    }
+    
+    .add-note-btn:active {
+        transform: scale(0.95);
+    }
+    
+    .notes-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .note-item {
+        background: var(--bg-glass-light);
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+        position: relative;
+        border: 1px solid var(--border-color);
+    }
+    
+    .note-text {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: var(--spacing-xs);
+    }
+    
+    .note-date {
+        font-size: 12px;
+        color: var(--text-tertiary);
+    }
+    
+    .note-delete {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        width: 24px;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        color: var(--text-tertiary);
+        transition: all var(--transition-normal);
+    }
+    
+    .note-delete:hover {
+        color: var(--danger-color);
+    }
+    
+    /* Cloud Sync Status */
+    .sync-status {
+        position: fixed;
+        bottom: calc(env(safe-area-inset-bottom, 0) + var(--spacing-md));
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-full);
+        padding: var(--spacing-sm) var(--spacing-lg);
+        box-shadow: var(--shadow-md);
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        opacity: 0;
+        pointer-events: none;
+        transition: all var(--transition-normal);
+        border: 1px solid var(--border-color);
+    }
+    
+    .sync-status.show {
+        opacity: 1;
+    }
+    
+    .sync-status i {
+        font-size: 14px;
+        color: var(--info-color);
+        animation: syncSpin 2s linear infinite;
+    }
+    
+    @keyframes syncSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Note Input Modal */
+    .note-input-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 650;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition-normal);
+        padding: var(--spacing-lg);
+    }
+    
+    .note-input-modal.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .note-input-content {
+        background: var(--bg-glass);
+        backdrop-filter: blur(30px) saturate(180%);
+        -webkit-backdrop-filter: blur(30px) saturate(180%);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--shadow-xl);
+        width: 100%;
+        max-width: 400px;
+        border: 1px solid var(--border-color);
+    }
+    
+    .note-input-header {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: var(--spacing-lg);
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .note-textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: var(--spacing-md);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-glass-light);
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: all var(--transition-normal);
+    }
+    
+    .note-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        background: var(--bg-secondary);
+    }
+    
+    .note-input-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-lg);
+    }
+    
+    /* Responsive adjustments */
+    @media (min-width: 768px) {
+        .bottom-controls {
+            max-width: 640px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .proximity-alerts {
+            max-width: 520px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .structure-menu {
+            width: 360px;
+        }
+    }
+    
+    /* Prevent selection and zoom */
+    * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    
+    input, textarea {
+        -webkit-user-select: text;
+        -khtml-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+    }
+</style>
+```
+
+</head>
+<body>
+    <!-- Premium Splash Screen -->
+    <div class="splash-screen" id="splash">
+        <div class="splash-logo-container">
+            <div class="splash-logo">
+                <div class="logo-hexagon">
+                    <div class="hex-inner">
+                        <div class="logo-content">
+                            <div class="logo-grid">
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                                <div class="logo-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h1 class="splash-title">CAC Utili-Track</h1>
+        <p class="splash-subtitle">Professional Mapping System</p>
+        <div class="splash-loader"></div>
+    </div>
+
+```
+<!-- Main App Container -->
+<div class="app-container">
+    <!-- Map -->
+    <div id="map"></div>
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="utility-selector">
+            <button class="utility-btn water active" data-utility="water">
+                <i class="fas fa-tint"></i>
+            </button>
+            <button class="utility-btn gas" data-utility="gas">
+                <i class="fas fa-fire"></i>
+            </button>
+            <button class="utility-btn electric" data-utility="electric">
+                <i class="fas fa-bolt"></i>
+            </button>
+            <button class="utility-btn sewer" data-utility="sewer">
+                <i class="fas fa-toilet"></i>
+            </button>
+            <button class="utility-btn telecom" data-utility="telecom">
+                <i class="fas fa-phone"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Measurement Tools -->
+    <div class="measurement-tools">
+        <button class="measurement-btn" id="measureDistanceBtn" title="Measure Distance">
+            <i class="fas fa-ruler"></i>
+        </button>
+        <button class="measurement-btn" id="measureAreaBtn" title="Measure Area">
+            <i class="fas fa-vector-square"></i>
+        </button>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="bottom-controls">
+        <div class="control-group">
+            <button class="control-btn" id="locateBtn">
+                <i class="fas fa-location-crosshairs"></i>
+            </button>
+            <button class="control-btn" id="layersBtn">
+                <i class="fas fa-layer-group"></i>
+            </button>
+        </div>
+
+        <div class="control-group center">
+            <div class="main-action-group">
+                <div class="line-type-toggle">
+                    <button class="line-type-btn active" data-type="service">Service</button>
+                    <button class="line-type-btn" data-type="main">Main</button>
+                </div>
+                <button class="main-action-btn" id="drawBtn">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <button class="control-btn excavation-btn" id="excavationBtn">
+                <i class="fas fa-hard-hat"></i>
+            </button>
+            <button class="control-btn" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Right Side Controls -->
+    <div class="right-controls">
+        <button class="control-btn" id="zoomInBtn">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="control-btn" id="zoomOutBtn">
+            <i class="fas fa-minus"></i>
+        </button>
+    </div>
+
+    <!-- Add Structure Button -->
+    <button class="add-structure-btn" id="addStructureBtn">
+        <i class="fas fa-plus"></i>
+        <div class="structure-menu" id="structureMenu">
+            <button class="structure-type-btn" data-structure="electricBox" data-utility="electric">
+                <i class="fas fa-bolt"></i>
+                <span>Elec Box</span>
+            </button>
+            <button class="structure-type-btn" data-structure="catchBasin" data-utility="sewer">
+                <i class="fas fa-water"></i>
+                <span>Catch Basin</span>
+            </button>
+            <button class="structure-type-btn" data-structure="sewerManhole" data-utility="sewer">
+                <i class="fas fa-circle"></i>
+                <span>Sewer MH</span>
+            </button>
+            <button class="structure-type-btn" data-structure="waterManhole" data-utility="water">
+                <i class="fas fa-tint"></i>
+                <span>Water MH</span>
+            </button>
+            <button class="structure-type-btn" data-structure="gasManhole" data-utility="gas">
+                <i class="fas fa-fire"></i>
+                <span>Gas MH</span>
+            </button>
+            <button class="structure-type-btn" data-structure="gasValve" data-utility="gas">
+                <i class="fas fa-valve"></i>
+                <span>Gas Valve</span>
+            </button>
+            <button class="structure-type-btn" data-structure="hydrantValve" data-utility="water">
+                <i class="fas fa-fire-extinguisher"></i>
+                <span>Hydrant</span>
+            </button>
+            <button class="structure-type-btn" data-structure="telecomBox" data-utility="telecom">
+                <i class="fas fa-network-wired"></i>
+                <span>Telecom</span>
+            </button>
+        </div>
+    </button>
+
+    <!-- Drawing UI -->
+    <div class="drawing-ui" id="drawingUI">
+        <h3>Drawing Utility Line</h3>
+        <p id="drawingStatus">Click points on the map</p>
+        <div class="drawing-actions">
+            <button class="drawing-btn secondary" id="cancelDrawBtn">Cancel</button>
+            <button class="drawing-btn primary" id="finishDrawBtn" style="display: none;">Finish</button>
+        </div>
+    </div>
+
+    <!-- Refine Mode Overlay -->
+    <div class="refine-overlay" id="refineOverlay">
+        <span>Drag points to refine location</span>
+        <button class="drawing-btn primary" id="finishRefineBtn">Finish</button>
+    </div>
+
+    <!-- Utility Info Modal -->
+    <div class="info-modal" id="infoModal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fas fa-tint" id="modalIcon"></i>
+                <span id="modalTitle">Utility Information</span>
+            </div>
+            <button class="modal-close" id="closeModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- View Mode -->
+            <div id="viewMode">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Type</span>
+                        <span class="info-value" id="infoType">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Line Type</span>
+                        <span class="info-value" id="infoLineType">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Size</span>
+                        <span class="info-value" id="infoSize">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Depth</span>
+                        <span class="info-value" id="infoDepth">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Material</span>
+                        <span class="info-value" id="infoMaterial">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Condition</span>
+                        <span class="info-value" id="infoCondition">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Distance from Curb</span>
+                        <span class="info-value" id="infoCurbDistance">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date Added</span>
+                        <span class="info-value" id="infoDate">-</span>
+                    </div>
+                </div>
+                
+                <!-- Notes Section -->
+                <div class="notes-section">
+                    <div class="notes-header">
+                        <h3 class="notes-title">Notes</h3>
+                        <button class="add-note-btn" id="addNoteBtn">
+                            <i class="fas fa-plus"></i>
+                            Add Note
+                        </button>
+                    </div>
+                    <div class="notes-list" id="notesList"></div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="modal-btn primary" id="editBtn">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </button>
+                    <button class="modal-btn primary" id="refineBtn">
+                        <i class="fas fa-crosshairs"></i>
+                        Refine Location
+                    </button>
+                    <button class="modal-btn danger" id="deleteBtn">
+                        <i class="fas fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Edit Mode -->
+            <div class="edit-form" id="editMode">
+                <div class="form-group">
+                    <label class="form-label">Size (inches)</label>
+                    <input type="number" class="form-input" id="editSize" placeholder="e.g., 4">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Depth (feet)</label>
+                    <input type="number" class="form-input" id="editDepth" placeholder="e.g., 3">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Material</label>
+                    <select class="form-input form-select" id="editMaterial">
+                        <option value="">Not specified</option>
+                        <option value="PVC">PVC</option>
+                        <option value="Cast Iron">Cast Iron</option>
+                        <option value="Copper">Copper</option>
+                        <option value="Steel">Steel</option>
+                        <option value="HDPE">HDPE</option>
+                        <option value="Concrete">Concrete</option>
+                        <option value="Clay">Clay</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Condition</label>
+                    <select class="form-input form-select" id="editCondition">
+                        <option value="">Not specified</option>
+                        <option value="Excellent">Excellent</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                        <option value="Poor">Poor</option>
+                        <option value="Critical">Critical</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Distance from Curb (feet)</label>
+                    <input type="number" class="form-input" id="editCurbDistance" placeholder="e.g., 6">
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn secondary" id="cancelEditBtn">
+                        Cancel
+                    </button>
+                    <button class="modal-btn primary" id="saveEditBtn">
+                        <i class="fas fa-save"></i>
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excavation Mode Overlay -->
+    <div class="excavation-overlay" id="excavationOverlay">
+        <div class="excavation-radar">
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+            <div class="radar-ring"></div>
+        </div>
+        <div class="excavation-header">
+            <h2>EXCAVATION MODE ACTIVE</h2>
+            <p>Monitoring utility proximity within 15 feet</p>
+        </div>
+        <div class="proximity-alerts" id="proximityAlerts"></div>
+        <button class="exit-excavation" id="exitExcavationBtn">Exit Excavation Mode</button>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="modal-close" id="closeSettingsBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Appearance</h3>
+            <div class="toggle-list">
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-moon"></i>
+                        Dark Mode
+                    </span>
+                    <button class="toggle-switch active" id="darkModeToggle"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Map Style</h3>
+            <div class="map-styles">
+                <button class="map-style-btn active" data-style="streets">Streets</button>
+                <button class="map-style-btn" data-style="satellite">Satellite</button>
+                <button class="map-style-btn" data-style="terrain">Terrain</button>
+                <button class="map-style-btn" data-style="dark">Dark</button>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Utility Visibility</h3>
+            <div class="toggle-list">
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-tint" style="color: var(--water-color)"></i>
+                        Water
+                    </span>
+                    <button class="toggle-switch active" data-utility="water"></button>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-fire" style="color: var(--gas-color)"></i>
+                        Gas
+                    </span>
+                    <button class="toggle-switch active" data-utility="gas"></button>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-bolt" style="color: var(--electric-color)"></i>
+                        Electric
+                    </span>
+                    <button class="toggle-switch active" data-utility="electric"></button>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-toilet" style="color: var(--sewer-color)"></i>
+                        Sewer
+                    </span>
+                    <button class="toggle-switch active" data-utility="sewer"></button>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-phone" style="color: var(--telecom-color)"></i>
+                        Telecom
+                    </span>
+                    <button class="toggle-switch active" data-utility="telecom"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Line Types</h3>
+            <div class="toggle-list">
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-grip-lines"></i>
+                        Main Lines
+                    </span>
+                    <button class="toggle-switch active" data-linetype="main"></button>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-code-branch"></i>
+                        Service Lines
+                    </span>
+                    <button class="toggle-switch active" data-linetype="service"></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Cloud Sync</h3>
+            <div class="toggle-list">
+                <div class="toggle-item">
+                    <span class="toggle-label">
+                        <i class="fas fa-cloud"></i>
+                        Enable Cloud Sync
+                    </span>
+                    <button class="toggle-switch" id="cloudSyncToggle"></button>
+                </div>
+            </div>
+            <p style="margin-top: var(--spacing-sm); font-size: 12px; color: var(--text-tertiary);">
+                Sync your data across devices
+            </p>
+        </div>
+    </div>
+
+    <!-- Connection Dialog -->
+    <div class="connection-dialog" id="connectionDialog">
+        <h3>Connect Utilities?</h3>
+        <p>The endpoints are close. Would you like to connect them?</p>
+        <div class="connection-actions">
+            <button class="drawing-btn secondary" id="noConnectBtn">No</button>
+            <button class="drawing-btn primary" id="yesConnectBtn">Yes, Connect</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- Sync Status -->
+    <div class="sync-status" id="syncStatus">
+        <i class="fas fa-sync"></i>
+        <span>Syncing...</span>
+    </div>
+    
+    <!-- Note Input Modal -->
+    <div class="note-input-modal" id="noteInputModal">
+        <div class="note-input-content">
+            <h3 class="note-input-header">Add Note</h3>
+            <textarea class="note-textarea" id="noteTextarea" placeholder="Enter your note..."></textarea>
+            <div class="note-input-actions">
+                <button class="modal-btn secondary" id="cancelNoteBtn">Cancel</button>
+                <button class="modal-btn primary" id="saveNoteBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+    // Premium App State
+    const AppState = {
+        map: null,
+        theme: 'dark',
+        selectedUtility: 'water',
+        lineType: 'service',
+        isDrawing: false,
+        drawingPoints: [],
+        tempLine: null,
+        utilities: [],
+        structures: [],
+        userLocation: null,
+        userMarker: null,
+        watchId: null,
+        deviceOrientationHandler: null,
+        excavationMode: false,
+        proximityAlerts: [],
+        selectedUtilityData: null,
+        refineMode: false,
+        refinePoints: [],
+        refineMarkers: [],
+        addingStructure: false,
+        structureToAdd: null,
+        measureMode: null,
+        measurePoints: [],
+        measureMarkers: [],
+        measureLine: null,
+        measurePolygon: null,
+        layers: {
+            utilities: {},
+            structures: {},
+            visibility: {
+                water: true,
+                gas: true,
+                electric: true,
+                sewer: true,
+                telecom: true,
+                main: true,
+                service: true
+            }
+        },
+        dismissedAlerts: new Map(),
+        alertTimeouts: new Map(),
+        connectionCandidate: null,
+        mapStyles: {
+            streets: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            terrain: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+            dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+        },
+        currentMapStyle: 'dark',
+        cloudSync: {
+            enabled: false,
+            lastSync: null,
+            apiUrl: 'https://api.cacutilitrack.com',
+            userId: null,
+            token: null
+        },
+        needsOrientationPermission: false
+    };
+
+    // Initialize App
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeApp();
+    });
+
+    function initializeApp() {
+        // Check if running on iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        if (isIOS) {
+            document.body.style.height = '100vh';
+            document.body.style.position = 'fixed';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Hide splash screen
+        setTimeout(() => {
+            document.getElementById('splash').classList.add('hide');
+        }, 3000);
+
+        // Initialize map
+        initializeMap();
+
+        // Initialize event listeners
+        initializeEventListeners();
+
+        // Check for saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+
+        // Check cloud sync settings
+        const cloudSyncEnabled = localStorage.getItem('cloudSyncEnabled') === 'true';
+        if (cloudSyncEnabled) {
+            enableCloudSync();
+        }
+
+        // Load data
+        loadUtilities();
+        loadStructures();
+
+        // Start location tracking
+        startLocationTracking();
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    }
+
+    function initializeMap() {
+        // Create map
+        AppState.map = L.map('map', {
+            center: [40.7128, -74.0060], // Default to NYC
+            zoom: 16,
+            zoomControl: false,
+            attributionControl: false,
+            doubleClickZoom: false,
+            touchZoom: true,
+            scrollWheelZoom: true,
+            boxZoom: false,
+            keyboard: false,
+            tap: false
+        });
+
+        // Add tile layer
+        L.tileLayer(AppState.mapStyles[AppState.currentMapStyle], {
+            maxZoom: 22,
+            maxNativeZoom: 19
+        }).addTo(AppState.map);
+
+        // Initialize utility layers
+        const utilityTypes = ['water', 'gas', 'electric', 'sewer', 'telecom'];
+        utilityTypes.forEach(type => {
+            AppState.layers.utilities[type] = L.layerGroup().addTo(AppState.map);
+            AppState.layers.structures[type] = L.layerGroup().addTo(AppState.map);
+        });
+
+        // Map events
+        AppState.map.on('click', handleMapClick);
+        AppState.map.on('contextmenu', e => e.preventDefault());
+    }
+
+    function initializeEventListeners() {
+        // Prevent all context menus
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Utility selection
+        document.querySelectorAll('.utility-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.utility-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                AppState.selectedUtility = btn.dataset.utility;
+                hapticFeedback(30);
+            });
+        });
+
+        // Line type selection
+        document.querySelectorAll('.line-type-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.line-type-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                AppState.lineType = btn.dataset.type;
+                hapticFeedback(30);
+            });
+        });
+
+        // Control buttons
+        document.getElementById('drawBtn').addEventListener('click', startDrawing);
+        document.getElementById('locateBtn').addEventListener('click', centerOnLocation);
+        document.getElementById('layersBtn').addEventListener('click', toggleLayersPanel);
+        document.getElementById('excavationBtn').addEventListener('click', toggleExcavationMode);
+        document.getElementById('settingsBtn').addEventListener('click', openSettings);
+        document.getElementById('zoomInBtn').addEventListener('click', () => {
+            AppState.map.zoomIn();
+            hapticFeedback(20);
+        });
+        document.getElementById('zoomOutBtn').addEventListener('click', () => {
+            AppState.map.zoomOut();
+            hapticFeedback(20);
+        });
+
+        // Measurement tools
+        document.getElementById('measureDistanceBtn').addEventListener('click', () => toggleMeasureMode('distance'));
+        document.getElementById('measureAreaBtn').addEventListener('click', () => toggleMeasureMode('area'));
+
+        // Structure button
+        document.getElementById('addStructureBtn').addEventListener('click', toggleStructureMenu);
+        document.querySelectorAll('.structure-type-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                startAddingStructure(btn.dataset.structure, btn.dataset.utility);
+            });
+        });
+
+        // Drawing controls
+        document.getElementById('cancelDrawBtn').addEventListener('click', cancelDrawing);
+        document.getElementById('finishDrawBtn').addEventListener('click', finishDrawing);
+
+        // Refine controls
+        document.getElementById('finishRefineBtn').addEventListener('click', finishRefining);
+
+        // Modal controls
+        document.getElementById('closeModalBtn').addEventListener('click', closeInfoModal);
+        document.getElementById('editBtn').addEventListener('click', enterEditMode);
+        document.getElementById('refineBtn').addEventListener('click', startRefineLocation);
+        document.getElementById('deleteBtn').addEventListener('click', deleteUtility);
+
+        // Edit form controls
+        document.getElementById('cancelEditBtn').addEventListener('click', exitEditMode);
+        document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+
+        // Notes
+        document.getElementById('addNoteBtn').addEventListener('click', showNoteInput);
+        
+        // Note input modal
+        document.getElementById('cancelNoteBtn').addEventListener('click', hideNoteInput);
+        document.getElementById('saveNoteBtn').addEventListener('click', saveNote);
+
+        // Excavation mode
+        document.getElementById('exitExcavationBtn').addEventListener('click', exitExcavationMode);
+
+        // Settings
+        document.getElementById('closeSettingsBtn').addEventListener('click', closeSettings);
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        document.getElementById('cloudSyncToggle').addEventListener('click', toggleCloudSync);
+
+        // Map style buttons
+        document.querySelectorAll('.map-style-btn').forEach(btn => {
+            btn.addEventListener('click', () => changeMapStyle(btn.dataset.style));
+        });
+
+        // Visibility toggles
+        document.querySelectorAll('.toggle-switch[data-utility]').forEach(toggle => {
+            toggle.addEventListener('click', () => toggleUtilityVisibility(toggle));
+        });
+
+        document.querySelectorAll('.toggle-switch[data-linetype]').forEach(toggle => {
+            toggle.addEventListener('click', () => toggleLineTypeVisibility(toggle));
+        });
+
+        // Connection dialog
+        document.getElementById('noConnectBtn').addEventListener('click', () => {
+            closeConnectionDialog(false);
+        });
+        document.getElementById('yesConnectBtn').addEventListener('click', () => {
+            closeConnectionDialog(true);
+        });
+
+        // Close menus on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#addStructureBtn')) {
+                document.getElementById('structureMenu').classList.remove('active');
+            }
+        });
+
+        // Prevent pinch zoom
+        document.addEventListener('gesturestart', e => e.preventDefault());
+        document.addEventListener('gesturechange', e => e.preventDefault());
+        document.addEventListener('gestureend', e => e.preventDefault());
+    }
+
+    // Haptic Feedback
+    function hapticFeedback(duration = 50) {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(duration);
+        }
+    }
+
+    // Location tracking
+    function startLocationTracking() {
+        if (!navigator.geolocation) {
+            showToast('Geolocation not supported', 'error');
+            return;
+        }
+
+        // Get initial position
+        navigator.geolocation.getCurrentPosition(
+            position => updateUserLocation(position),
+            error => showToast('Location access denied', 'error'),
+            { enableHighAccuracy: true }
+        );
+
+        // Watch position
+        AppState.watchId = navigator.geolocation.watchPosition(
+            position => updateUserLocation(position),
+            error => console.error('Location error:', error),
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+
+        // Watch device orientation
+        if (window.DeviceOrientationEvent) {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                AppState.needsOrientationPermission = true;
+            } else {
+                window.addEventListener('deviceorientation', handleDeviceOrientation);
+            }
+        }
+    }
+
+    function handleDeviceOrientation(event) {
+        if (event.webkitCompassHeading) {
+            // iOS
+            updateDirectionIndicator(event.webkitCompassHeading);
+        } else if (event.absolute && event.alpha !== null) {
+            // Android
+            const heading = 360 - event.alpha;
+            updateDirectionIndicator(heading);
+        }
+    }
+
+    function updateUserLocation(position) {
+        const { latitude, longitude, accuracy } = position.coords;
+        AppState.userLocation = [latitude, longitude];
+
+        if (!AppState.userMarker) {
+            // Create custom user location marker
+            const userIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: `
+                    <div class="location-container">
+                        <div class="location-accuracy"></div>
+                        <div class="location-outer-ring"></div>
+                        <div class="location-inner">
+                            <div class="location-dot"></div>
+                        </div>
+                        <div class="location-direction"></div>
+                    </div>
+                `,
+                iconSize: [60, 60],
+                iconAnchor: [30, 30]
+            });
+
+            AppState.userMarker = L.marker([latitude, longitude], {
+                icon: userIcon,
+                zIndexOffset: 1000
+            }).addTo(AppState.map);
+        } else {
+            AppState.userMarker.setLatLng([latitude, longitude]);
+        }
+
+        // Update accuracy circle size
+        const accuracyElement = document.querySelector('.location-accuracy');
+        if (accuracyElement) {
+            const scale = Math.min(2, Math.max(0.5, accuracy / 20));
+            accuracyElement.style.transform = `scale(${scale})`;
+        }
+
+        // Check proximity in excavation mode
+        if (AppState.excavationMode) {
+            checkProximity();
+        }
+    }
+
+    function updateDirectionIndicator(heading) {
+        const directionElement = document.querySelector('.location-direction');
+        if (directionElement) {
+            directionElement.style.transform = `translateX(-50%) rotate(${heading}deg)`;
+        }
+    }
+
+    async function centerOnLocation() {
+        // Request orientation permission if needed (iOS 13+)
+        if (AppState.needsOrientationPermission) {
+            try {
+                const permission = await DeviceOrientationEvent.requestPermission();
+                if (permission === 'granted') {
+                    window.addEventListener('deviceorientation', handleDeviceOrientation);
+                    AppState.needsOrientationPermission = false;
+                }
+            } catch (error) {
+                console.error('Orientation permission denied');
+            }
+        }
+
+        if (AppState.userLocation) {
+            AppState.map.setView(AppState.userLocation, 18);
+            showToast('Centered on your location', 'info');
+            hapticFeedback(50);
+        } else {
+            showToast('Location not available', 'error');
+        }
+    }
+
+    // Drawing functions
+    function startDrawing() {
+        if (AppState.measureMode) {
+            toggleMeasureMode(null);
+        }
+        
+        AppState.isDrawing = true;
+        AppState.drawingPoints = [];
+        document.getElementById('drawingUI').classList.add('active');
+        document.getElementById('drawBtn').classList.add('active');
+        updateDrawingStatus();
+        hapticFeedback(50);
+    }
+
+    function handleMapClick(e) {
+        if (AppState.isDrawing) {
+            addDrawingPoint(e.latlng);
+        } else if (AppState.refineMode) {
+            // Don't finish on map click during refine
+        } else if (AppState.addingStructure) {
+            addStructure(e.latlng);
+        } else if (AppState.measureMode) {
+            addMeasurePoint(e.latlng);
+        }
+    }
+
+    function addDrawingPoint(latlng) {
+        AppState.drawingPoints.push(latlng);
+        updateDrawingStatus();
+        updateTempLine();
+        hapticFeedback(30);
+
+        // Check for nearby connections
+        if (AppState.drawingPoints.length >= 1) {
+            checkForNearbyConnections(latlng);
+        }
+
+        // Add a temporary marker for visual feedback
+        const tempMarker = L.circleMarker(latlng, {
+            radius: 6,
+            fillColor: getUtilityColor(AppState.selectedUtility),
+            fillOpacity: 1,
+            color: 'white',
+            weight: 2
+        }).addTo(AppState.map);
+
+        setTimeout(() => {
+            AppState.map.removeLayer(tempMarker);
+        }, 1000);
+    }
+
+    function updateDrawingStatus() {
+        const status = document.getElementById('drawingStatus');
+        const finishBtn = document.getElementById('finishDrawBtn');
+        
+        if (AppState.drawingPoints.length === 0) {
+            status.textContent = 'Click points on the map';
+            finishBtn.style.display = 'none';
+        } else if (AppState.drawingPoints.length === 1) {
+            status.textContent = 'Click to add more points';
+            finishBtn.style.display = 'none';
+        } else {
+            status.textContent = `${AppState.drawingPoints.length} points added`;
+            finishBtn.style.display = 'block';
+        }
+    }
+
+    function updateTempLine() {
+        if (AppState.tempLine) {
+            AppState.map.removeLayer(AppState.tempLine);
+        }
+
+        if (AppState.drawingPoints.length > 1) {
+            AppState.tempLine = L.polyline(AppState.drawingPoints, {
+                color: getUtilityColor(AppState.selectedUtility),
+                weight: AppState.lineType === 'main' ? 8 : 6,
+                opacity: 0.7,
+                dashArray: AppState.lineType === 'service' ? '15, 5' : null,
+                className: 'utility-line drawing'
+            }).addTo(AppState.map);
+        }
+    }
+
+    function checkForNearbyConnections(currentPoint) {
+        const threshold = 0.00009; // Approximately 10 meters
+        AppState.connectionCandidate = null;
+
+        // Check for nearby utilities of the same type
+        AppState.utilities.forEach(utility => {
+            if (utility.type === AppState.selectedUtility) {
+                // For service lines, check if we can connect to a main
+                if (AppState.lineType === 'service' && utility.lineType === 'main') {
+                    // Check distance to any point on the main line
+                    const closestPoint = getClosestPointOnLine(currentPoint, utility.points);
+                    if (closestPoint.distance < threshold) {
+                        AppState.connectionCandidate = {
+                            utility: utility,
+                            point: closestPoint.point,
+                            type: 'main-to-service'
+                        };
+                    }
+                } else if (utility.lineType === AppState.lineType) {
+                    // Same line type - check endpoints only
+                    const startPoint = utility.points[0];
+                    const endPoint = utility.points[utility.points.length - 1];
+
+                    if (getDistance(currentPoint, startPoint) < threshold) {
+                        AppState.connectionCandidate = {
+                            utility: utility,
+                            point: startPoint,
+                            type: 'endpoint'
+                        };
+                    } else if (getDistance(currentPoint, endPoint) < threshold) {
+                        AppState.connectionCandidate = {
+                            utility: utility,
+                            point: endPoint,
+                            type: 'endpoint'
+                        };
+                    }
+                }
+            }
+        });
+
+        // Check for nearby structures
+        AppState.structures.forEach(structure => {
+            if (structure.utilityType === AppState.selectedUtility) {
+                if (getDistance(currentPoint, structure.latlng) < threshold) {
+                    AppState.connectionCandidate = {
+                        structure: structure,
+                        point: structure.latlng,
+                        type: 'structure'
+                    };
+                }
+            }
+        });
+    }
+
+    function getClosestPointOnLine(point, linePoints) {
+        let minDistance = Infinity;
+        let closestPoint = null;
+
+        for (let i = 0; i < linePoints.length - 1; i++) {
+            const projectedPoint = projectPointOnSegment(point, linePoints[i], linePoints[i + 1]);
+            const distance = getDistance(point, projectedPoint);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = projectedPoint;
+            }
+        }
+
+        return { point: closestPoint, distance: minDistance };
+    }
+
+    function projectPointOnSegment(point, segStart, segEnd) {
+        const A = point.lat - segStart.lat;
+        const B = point.lng - segStart.lng;
+        const C = segEnd.lat - segStart.lat;
+        const D = segEnd.lng - segStart.lng;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = -1;
+
+        if (lenSq !== 0) {
+            param = dot / lenSq;
+        }
+
+        let lat, lng;
+
+        if (param < 0) {
+            lat = segStart.lat;
+            lng = segStart.lng;
+        } else if (param > 1) {
+            lat = segEnd.lat;
+            lng = segEnd.lng;
+        } else {
+            lat = segStart.lat + param * C;
+            lng = segStart.lng + param * D;
+        }
+
+        return L.latLng(lat, lng);
+    }
+
+    function getDistance(point1, point2) {
+        const lat1 = point1.lat || point1[0];
+        const lng1 = point1.lng || point1[1];
+        const lat2 = point2.lat || point2[0];
+        const lng2 = point2.lng || point2[1];
+        
+        return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lng2 - lng1, 2));
+    }
+
+    function showConnectionDialog() {
+        const dialog = document.getElementById('connectionDialog');
+        dialog.classList.add('active');
+        hapticFeedback(50);
+    }
+
+    function closeConnectionDialog(connect) {
+        const dialog = document.getElementById('connectionDialog');
+        dialog.classList.remove('active');
+        
+        if (connect && AppState.connectionCandidate) {
+            // Snap to connection point
+            const lastIndex = AppState.drawingPoints.length - 1;
+            AppState.drawingPoints[lastIndex] = AppState.connectionCandidate.point;
+            updateTempLine();
+            hapticFeedback(30);
+            
+            // Finish drawing after connecting
+            setTimeout(() => {
+                finishDrawing();
+            }, 100);
+        }
+    }
+
+    function finishDrawing() {
+        if (AppState.drawingPoints.length < 2) {
+            showToast('Need at least 2 points', 'warning');
+            return;
+        }
+
+        // Check if we should show connection dialog
+        if (AppState.connectionCandidate && AppState.drawingPoints.length > 0) {
+            showConnectionDialog();
+            return;
+        }
+
+        // Create utility data
+        const utilityData = {
+            id: generateId(),
+            type: AppState.selectedUtility,
+            lineType: AppState.lineType,
+            points: [...AppState.drawingPoints],
+            size: '',
+            depth: '',
+            material: '',
+            condition: '',
+            curbDistance: '',
+            dateAdded: new Date().toISOString(),
+            connections: [],
+            notes: []
+        };
+
+        // Add connection info if connected
+        if (AppState.connectionCandidate) {
+            utilityData.connections.push({
+                type: AppState.connectionCandidate.type,
+                targetId: AppState.connectionCandidate.utility?.id || AppState.connectionCandidate.structure?.id,
+                point: AppState.connectionCandidate.point
+            });
+        }
+
+        // Add utility to state
+        AppState.utilities.push(utilityData);
+
+        // Create the utility line on map
+        createUtilityLine(utilityData);
+
+        // Save
+        saveUtilities();
+        syncToCloud();
+
+        // Show info modal for editing
+        showInfoModal(utilityData);
+
+        // Reset drawing state
+        cancelDrawing();
+
+        showToast('Utility line added', 'success');
+        hapticFeedback(100);
+    }
+
+    function cancelDrawing() {
+        AppState.isDrawing = false;
+        AppState.drawingPoints = [];
+        AppState.connectionCandidate = null;
+        
+        if (AppState.tempLine) {
+            AppState.map.removeLayer(AppState.tempLine);
+            AppState.tempLine = null;
+        }
+
+        document.getElementById('drawingUI').classList.remove('active');
+        document.getElementById('drawBtn').classList.remove('active');
+    }
+
+    function createUtilityLine(utilityData) {
+        const line = L.polyline(utilityData.points, {
+            color: getUtilityColor(utilityData.type),
+            weight: utilityData.lineType === 'main' ? 8 : 6,
+            opacity: 1,
+            dashArray: utilityData.lineType === 'service' ? '15, 5' : null,
+            className: `utility-line ${utilityData.type} ${utilityData.lineType}`
+        });
+
+        // Add click handler
+        let pressTimer;
+        let longPress = false;
+        
+        line.on('mousedown touchstart', (e) => {
+            longPress = false;
+            pressTimer = setTimeout(() => {
+                longPress = true;
+                hapticFeedback(50);
+                showInfoModal(utilityData);
+            }, 500);
+        });
+
+        line.on('mouseup touchend mouseleave', () => {
+            clearTimeout(pressTimer);
+        });
+
+        line.on('click', (e) => {
+            if (!longPress) {
+                L.DomEvent.stopPropagation(e);
+            }
+        });
+
+        // Store reference
+        utilityData.lineLayer = line;
+
+        // Add to appropriate layer
+        line.addTo(AppState.layers.utilities[utilityData.type]);
+
+        // Add connection markers
+        if (utilityData.connections && utilityData.connections.length > 0) {
+            utilityData.connections.forEach(conn => {
+                let markerClass = 'connection-marker';
+                let radius = 8;
+                
+                if (conn.type === 'main-to-service') {
+                    markerClass += ' t-junction';
+                    radius = 10;
+                } else if (conn.type === 'endpoint') {
+                    markerClass += ' endpoint';
+                    radius = 8;
+                } else if (conn.type === 'structure') {
+                    markerClass += ' structure';
+                    radius = 12;
+                }
+                
+                const marker = L.circleMarker(conn.point, {
+                    radius: radius,
+                    fillColor: 'white',
+                    color: getUtilityColor(utilityData.type),
+                    weight: 3,
+                    opacity: 1,
+                    fillOpacity: 1,
+                    className: `${markerClass} ${utilityData.type}`
+                });
+                marker.addTo(AppState.layers.utilities[utilityData.type]);
+            });
+        }
+    }
+
+    function getUtilityColor(type) {
+        const colors = {
+            water: '#00b4d8',
+            gas: '#ffd60a',
+            electric: '#ff006e',
+            sewer: '#a8763e',
+            telecom: '#b565d8'
+        };
+        return colors[type] || '#000000';
+    }
+
+    // Structure functions
+    function toggleStructureMenu() {
+        const menu = document.getElementById('structureMenu');
+        menu.classList.toggle('active');
+        hapticFeedback(30);
+    }
+
+    function startAddingStructure(structureType, utilityType) {
+        AppState.addingStructure = true;
+        AppState.structureToAdd = {
+            type: structureType,
+            utilityType: utilityType
+        };
+        
+        // Close menu
+        document.getElementById('structureMenu').classList.remove('active');
+        
+        showToast('Tap on map to place structure', 'info');
+    }
+
+    function addStructure(latlng) {
+        if (!AppState.structureToAdd) return;
+
+        const structureData = {
+            id: generateId(),
+            type: AppState.structureToAdd.type,
+            utilityType: AppState.structureToAdd.utilityType,
+            latlng: latlng,
+            dateAdded: new Date().toISOString()
+        };
+
+        // Add to state
+        AppState.structures.push(structureData);
+
+        // Create marker
+        createStructureMarker(structureData);
+
+        // Save
+        saveStructures();
+        syncToCloud();
+
+        // Reset
+        AppState.addingStructure = false;
+        AppState.structureToAdd = null;
+
+        showToast('Structure added', 'success');
+        hapticFeedback(50);
+    }
+
+    function createStructureMarker(structureData) {
+        const icons = {
+            electricBox: 'fa-bolt',
+            catchBasin: 'fa-water',
+            sewerManhole: 'fa-circle',
+            waterManhole: 'fa-tint',
+            gasManhole: 'fa-fire',
+            gasValve: 'fa-valve',
+            hydrantValve: 'fa-fire-extinguisher',
+            telecomBox: 'fa-network-wired'
+        };
+
+        const icon = L.divIcon({
+            className: '',
+            html: `<div class="structure-marker ${structureData.utilityType}">
+                <i class="fas ${icons[structureData.type]}"></i>
+            </div>`,
+            iconSize: [48, 48],
+            iconAnchor: [24, 24]
+        });
+
+        const marker = L.marker(structureData.latlng, { icon: icon });
+        
+        // Add click handler
+        marker.on('click', () => {
+            showStructureInfo(structureData);
+        });
+
+        // Store reference
+        structureData.marker = marker;
+
+        // Add to layer
+        marker.addTo(AppState.layers.structures[structureData.utilityType]);
+    }
+
+    function showStructureInfo(structureData) {
+        const structureNames = {
+            electricBox: 'Electrical Box',
+            catchBasin: 'Catch Basin',
+            sewerManhole: 'Sewer Manhole',
+            waterManhole: 'Water Manhole',
+            gasManhole: 'Gas Manhole',
+            gasValve: 'Gas Valve',
+            hydrantValve: 'Hydrant Valve',
+            telecomBox: 'Telecom Box'
+        };
+
+        showToast(`${structureNames[structureData.type]}`, 'info');
+    }
+
+    // Info Modal functions
+    function showInfoModal(utilityData) {
+        AppState.selectedUtilityData = utilityData;
+        
+        // Update modal content
+        document.getElementById('modalIcon').className = getUtilityIcon(utilityData.type);
+        document.getElementById('modalIcon').style.color = getUtilityColor(utilityData.type);
+        document.getElementById('modalTitle').textContent = `${capitalizeFirst(utilityData.type)} ${capitalizeFirst(utilityData.lineType)} Line`;
+        
+        document.getElementById('infoType').textContent = capitalizeFirst(utilityData.type);
+        document.getElementById('infoLineType').textContent = capitalizeFirst(utilityData.lineType);
+        document.getElementById('infoSize').textContent = utilityData.size ? `${utilityData.size}"` : 'Not specified';
+        document.getElementById('infoDepth').textContent = utilityData.depth ? `${utilityData.depth}'` : 'Not specified';
+        document.getElementById('infoMaterial').textContent = utilityData.material || 'Not specified';
+        document.getElementById('infoCondition').textContent = utilityData.condition || 'Not specified';
+        document.getElementById('infoCurbDistance').textContent = utilityData.curbDistance ? `${utilityData.curbDistance}'` : 'Not specified';
+        document.getElementById('infoDate').textContent = new Date(utilityData.dateAdded).toLocaleDateString();
+
+        // Load notes
+        loadNotes(utilityData);
+
+        // Show view mode, hide edit mode
+        document.getElementById('viewMode').style.display = 'block';
+        document.getElementById('editMode').classList.remove('active');
+
+        // Show modal
+        document.getElementById('infoModal').classList.add('active');
+    }
+
+    function closeInfoModal() {
+        document.getElementById('infoModal').classList.remove('active');
+        AppState.selectedUtilityData = null;
+    }
+
+    function getUtilityIcon(type) {
+        const icons = {
+            water: 'fas fa-tint',
+            gas: 'fas fa-fire',
+            electric: 'fas fa-bolt',
+            sewer: 'fas fa-toilet',
+            telecom: 'fas fa-phone'
+        };
+        return icons[type] || 'fas fa-question';
+    }
+
+    function capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function enterEditMode() {
+        if (!AppState.selectedUtilityData) return;
+
+        // Populate edit form
+        document.getElementById('editSize').value = AppState.selectedUtilityData.size || '';
+        document.getElementById('editDepth').value = AppState.selectedUtilityData.depth || '';
+        document.getElementById('editMaterial').value = AppState.selectedUtilityData.material || '';
+        document.getElementById('editCondition').value = AppState.selectedUtilityData.condition || '';
+        document.getElementById('editCurbDistance').value = AppState.selectedUtilityData.curbDistance || '';
+
+        // Show edit mode, hide view mode
+        document.getElementById('viewMode').style.display = 'none';
+        document.getElementById('editMode').classList.add('active');
+    }
+
+    function exitEditMode() {
+        // Show view mode, hide edit mode
+        document.getElementById('viewMode').style.display = 'block';
+        document.getElementById('editMode').classList.remove('active');
+    }
+
+    function saveEdit() {
+        if (!AppState.selectedUtilityData) return;
+
+        // Update utility data
+        AppState.selectedUtilityData.size = document.getElementById('editSize').value;
+        AppState.selectedUtilityData.depth = document.getElementById('editDepth').value;
+        AppState.selectedUtilityData.material = document.getElementById('editMaterial').value;
+        AppState.selectedUtilityData.condition = document.getElementById('editCondition').value;
+        AppState.selectedUtilityData.curbDistance = document.getElementById('editCurbDistance').value;
+
+        // Save
+        saveUtilities();
+        syncToCloud();
+
+        // Exit edit mode and refresh display
+        exitEditMode();
+        showInfoModal(AppState.selectedUtilityData);
+        
+        showToast('Utility information updated', 'success');
+        hapticFeedback(50);
+    }
+
+    // Notes functions
+    function loadNotes(utilityData) {
+        const notesList = document.getElementById('notesList');
+        notesList.innerHTML = '';
+        
+        if (utilityData.notes && utilityData.notes.length > 0) {
+            utilityData.notes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                noteItem.innerHTML = `
+                    <p class="note-text">${note.text}</p>
+                    <span class="note-date">${new Date(note.date).toLocaleString()}</span>
+                    <button class="note-delete" onclick="deleteNote(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                notesList.appendChild(noteItem);
+            });
+        } else {
+            notesList.innerHTML = '<p style="color: var(--text-tertiary); text-align: center;">No notes yet</p>';
+        }
+    }
+
+    function showNoteInput() {
+        document.getElementById('noteInputModal').classList.add('active');
+        document.getElementById('noteTextarea').focus();
+    }
+
+    function hideNoteInput() {
+        document.getElementById('noteInputModal').classList.remove('active');
+        document.getElementById('noteTextarea').value = '';
+    }
+
+    function saveNote() {
+        const noteText = document.getElementById('noteTextarea').value.trim();
+        if (!noteText) return;
+        
+        if (!AppState.selectedUtilityData.notes) {
+            AppState.selectedUtilityData.notes = [];
+        }
+        
+        AppState.selectedUtilityData.notes.push({
+            text: noteText,
+            date: new Date().toISOString()
+        });
+        
+        saveUtilities();
+        syncToCloud();
+        loadNotes(AppState.selectedUtilityData);
+        hideNoteInput();
+        showToast('Note added', 'success');
+        hapticFeedback(50);
+    }
+
+    function deleteNote(index) {
+        if (!AppState.selectedUtilityData || !AppState.selectedUtilityData.notes) return;
+        
+        AppState.selectedUtilityData.notes.splice(index, 1);
+        saveUtilities();
+        syncToCloud();
+        loadNotes(AppState.selectedUtilityData);
+        showToast('Note deleted', 'success');
+    }
+
+    window.deleteNote = deleteNote;
+
+    // Refine Location functions
+    function startRefineLocation() {
+        if (!AppState.selectedUtilityData) return;
+
+        AppState.refineMode = true;
+        closeInfoModal();
+
+        // Show refine overlay
+        document.getElementById('refineOverlay').classList.add('active');
+
+        // Highlight the utility line
+        if (AppState.selectedUtilityData.lineLayer) {
+            AppState.selectedUtilityData.lineLayer.setStyle({
+                className: `utility-line ${AppState.selectedUtilityData.type} ${AppState.selectedUtilityData.lineType} highlighted`
+            });
+        }
+
+        // Create refine points along the line
+        const points = AppState.selectedUtilityData.points;
+        AppState.refinePoints = [];
+        AppState.refineMarkers = [];
+
+        // Add points at vertices
+        points.forEach((point, index) => {
+            const marker = L.circleMarker(point, {
+                radius: 12,
+                fillColor: 'white',
+                color: '#667eea',
+                weight: 3,
+                opacity: 1,
+                fillOpacity: 1,
+                className: 'refine-point'
+            }).addTo(AppState.map);
+
+            marker.index = index;
+            marker.utilityId = AppState.selectedUtilityData.id;
+            marker.originalPoint = point;
+            enableDragging(marker);
+            AppState.refineMarkers.push(marker);
+        });
+
+        // Add intermediate points between vertices
+        for (let i = 0; i < points.length - 1; i++) {
+            const start = points[i];
+            const end = points[i + 1];
+            const midPoint = L.latLng(
+                (start.lat + end.lat) / 2,
+                (start.lng + end.lng) / 2
+            );
+
+            const marker = L.circleMarker(midPoint, {
+                radius: 10,
+                fillColor: 'white',
+                color: '#667eea',
+                weight: 3,
+                opacity: 0.7,
+                fillOpacity: 0.7,
+                className: 'refine-point'
+            }).addTo(AppState.map);
+
+            marker.index = i + 0.5;
+            marker.utilityId = AppState.selectedUtilityData.id;
+            marker.isIntermediate = true;
+            enableDragging(marker);
+            AppState.refineMarkers.push(marker);
+        }
+
+        // Zoom to utility
+        const bounds = L.latLngBounds(points);
+        AppState.map.fitBounds(bounds, { padding: [50, 50] });
+
+        hapticFeedback(50);
+    }
+
+    function enableDragging(marker) {
+        let isDragging = false;
+        let startLatLng = null;
+
+        const onMove = (e) => {
+            if (!isDragging) return;
+            
+            let latlng;
+            if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0]) {
+                const touch = e.originalEvent.touches[0];
+                const point = L.point(touch.clientX, touch.clientY);
+                latlng = AppState.map.containerPointToLatLng(point);
+            } else if (e.latlng) {
+                latlng = e.latlng;
+            } else if (e.touches && e.touches[0]) {
+                const point = L.point(e.touches[0].clientX, e.touches[0].clientY);
+                latlng = AppState.map.containerPointToLatLng(point);
+            }
+            
+            if (latlng) {
+                marker.setLatLng(latlng);
+                marker.setStyle({ className: 'refine-point dragging' });
+                updateRefinedLine();
+            }
+        };
+
+        const onEnd = () => {
+            if (isDragging) {
+                isDragging = false;
+                marker.setStyle({ className: 'refine-point' });
+                
+                // If it's an intermediate point that was dragged, convert it to a real point
+                if (marker.isIntermediate) {
+                    const newIndex = Math.ceil(marker.index);
+                    AppState.refinePoints.splice(newIndex, 0, marker.getLatLng());
+                    marker.isIntermediate = false;
+                    marker.index = newIndex;
+                    
+                    // Update indices of subsequent markers
+                    AppState.refineMarkers.forEach(m => {
+                        if (m.index >= newIndex && m !== marker) {
+                            m.index++;
+                        }
+                    });
+                }
+                
+                hapticFeedback(30);
+            }
+            
+            AppState.map.off('mousemove', onMove);
+            AppState.map.off('touchmove', onMove);
+            AppState.map.off('mouseup', onEnd);
+            AppState.map.off('touchend', onEnd);
+        };
+
+        marker.on('mousedown touchstart', (e) => {
+            isDragging = true;
+            startLatLng = marker.getLatLng();
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            
+            AppState.map.on('mousemove', onMove);
+            AppState.map.on('touchmove', onMove);
+            AppState.map.on('mouseup', onEnd);
+            AppState.map.on('touchend', onEnd);
+        });
+    }
+
+    function updateRefinedLine() {
+        if (!AppState.selectedUtilityData || !AppState.selectedUtilityData.lineLayer) return;
+
+        // Collect all points in order
+        const newPoints = [];
+        AppState.refineMarkers
+            .filter(m => !m.isIntermediate)
+            .sort((a, b) => a.index - b.index)
+            .forEach(marker => {
+                newPoints.push(marker.getLatLng());
+            });
+
+        // Update the line
+        AppState.selectedUtilityData.lineLayer.setLatLngs(newPoints);
+        AppState.refinePoints = newPoints;
+    }
+
+    function finishRefining() {
+        if (!AppState.selectedUtilityData || !AppState.refineMode) return;
+
+        // Save new positions
+        if (AppState.refinePoints.length > 0) {
+            AppState.selectedUtilityData.points = AppState.refinePoints;
+        } else {
+            // If no changes were made, use current marker positions
+            const newPoints = [];
+            AppState.refineMarkers
+                .filter(m => !m.isIntermediate)
+                .sort((a, b) => a.index - b.index)
+                .forEach(marker => {
+                    newPoints.push(marker.getLatLng());
+                });
+            AppState.selectedUtilityData.points = newPoints;
+        }
+        
+        // Remove refine markers
+        AppState.refineMarkers.forEach(marker => {
+            AppState.map.removeLayer(marker);
+        });
+
+        // Remove highlight from line
+        if (AppState.selectedUtilityData.lineLayer) {
+            AppState.selectedUtilityData.lineLayer.setStyle({
+                className: `utility-line ${AppState.selectedUtilityData.type} ${AppState.selectedUtilityData.lineType}`
+            });
+        }
+
+        // Reset state
+        AppState.refineMode = false;
+        AppState.refinePoints = [];
+        AppState.refineMarkers = [];
+        
+        // Hide overlay
+        document.getElementById('refineOverlay').classList.remove('active');
+
+        // Save
+        saveUtilities();
+        syncToCloud();
+
+        showToast('Location refined', 'success');
+        hapticFeedback(50);
+    }
+
+    function deleteUtility() {
+        if (!AppState.selectedUtilityData) return;
+
+        if (confirm('Are you sure you want to delete this utility line?')) {
+            // Remove from map
+            if (AppState.selectedUtilityData.lineLayer) {
+                AppState.map.removeLayer(AppState.selectedUtilityData.lineLayer);
+            }
+
+            // Remove from state
+            const index = AppState.utilities.findIndex(u => u.id === AppState.selectedUtilityData.id);
+            if (index > -1) {
+                AppState.utilities.splice(index, 1);
+            }
+
+            saveUtilities();
+            syncToCloud();
+            closeInfoModal();
+            showToast('Utility deleted', 'success');
+            hapticFeedback(50);
+        }
+    }
+
+    // Excavation Mode
+    function toggleExcavationMode() {
+        if (AppState.excavationMode) {
+            exitExcavationMode();
+        } else {
+            enterExcavationMode();
+        }
+    }
+
+    function enterExcavationMode() {
+        AppState.excavationMode = true;
+        document.getElementById('excavationBtn').classList.add('active');
+        document.getElementById('excavationOverlay').classList.add('active');
+
+        // Zoom to user location
+        if (AppState.userLocation) {
+            AppState.map.setView(AppState.userLocation, 20);
+        }
+
+        // Start proximity checking
+        checkProximity();
+        AppState.proximityInterval = setInterval(checkProximity, 1000);
+
+        showToast('Excavation mode activated', 'warning');
+
+        // Strong haptic feedback
+        hapticFeedback(200);
+        setTimeout(() => hapticFeedback(200), 200);
+        setTimeout(() => hapticFeedback(200), 400);
+    }
+
+    function exitExcavationMode() {
+        AppState.excavationMode = false;
+        document.getElementById('excavationBtn').classList.remove('active');
+        document.getElementById('excavationOverlay').classList.remove('active');
+
+        // Clear proximity alerts
+        clearProximityAlerts();
+
+        // Stop proximity checking
+        if (AppState.proximityInterval) {
+            clearInterval(AppState.proximityInterval);
+        }
+
+        showToast('Excavation mode deactivated', 'info');
+        hapticFeedback(50);
+    }
+
+    function checkProximity() {
+        if (!AppState.userLocation || !AppState.excavationMode) return;
+
+        const alertsContainer = document.getElementById('proximityAlerts');
+        const radius = 15; // 15 feet in meters
+        const radiusMeters = radius * 0.3048;
+
+        // Track which utilities are in range
+        const inRangeUtilities = new Set();
+
+        // Check each utility
+        AppState.utilities.forEach(utility => {
+            // Skip if utility is not visible
+            if (!AppState.layers.visibility[utility.type] || 
+                !AppState.layers.visibility[utility.lineType]) return;
+
+            // Calculate distance to utility line
+            const distance = calculateDistanceToLine(AppState.userLocation, utility.points);
+            
+            if (distance <= radiusMeters) {
+                inRangeUtilities.add(utility.id);
+                
+                // Check if already alerted and not dismissed
+                const alertId = `alert-${utility.id}`;
+                const existingAlert = document.getElementById(alertId);
+                const dismissedTime = AppState.dismissedAlerts.get(utility.id);
+                
+                if (dismissedTime) {
+                    // Check if 3 minutes have passed
+                    if (Date.now() - dismissedTime < 180000) return;
+                    AppState.dismissedAlerts.delete(utility.id);
+                }
+
+                if (!existingAlert) {
+                    createProximityAlert(utility, distance);
+                } else {
+                    updateProximityAlert(utility, distance);
+                }
+            }
+        });
+
+        // Handle alerts for utilities that are out of range
+        AppState.alertTimeouts.forEach((timeout, utilityId) => {
+            if (!inRangeUtilities.has(utilityId)) {
+                // Start or continue timeout
+                if (!timeout) {
+                    AppState.alertTimeouts.set(utilityId, Date.now());
+                }
+            } else {
+                // In range again, clear timeout
+                AppState.alertTimeouts.delete(utilityId);
+            }
+        });
+
+        // Remove alerts that have been out of range for 45 seconds
+        AppState.alertTimeouts.forEach((startTime, utilityId) => {
+            if (Date.now() - startTime > 45000) {
+                removeProximityAlert(utilityId);
+                AppState.alertTimeouts.delete(utilityId);
+            }
+        });
+    }
+
+    function calculateDistanceToLine(point, linePoints) {
+        let minDistance = Infinity;
+
+        for (let i = 0; i < linePoints.length - 1; i++) {
+            const distance = distanceToLineSegment(point, linePoints[i], linePoints[i + 1]);
+            minDistance = Math.min(minDistance, distance);
+        }
+
+        return minDistance;
+    }
+
+    function distanceToLineSegment(point, lineStart, lineEnd) {
+        const startLat = lineStart.lat || lineStart[0];
+        const startLng = lineStart.lng || lineStart[1];
+        const endLat = lineEnd.lat || lineEnd[0];
+        const endLng = lineEnd.lng || lineEnd[1];
+
+        const A = point[0] - startLat;
+        const B = point[1] - startLng;
+        const C = endLat - startLat;
+        const D = endLng - startLng;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = -1;
+
+        if (lenSq !== 0) {
+            param = dot / lenSq;
+        }
+
+        let xx, yy;
+
+        if (param < 0) {
+            xx = startLat;
+            yy = startLng;
+        } else if (param > 1) {
+            xx = endLat;
+            yy = endLng;
+        } else {
+            xx = startLat + param * C;
+            yy = startLng + param * D;
+        }
+
+        const dx = point[0] - xx;
+        const dy = point[1] - yy;
+
+        return Math.sqrt(dx * dx + dy * dy) * 111139; // Convert to meters
+    }
+
+    function createProximityAlert(utility, distance) {
+        const alertsContainer = document.getElementById('proximityAlerts');
+        const alertId = `alert-${utility.id}`;
+
+        const alertDiv = document.createElement('div');
+        alertDiv.id = alertId;
+        alertDiv.className = `proximity-alert ${utility.type}`;
+        alertDiv.innerHTML = `
+            <div class="alert-header ${utility.type}">
+                <div class="alert-type">
+                    <div class="alert-icon">
+                        <i class="${getUtilityIcon(utility.type)}"></i>
+                    </div>
+                    <div class="alert-title">
+                        <h4>${utility.type.toUpperCase()}</h4>
+                        <p>${utility.lineType} Line</p>
+                    </div>
+                </div>
+                <button class="alert-close" onclick="dismissProximityAlert('${utility.id}')">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="alert-distance ${utility.type}">${Math.round(distance / 0.3048)}'</div>
+            </div>
+            <div class="alert-body">
+                <div class="alert-info">
+                    <strong>Size</strong>
+                    <span>${utility.size ? utility.size + '"' : 'Unknown'}</span>
+                </div>
+                <div class="alert-info">
+                    <strong>Depth</strong>
+                    <span>${utility.depth ? utility.depth + "'" : 'Unknown'}</span>
+                </div>
+                <div class="alert-info">
+                    <strong>Material</strong>
+                    <span>${utility.material || 'Unknown'}</span>
+                </div>
+                <div class="alert-info">
+                    <strong>Condition</strong>
+                    <span>${utility.condition || 'Unknown'}</span>
+                </div>
+            </div>
+        `;
+
+        alertsContainer.appendChild(alertDiv);
+
+        // Limit to 5 alerts
+        while (alertsContainer.children.length > 5) {
+            const firstChild = alertsContainer.firstChild;
+            const utilityId = firstChild.id.replace('alert-', '');
+            AppState.alertTimeouts.set(utilityId, Date.now());
+            alertsContainer.removeChild(firstChild);
+        }
+
+        // Haptic feedback for new alert
+        hapticFeedback(200);
+    }
+
+    function updateProximityAlert(utility, distance) {
+        const alertDistance = document.querySelector(`#alert-${utility.id} .alert-distance`);
+        if (alertDistance) {
+            alertDistance.textContent = `${Math.round(distance / 0.3048)}'`;
+        }
+    }
+
+    function removeProximityAlert(utilityId) {
+        const alert = document.getElementById(`alert-${utilityId}`);
+        if (alert) {
+            alert.remove();
+        }
+    }
+
+    function dismissProximityAlert(utilityId) {
+        const alert = document.getElementById(`alert-${utilityId}`);
+        if (alert) {
+            alert.remove();
+            AppState.dismissedAlerts.set(utilityId, Date.now());
+            AppState.alertTimeouts.delete(utilityId);
+            hapticFeedback(30);
+        }
+    }
+
+    window.dismissProximityAlert = dismissProximityAlert;
+
+    function clearProximityAlerts() {
+        const alertsContainer = document.getElementById('proximityAlerts');
+        alertsContainer.innerHTML = '';
+        AppState.dismissedAlerts.clear();
+        AppState.alertTimeouts.clear();
+    }
+
+    // Measurement Tools
+    function toggleMeasureMode(mode) {
+        if (AppState.measureMode === mode) {
+            // Cancel measurement
+            clearMeasurement();
+            AppState.measureMode = null;
+            document.getElementById('measureDistanceBtn').classList.remove('active');
+            document.getElementById('measureAreaBtn').classList.remove('active');
+        } else {
+            // Start new measurement
+            clearMeasurement();
+            AppState.measureMode = mode;
+            AppState.measurePoints = [];
+            
+            if (mode === 'distance') {
+                document.getElementById('measureDistanceBtn').classList.add('active');
+                document.getElementById('measureAreaBtn').classList.remove('active');
+                showToast('Click points to measure distance', 'info');
+            } else {
+                document.getElementById('measureAreaBtn').classList.add('active');
+                document.getElementById('measureDistanceBtn').classList.remove('active');
+                showToast('Click points to measure area', 'info');
+            }
+        }
+        hapticFeedback(30);
+    }
+
+    function addMeasurePoint(latlng) {
+        AppState.measurePoints.push(latlng);
+        
+        // Add marker
+        const marker = L.circleMarker(latlng, {
+            radius: 6,
+            fillColor: '#667eea',
+            fillOpacity: 1,
+            color: 'white',
+            weight: 2
+        }).addTo(AppState.map);
+        
+        AppState.measureMarkers.push(marker);
+        
+        // Update measurement display
+        updateMeasurement();
+        
+        hapticFeedback(30);
+    }
+
+    function updateMeasurement() {
+        if (AppState.measureMode === 'distance') {
+            // Clear previous line
+            if (AppState.measureLine) {
+                AppState.map.removeLayer(AppState.measureLine);
+            }
+            
+            if (AppState.measurePoints.length > 1) {
+                // Draw line
+                AppState.measureLine = L.polyline(AppState.measurePoints, {
+                    color: '#667eea',
+                    weight: 3,
+                    dashArray: '5, 10'
+                }).addTo(AppState.map);
+                
+                // Calculate total distance
+                let totalDistance = 0;
+                for (let i = 1; i < AppState.measurePoints.length; i++) {
+                    totalDistance += AppState.measurePoints[i - 1].distanceTo(AppState.measurePoints[i]);
+                }
+                
+                // Convert to feet
+                const distanceFeet = Math.round(totalDistance * 3.28084);
+                
+                // Show distance
+                showMeasurementDisplay(`Distance: ${distanceFeet}'`);
+            }
+        } else if (AppState.measureMode === 'area') {
+            // Clear previous polygon
+            if (AppState.measurePolygon) {
+                AppState.map.removeLayer(AppState.measurePolygon);
+            }
+            
+            if (AppState.measurePoints.length > 2) {
+                // Draw polygon
+                AppState.measurePolygon = L.polygon(AppState.measurePoints, {
+                    color: '#667eea',
+                    weight: 3,
+                    fillOpacity: 0.2,
+                    dashArray: '5, 10'
+                }).addTo(AppState.map);
+                
+                // Calculate area
+                const area = L.GeometryUtil.geodesicArea(AppState.measurePoints);
+                const areaFeet = Math.round(area * 10.764); // Convert to square feet
+                
+                // Show area
+                showMeasurementDisplay(`Area: ${areaFeet.toLocaleString()} sq ft`);
+            }
+        }
+    }
+
+    function showMeasurementDisplay(text) {
+        // Remove previous display
+        const existingDisplay = document.querySelector('.measurement-display');
+        if (existingDisplay) {
+            existingDisplay.remove();
+        }
+        
+        // Create new display
+        const display = document.createElement('div');
+        display.className = 'measurement-display';
+        display.textContent = text;
+        
+        // Position at last point
+        const lastPoint = AppState.measurePoints[AppState.measurePoints.length - 1];
+        const point = AppState.map.latLngToContainerPoint(lastPoint);
+        
+        display.style.left = `${point.x}px`;
+        display.style.top = `${point.y - 40}px`;
+        
+        document.querySelector('.app-container').appendChild(display);
+    }
+
+    function clearMeasurement() {
+        // Clear markers
+        AppState.measureMarkers.forEach(marker => {
+            AppState.map.removeLayer(marker);
+        });
+        AppState.measureMarkers = [];
+        
+        // Clear lines/polygons
+        if (AppState.measureLine) {
+            AppState.map.removeLayer(AppState.measureLine);
+            AppState.measureLine = null;
+        }
+        if (AppState.measurePolygon) {
+            AppState.map.removeLayer(AppState.measurePolygon);
+            AppState.measurePolygon = null;
+        }
+        
+        // Clear display
+        const display = document.querySelector('.measurement-display');
+        if (display) {
+            display.remove();
+        }
+        
+        AppState.measurePoints = [];
+    }
+
+    // Settings
+    function openSettings() {
+        document.getElementById('settingsPanel').classList.add('active');
+    }
+
+    function closeSettings() {
+        document.getElementById('settingsPanel').classList.remove('active');
+    }
+
+    function toggleLayersPanel() {
+        openSettings();
+    }
+
+    function setTheme(theme) {
+        AppState.theme = theme;
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (theme === 'dark') {
+            darkModeToggle.classList.add('active');
+            if (AppState.currentMapStyle === 'streets') {
+                changeMapStyle('dark');
+            }
+        } else {
+            darkModeToggle.classList.remove('active');
+            if (AppState.currentMapStyle === 'dark') {
+                changeMapStyle('streets');
+            }
+        }
+    }
+
+    function toggleDarkMode() {
+        const newTheme = AppState.theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        hapticFeedback(30);
+    }
+
+    function changeMapStyle(style) {
+        // Update active button
+        document.querySelectorAll('.map-style-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.style === style);
+        });
+
+        // Change map tiles
+        AppState.map.eachLayer(layer => {
+            if (layer instanceof L.TileLayer) {
+                AppState.map.removeLayer(layer);
+            }
+        });
+
+        L.tileLayer(AppState.mapStyles[style], {
+            maxZoom: 22,
+            maxNativeZoom: 19
+        }).addTo(AppState.map);
+
+        AppState.currentMapStyle = style;
+        hapticFeedback(30);
+    }
+
+    function toggleUtilityVisibility(toggle) {
+        const utility = toggle.dataset.utility;
+        const isActive = toggle.classList.toggle('active');
+        AppState.layers.visibility[utility] = isActive;
+
+        // Show/hide layers
+        if (isActive) {
+            AppState.map.addLayer(AppState.layers.utilities[utility]);
+            AppState.map.addLayer(AppState.layers.structures[utility]);
+        } else {
+            AppState.map.removeLayer(AppState.layers.utilities[utility]);
+            AppState.map.removeLayer(AppState.layers.structures[utility]);
+        }
+        hapticFeedback(30);
+    }
+
+    function toggleLineTypeVisibility(toggle) {
+        const lineType = toggle.dataset.linetype;
+        const isActive = toggle.classList.toggle('active');
+        AppState.layers.visibility[lineType] = isActive;
+
+        // Update utility visibility
+        updateUtilityVisibility();
+        hapticFeedback(30);
+    }
+
+    function updateUtilityVisibility() {
+        AppState.utilities.forEach(utility => {
+            if (utility.lineLayer) {
+                const shouldShow = AppState.layers.visibility[utility.type] && 
+                                 AppState.layers.visibility[utility.lineType];
+                if (shouldShow) {
+                    utility.lineLayer.setStyle({ opacity: 1 });
+                } else {
+                    utility.lineLayer.setStyle({ opacity: 0 });
+                }
+            }
+        });
+    }
+
+    // Cloud Sync functions
+    function toggleCloudSync() {
+        const toggle = document.getElementById('cloudSyncToggle');
+        const isActive = toggle.classList.toggle('active');
+        
+        if (isActive) {
+            enableCloudSync();
+        } else {
+            disableCloudSync();
+        }
+        
+        localStorage.setItem('cloudSyncEnabled', isActive);
+        hapticFeedback(30);
+    }
+
+    function enableCloudSync() {
+        AppState.cloudSync.enabled = true;
+        document.getElementById('cloudSyncToggle').classList.add('active');
+        
+        // Initialize cloud sync (implement actual cloud service)
+        initializeCloudSync();
+        syncToCloud();
+    }
+
+    function disableCloudSync() {
+        AppState.cloudSync.enabled = false;
+        document.getElementById('cloudSyncToggle').classList.remove('active');
+    }
+
+    function initializeCloudSync() {
+        // This would connect to your actual cloud service
+        // For now, we'll use a mock implementation
+        AppState.cloudSync.userId = localStorage.getItem('userId') || generateId();
+        localStorage.setItem('userId', AppState.cloudSync.userId);
+    }
+
+    function syncToCloud() {
+        if (!AppState.cloudSync.enabled) return;
+        
+        showSyncStatus();
+        
+        // Mock cloud sync - replace with actual API calls
+        setTimeout(() => {
+            AppState.cloudSync.lastSync = new Date().toISOString();
+            hideSyncStatus();
+            console.log('Data synced to cloud');
+        }, 1000);
+    }
+
+    function showSyncStatus() {
+        document.getElementById('syncStatus').classList.add('show');
+    }
+
+    function hideSyncStatus() {
+        setTimeout(() => {
+            document.getElementById('syncStatus').classList.remove('show');
+        }, 2000);
+    }
+
+    // Utility functions
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function saveUtilities() {
+        const data = AppState.utilities.map(u => ({
+            id: u.id,
+            type: u.type,
+            lineType: u.lineType,
+            points: u.points,
+            size: u.size,
+            depth: u.depth,
+            material: u.material,
+            condition: u.condition,
+            curbDistance: u.curbDistance,
+            dateAdded: u.dateAdded,
+            connections: u.connections,
+            notes: u.notes || []
+        }));
+        localStorage.setItem('utilities', JSON.stringify(data));
+    }
+
+    function loadUtilities() {
+        const saved = localStorage.getItem('utilities');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                data.forEach(utilityData => {
+                    // Ensure notes array exists
+                    utilityData.notes = utilityData.notes || [];
+                    
+                    AppState.utilities.push(utilityData);
+                    createUtilityLine(utilityData);
+                });
+            } catch (e) {
+                console.error('Error loading utilities:', e);
+            }
+        }
+    }
+
+    function saveStructures() {
+        const data = AppState.structures.map(s => ({
+            id: s.id,
+            type: s.type,
+            utilityType: s.utilityType,
+            latlng: s.latlng,
+            dateAdded: s.dateAdded
+        }));
+        localStorage.setItem('structures', JSON.stringify(data));
+    }
+
+    function loadStructures() {
+        const saved = localStorage.getItem('structures');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                data.forEach(structureData => {
+                    AppState.structures.push(structureData);
+                    createStructureMarker(structureData);
+                });
+            } catch (e) {
+                console.error('Error loading structures:', e);
+            }
+        }
+    }
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        
+        toast.innerHTML = `
+            <i class="fas ${icons[type]}"></i>
+            <span>${message}</span>
+        `;
+        
+        container.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Initialize GeometryUtil for area calculations
+    L.GeometryUtil = L.extend(L.GeometryUtil || {}, {
+        geodesicArea: function (latLngs) {
+            const R = 6378137; // Earth's radius in meters
+            let area = 0;
+            const len = latLngs.length;
+            let x1, y1, x2, y2;
+            
+            for (let i = 0; i < len; i++) {
+                x1 = latLngs[i].lng * Math.PI / 180;
+                y1 = latLngs[i].lat * Math.PI / 180;
+                x2 = latLngs[(i + 1) % len].lng * Math.PI / 180;
+                y2 = latLngs[(i + 1) % len].lat * Math.PI / 180;
+                
+                area += (x2 - x1) * (Math.sin(y1) + Math.sin(y2));
+            }
+            
+            area = Math.abs(area * R * R / 2);
+            return area;
+        }
+    });
+</script>
+```
+
+</body>
+</html>
