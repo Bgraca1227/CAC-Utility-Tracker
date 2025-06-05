@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>CAC Utili-Track</title>
 
-```
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <!-- Font Awesome for icons -->
@@ -154,14 +155,39 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: #000000;
+        background: linear-gradient(135deg, #000000 0%, #0a0a0f 50%, #12121a 100%);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         z-index: 10000;
         opacity: 1;
-        transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+    
+    .splash-screen::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at center, 
+            rgba(102, 126, 234, 0.1) 0%, 
+            transparent 50%);
+        animation: splashPulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes splashPulse {
+        0%, 100% { 
+            transform: scale(1) rotate(0deg);
+            opacity: 0.3;
+        }
+        50% { 
+            transform: scale(1.1) rotate(180deg);
+            opacity: 0.1;
+        }
     }
     
     .splash-screen.hide {
@@ -270,6 +296,7 @@
         background: linear-gradient(135deg, #ffffff 0%, #667eea 50%, #ffffff 100%);
         background-size: 200% 100%;
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
         letter-spacing: -1px;
         animation: titleShimmer 3s ease-in-out infinite;
@@ -310,13 +337,38 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: var(--gradient-primary);
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            var(--gradient-primary) 20%, 
+            var(--gradient-primary) 80%, 
+            transparent 100%);
         transform: translateX(-100%);
         animation: loadProgress 2.5s ease-out forwards;
+        border-radius: inherit;
+    }
+    
+    .splash-loader::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.3) 50%, 
+            transparent 100%);
+        transform: translateX(-100%);
+        animation: loadShimmer 2.5s ease-out forwards;
+        border-radius: inherit;
+        animation-delay: 0.5s;
     }
     
     @keyframes loadProgress {
-        to { transform: translateX(0); }
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(0); }
+    }
+    
+    @keyframes loadShimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
     }
     
     /* Premium Top Bar */
@@ -501,6 +553,27 @@
         box-shadow: var(--shadow-md);
     }
     
+    .control-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .control-btn::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: inherit;
+        border-radius: inherit;
+        opacity: 0;
+        filter: blur(10px);
+        transition: opacity var(--transition-normal);
+        z-index: -1;
+    }
+    
+    .control-btn.active::after {
+        opacity: 0.3;
+    }
+    
     .control-btn.active {
         background: var(--gradient-primary);
         border-color: transparent;
@@ -521,7 +594,8 @@
     /* Main Action Button Group */
     .main-action-group {
         display: flex;
-        align-items: flex-end;
+        flex-direction: column;
+        align-items: center;
         gap: var(--spacing-sm);
         position: relative;
     }
@@ -536,7 +610,8 @@
         padding: 4px;
         box-shadow: var(--shadow-lg);
         border: 1px solid var(--border-color);
-        margin-bottom: 4px;
+        order: 2;
+        margin-top: var(--spacing-xs);
     }
     
     .line-type-btn {
@@ -574,6 +649,7 @@
         transition: all var(--transition-spring);
         position: relative;
         overflow: hidden;
+        order: 1;
     }
     
     .main-action-btn::before {
@@ -725,34 +801,48 @@
         inset: -30px;
         border-radius: 50%;
         background: radial-gradient(circle at center, 
-            rgba(102, 126, 234, 0.3) 0%, 
-            rgba(102, 126, 234, 0.1) 50%, 
+            rgba(102, 126, 234, 0.25) 0%, 
+            rgba(102, 126, 234, 0.1) 40%, 
+            rgba(102, 126, 234, 0.05) 70%,
             transparent 100%);
-        animation: accuracyPulse 3s ease-in-out infinite;
+        animation: accuracyPulse 4s ease-in-out infinite;
     }
     
     @keyframes accuracyPulse {
         0%, 100% { 
-            transform: scale(1); 
-            opacity: 0.3; 
+            transform: scale(0.8); 
+            opacity: 0.6; 
         }
         50% { 
             transform: scale(1.2); 
-            opacity: 0.1; 
+            opacity: 0.2; 
         }
     }
     
     .location-outer-ring {
         position: absolute;
-        inset: 10px;
+        inset: 6px;
         border-radius: 50%;
         background: conic-gradient(
             from 0deg,
             transparent 0deg,
-            var(--gradient-primary) 90deg,
-            transparent 180deg
+            rgba(102, 126, 234, 0.8) 45deg,
+            rgba(102, 126, 234, 1) 90deg,
+            rgba(102, 126, 234, 0.8) 135deg,
+            transparent 180deg,
+            transparent 360deg
         );
-        animation: locationSpin 2s linear infinite;
+        animation: locationSpin 3s linear infinite;
+        filter: blur(0.5px);
+    }
+    
+    .location-outer-ring::before {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        border-radius: 50%;
+        background: var(--bg-primary);
+        opacity: 0.9;
     }
     
     @keyframes locationSpin {
@@ -762,34 +852,82 @@
     
     .location-inner {
         position: absolute;
-        inset: 15px;
+        inset: 14px;
         border-radius: 50%;
-        background: var(--bg-primary);
+        background: linear-gradient(135deg, 
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(102, 126, 234, 0.8) 50%,
+            rgba(102, 126, 234, 1) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 
+            inset 0 2px 4px rgba(255, 255, 255, 0.3),
+            0 4px 12px rgba(102, 126, 234, 0.4),
+            0 0 0 2px rgba(255, 255, 255, 0.1);
     }
     
     .location-dot {
-        width: 20px;
-        height: 20px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
-        background: var(--gradient-primary);
-        box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
+        background: linear-gradient(135deg, #ffffff 0%, #f0f2ff 100%);
+        box-shadow: 
+            0 0 12px rgba(255, 255, 255, 0.8),
+            inset 0 1px 2px rgba(102, 126, 234, 0.3);
+        animation: locationDotPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes locationDotPulse {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 
+                0 0 12px rgba(255, 255, 255, 0.8),
+                inset 0 1px 2px rgba(102, 126, 234, 0.3);
+        }
+        50% { 
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 16px rgba(255, 255, 255, 1),
+                inset 0 1px 2px rgba(102, 126, 234, 0.3);
+        }
     }
     
     .location-direction {
         position: absolute;
-        width: 4px;
-        height: 35px;
-        background: var(--gradient-primary);
-        top: -25px;
+        width: 5px;
+        height: 32px;
+        top: -26px;
         left: 50%;
         transform: translateX(-50%);
         transform-origin: center bottom;
-        transition: transform 0.1s linear;
-        clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.8));
+    }
+    
+    .location-direction::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, 
+            rgba(255, 255, 255, 1) 0%,
+            rgba(102, 126, 234, 1) 30%,
+            rgba(102, 126, 234, 0.8) 100%);
+        clip-path: polygon(50% 0%, 20% 85%, 35% 85%, 35% 100%, 65% 100%, 65% 85%, 80% 85%);
+        border-radius: 2px 2px 0 0;
+    }
+    
+    .location-direction::after {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 6px;
+        height: 6px;
+        background: linear-gradient(135deg, #ffffff 0%, rgba(102, 126, 234, 0.9) 100%);
+        border-radius: 50%;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
     }
     
     /* Drawing UI - Premium Floating */
@@ -833,6 +971,7 @@
         margin-bottom: var(--spacing-sm);
         background: var(--gradient-primary);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
@@ -1426,6 +1565,7 @@
         font-weight: 800;
         background: var(--gradient-primary);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
@@ -1525,22 +1665,49 @@
         fill: none;
         cursor: pointer;
         filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        transition: all var(--transition-normal);
+    }
+    
+    .utility-line:hover {
+        filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 12px currentColor);
+        stroke-width: 8 !important;
     }
     
     .utility-line.main {
         stroke-width: 8;
+        filter: drop-shadow(0 3px 12px rgba(0, 0, 0, 0.4));
+    }
+    
+    .utility-line.main:hover {
+        stroke-width: 10 !important;
     }
     
     .utility-line.service {
         stroke-width: 6;
         stroke-dasharray: 15, 5;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
     }
     
-    .utility-line.water { stroke: var(--water-color); }
-    .utility-line.gas { stroke: var(--gas-color); }
-    .utility-line.electric { stroke: var(--electric-color); }
-    .utility-line.sewer { stroke: var(--sewer-color); }
-    .utility-line.telecom { stroke: var(--telecom-color); }
+    .utility-line.water { 
+        stroke: var(--water-color); 
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(0, 180, 216, 0.3));
+    }
+    .utility-line.gas { 
+        stroke: var(--gas-color); 
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(255, 214, 10, 0.3));
+    }
+    .utility-line.electric { 
+        stroke: var(--electric-color); 
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(255, 0, 110, 0.3));
+    }
+    .utility-line.sewer { 
+        stroke: var(--sewer-color); 
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(168, 118, 62, 0.3));
+    }
+    .utility-line.telecom { 
+        stroke: var(--telecom-color); 
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3)) drop-shadow(0 0 8px rgba(181, 101, 216, 0.3));
+    }
     
     .utility-line.drawing {
         opacity: 0.7;
@@ -1548,19 +1715,31 @@
     }
     
     .utility-line.highlighted {
-        filter: drop-shadow(0 0 20px currentColor);
-        stroke-width: 10 !important;
+        filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+        stroke-width: 12 !important;
         opacity: 1 !important;
+        animation: highlightGlow 2s ease-in-out infinite;
     }
     
     @keyframes drawingPulse {
         0%, 100% { 
             opacity: 0.5; 
             stroke-width: 6;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
         }
         50% { 
             opacity: 1; 
             stroke-width: 8;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 12px currentColor);
+        }
+    }
+    
+    @keyframes highlightGlow {
+        0%, 100% { 
+            filter: drop-shadow(0 0 20px currentColor) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+        }
+        50% { 
+            filter: drop-shadow(0 0 30px currentColor) drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6));
         }
     }
     
@@ -1645,6 +1824,7 @@
         text-align: center;
         background: var(--gradient-primary);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
@@ -2020,6 +2200,7 @@
         margin-bottom: var(--spacing-lg);
         background: var(--gradient-primary);
         -webkit-background-clip: text;
+        background-clip: text;
         -webkit-text-fill-color: transparent;
     }
     
@@ -2076,6 +2257,7 @@
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
+        -webkit-tap-highlight-color: transparent;
     }
     
     input, textarea {
@@ -2084,6 +2266,55 @@
         -moz-user-select: text;
         -ms-user-select: text;
         user-select: text;
+    }
+    
+    /* Enhanced touch interactions */
+    button, .control-btn, .utility-btn {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Focus management for accessibility */
+    button:focus-visible,
+    .control-btn:focus-visible,
+    .utility-btn:focus-visible {
+        outline: 3px solid var(--info-color);
+        outline-offset: 2px;
+    }
+    
+    .form-input:focus-visible {
+        outline: 3px solid var(--info-color);
+        outline-offset: 2px;
+    }
+    
+    /* Improve accessibility */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+        :root {
+            --border-color: rgba(255, 255, 255, 0.3);
+            --text-secondary: #cccccc;
+        }
+    }
+    
+    /* Premium glassmorphism enhancement */
+    @supports (backdrop-filter: blur(20px)) {
+        .utility-selector,
+        .control-btn,
+        .info-modal,
+        .settings-panel,
+        .drawing-ui,
+        .refine-overlay {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
     }
 </style>
 ```
@@ -2126,21 +2357,21 @@
 
     <!-- Top Bar -->
     <div class="top-bar">
-        <div class="utility-selector">
-            <button class="utility-btn water active" data-utility="water">
-                <i class="fas fa-tint"></i>
+        <div class="utility-selector" role="toolbar" aria-label="Utility type selector">
+            <button class="utility-btn water active" data-utility="water" aria-label="Select water utilities" aria-pressed="true">
+                <i class="fas fa-tint" aria-hidden="true"></i>
             </button>
-            <button class="utility-btn gas" data-utility="gas">
-                <i class="fas fa-fire"></i>
+            <button class="utility-btn gas" data-utility="gas" aria-label="Select gas utilities" aria-pressed="false">
+                <i class="fas fa-fire" aria-hidden="true"></i>
             </button>
-            <button class="utility-btn electric" data-utility="electric">
-                <i class="fas fa-bolt"></i>
+            <button class="utility-btn electric" data-utility="electric" aria-label="Select electric utilities" aria-pressed="false">
+                <i class="fas fa-bolt" aria-hidden="true"></i>
             </button>
-            <button class="utility-btn sewer" data-utility="sewer">
-                <i class="fas fa-toilet"></i>
+            <button class="utility-btn sewer" data-utility="sewer" aria-label="Select sewer utilities" aria-pressed="false">
+                <i class="fas fa-toilet" aria-hidden="true"></i>
             </button>
-            <button class="utility-btn telecom" data-utility="telecom">
-                <i class="fas fa-phone"></i>
+            <button class="utility-btn telecom" data-utility="telecom" aria-label="Select telecom utilities" aria-pressed="false">
+                <i class="fas fa-phone" aria-hidden="true"></i>
             </button>
         </div>
     </div>
@@ -2168,13 +2399,13 @@
 
         <div class="control-group center">
             <div class="main-action-group">
+                <button class="main-action-btn" id="drawBtn">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
                 <div class="line-type-toggle">
                     <button class="line-type-btn active" data-type="service">Service</button>
                     <button class="line-type-btn" data-type="main">Main</button>
                 </div>
-                <button class="main-action-btn" id="drawBtn">
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
             </div>
         </div>
 
@@ -2223,7 +2454,7 @@
                 <span>Gas MH</span>
             </button>
             <button class="structure-type-btn" data-structure="gasValve" data-utility="gas">
-                <i class="fas fa-valve"></i>
+                <i class="fas fa-wrench"></i>
                 <span>Gas Valve</span>
             </button>
             <button class="structure-type-btn" data-structure="hydrantValve" data-utility="water">
@@ -2249,8 +2480,10 @@
 
     <!-- Refine Mode Overlay -->
     <div class="refine-overlay" id="refineOverlay">
-        <span>Drag points to refine location</span>
-        <button class="drawing-btn primary" id="finishRefineBtn">Finish</button>
+        <span>🎯 Drag points to refine location</span>
+        <button class="drawing-btn primary" id="finishRefineBtn">
+            <i class="fas fa-check"></i> Finish Refining
+        </button>
     </div>
 
     <!-- Utility Info Modal -->
@@ -2601,7 +2834,17 @@
             userId: null,
             token: null
         },
-        needsOrientationPermission: false
+        needsOrientationPermission: false,
+        // Cached DOM elements for performance
+        elements: {
+            drawingUI: null,
+            refineOverlay: null,
+            infoModal: null,
+            settingsPanel: null,
+            proximityAlerts: null,
+            toastContainer: null,
+            syncStatus: null
+        }
     };
 
     // Initialize App
@@ -2610,51 +2853,162 @@
     });
 
     function initializeApp() {
-        // Check if running on iOS
+        // Enhanced mobile detection and optimization
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        if (isIOS) {
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isMobile = isIOS || isAndroid || window.innerWidth <= 768;
+        
+        if (isMobile) {
             document.body.style.height = '100vh';
+            document.body.style.height = '100dvh'; // Use dynamic viewport height if supported
             document.body.style.position = 'fixed';
             document.body.style.overflow = 'hidden';
+            
+            // Prevent rubber band scrolling on iOS
+            if (isIOS) {
+                document.body.style.webkitOverflowScrolling = 'touch';
+                document.addEventListener('touchmove', function(e) {
+                    if (e.target.closest('.modal-body, .settings-panel, .proximity-alerts')) {
+                        return; // Allow scrolling in specific containers
+                    }
+                    e.preventDefault();
+                }, { passive: false });
+            }
         }
 
-        // Hide splash screen
-        setTimeout(() => {
-            document.getElementById('splash').classList.add('hide');
-        }, 3000);
+        // Enhanced splash screen with progress
+        let progress = 0;
+        const splashInterval = setInterval(() => {
+            progress += Math.random() * 15 + 5;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(splashInterval);
+                setTimeout(() => {
+                    document.getElementById('splash').classList.add('hide');
+                }, 500);
+            }
+        }, 150);
 
-        // Initialize map
+        // Initialize core systems
         initializeMap();
-
-        // Initialize event listeners
+        initializeDOMCache();
         initializeEventListeners();
 
-        // Check for saved theme
-        const savedTheme = localStorage.getItem('theme') || 'dark';
+        // Enhanced theme management
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'dark');
         setTheme(savedTheme);
+        
+        // Watch for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                setTheme(e.matches ? 'dark' : 'light');
+            }
+        });
 
-        // Check cloud sync settings
+        // Enhanced cloud sync
         const cloudSyncEnabled = localStorage.getItem('cloudSyncEnabled') === 'true';
         if (cloudSyncEnabled) {
             enableCloudSync();
         }
 
-        // Load data
-        loadUtilities();
-        loadStructures();
+        // Load saved data with error handling
+        try {
+            loadUtilities();
+            loadStructures();
+        } catch (error) {
+            console.error('Error loading data:', error);
+            showToast('Error loading saved data', 'error');
+        }
 
-        // Start location tracking
-        startLocationTracking();
+        // Start location tracking with enhanced permissions
+        requestLocationPermissions();
 
-        // Prevent zoom on double tap
+        // Enhanced touch event prevention
         let lastTouchEnd = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', function(event) {
+            touchStartY = event.touches[0].clientY;
+        }, { passive: true });
+        
         document.addEventListener('touchend', function(event) {
             const now = Date.now();
             if (now - lastTouchEnd <= 300) {
                 event.preventDefault();
             }
             lastTouchEnd = now;
-        }, false);
+        }, { passive: false });
+        
+        // Prevent pull-to-refresh
+        document.addEventListener('touchmove', function(event) {
+            const touchY = event.touches[0].clientY;
+            const touchDiff = touchY - touchStartY;
+            
+            if (touchDiff > 0 && window.scrollY === 0) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        // Enhanced keyboard handling for iOS
+        if (isIOS) {
+            const viewport = document.querySelector('meta[name=viewport]');
+            document.addEventListener('focusin', function() {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            });
+            
+            document.addEventListener('focusout', function() {
+                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
+            });
+        }
+        
+        // Performance monitoring
+        if ('performance' in window && 'PerformanceObserver' in window) {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'paint' && entry.name === 'first-contentful-paint') {
+                        console.log('First Contentful Paint:', entry.startTime);
+                    }
+                }
+            });
+            observer.observe({ entryTypes: ['paint'] });
+        }
+    }
+    
+    async function requestLocationPermissions() {
+        if (!navigator.geolocation) {
+            showToast('Geolocation not supported', 'error');
+            return;
+        }
+        
+        try {
+            // Check current permission state
+            if ('permissions' in navigator) {
+                const permission = await navigator.permissions.query({name: 'geolocation'});
+                if (permission.state === 'denied') {
+                    showToast('Location access denied. Please enable in settings.', 'warning');
+                    return;
+                }
+            }
+            
+            // Start location tracking
+            startLocationTracking();
+            
+        } catch (error) {
+            console.error('Permission error:', error);
+            // Fallback to direct geolocation request
+            startLocationTracking();
+        }
+    }
+
+    function initializeDOMCache() {
+        // Cache frequently accessed DOM elements for performance
+        AppState.elements.drawingUI = document.getElementById('drawingUI');
+        AppState.elements.refineOverlay = document.getElementById('refineOverlay');
+        AppState.elements.infoModal = document.getElementById('infoModal');
+        AppState.elements.settingsPanel = document.getElementById('settingsPanel');
+        AppState.elements.proximityAlerts = document.getElementById('proximityAlerts');
+        AppState.elements.toastContainer = document.getElementById('toastContainer');
+        AppState.elements.syncStatus = document.getElementById('syncStatus');
     }
 
     function initializeMap() {
@@ -2698,8 +3052,12 @@
         document.querySelectorAll('.utility-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                document.querySelectorAll('.utility-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.utility-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
                 btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
                 AppState.selectedUtility = btn.dataset.utility;
                 hapticFeedback(30);
             });
@@ -2749,7 +3107,11 @@
         document.getElementById('finishDrawBtn').addEventListener('click', finishDrawing);
 
         // Refine controls
-        document.getElementById('finishRefineBtn').addEventListener('click', finishRefining);
+        document.getElementById('finishRefineBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            finishRefining();
+        });
 
         // Modal controls
         document.getElementById('closeModalBtn').addEventListener('click', closeInfoModal);
@@ -2835,11 +3197,26 @@
         // Watch position
         AppState.watchId = navigator.geolocation.watchPosition(
             position => updateUserLocation(position),
-            error => console.error('Location error:', error),
+            error => {
+                console.error('Location error:', error);
+                let message = 'Location error';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        message = 'Location access denied by user';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        message = 'Location information unavailable';
+                        break;
+                    case error.TIMEOUT:
+                        message = 'Location request timed out';
+                        break;
+                }
+                showToast(message, 'warning');
+            },
             {
                 enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
+                timeout: 10000,
+                maximumAge: 60000
             }
         );
 
@@ -3147,11 +3524,63 @@
             updateTempLine();
             hapticFeedback(30);
             
-            // Finish drawing after connecting
-            setTimeout(() => {
-                finishDrawing();
-            }, 100);
+            // Finish drawing immediately after connecting
+            finishDrawingWithConnection();
         }
+        
+        // Clear connection candidate
+        AppState.connectionCandidate = null;
+    }
+    
+    function finishDrawingWithConnection() {
+        if (AppState.drawingPoints.length < 2) {
+            showToast('Need at least 2 points', 'warning');
+            return;
+        }
+
+        // Create utility data
+        const utilityData = {
+            id: generateId(),
+            type: AppState.selectedUtility,
+            lineType: AppState.lineType,
+            points: [...AppState.drawingPoints],
+            size: '',
+            depth: '',
+            material: '',
+            condition: '',
+            curbDistance: '',
+            dateAdded: new Date().toISOString(),
+            connections: [],
+            notes: []
+        };
+
+        // Add connection info if connected
+        if (AppState.connectionCandidate) {
+            utilityData.connections.push({
+                type: AppState.connectionCandidate.type,
+                targetId: AppState.connectionCandidate.utility?.id || AppState.connectionCandidate.structure?.id,
+                point: AppState.connectionCandidate.point
+            });
+        }
+
+        // Add utility to state
+        AppState.utilities.push(utilityData);
+
+        // Create the utility line on map
+        createUtilityLine(utilityData);
+
+        // Save
+        saveUtilities();
+        syncToCloud();
+
+        // Show info modal for editing
+        showInfoModal(utilityData);
+
+        // Reset drawing state
+        cancelDrawing();
+
+        showToast('Utility line connected and added', 'success');
+        hapticFeedback(100);
     }
 
     function finishDrawing() {
@@ -3231,30 +3660,75 @@
             weight: utilityData.lineType === 'main' ? 8 : 6,
             opacity: 1,
             dashArray: utilityData.lineType === 'service' ? '15, 5' : null,
-            className: `utility-line ${utilityData.type} ${utilityData.lineType}`
+            className: `utility-line ${utilityData.type} ${utilityData.lineType}`,
+            interactive: true
         });
 
-        // Add click handler
+        // Enhanced interaction handling
         let pressTimer;
         let longPress = false;
+        let startTime = 0;
+        let lastClickTime = 0;
         
-        line.on('mousedown touchstart', (e) => {
+        const startPress = (e) => {
+            if (AppState.isDrawing || AppState.refineMode || AppState.addingStructure || AppState.measureMode) {
+                return; // Don't interfere with other modes
+            }
+            
+            // Prevent event bubbling
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+            
             longPress = false;
+            startTime = Date.now();
             pressTimer = setTimeout(() => {
                 longPress = true;
                 hapticFeedback(50);
                 showInfoModal(utilityData);
-            }, 500);
-        });
-
-        line.on('mouseup touchend mouseleave', () => {
+            }, 500); // Shorter press for better responsiveness
+            
+            // Highlight line on press
+            line.setStyle({
+                weight: (utilityData.lineType === 'main' ? 8 : 6) + 2,
+                opacity: 0.8
+            });
+        };
+        
+        const endPress = (e) => {
             clearTimeout(pressTimer);
-        });
+            const pressDuration = Date.now() - startTime;
+            
+            // Reset line style
+            line.setStyle({
+                weight: utilityData.lineType === 'main' ? 8 : 6,
+                opacity: 1
+            });
+            
+            // Show quick info on short press, full modal on long press
+            if (!longPress && pressDuration < 300 && pressDuration > 50) {
+                const utilityName = `${capitalizeFirst(utilityData.type)} ${capitalizeFirst(utilityData.lineType)}`;
+                const info = utilityData.size ? ` (${utilityData.size}")` : '';
+                showToast(`${utilityName}${info} - Long press to edit`, 'info');
+                hapticFeedback(30);
+            }
+        };
+
+        line.on('mousedown touchstart', startPress);
+        line.on('mouseup touchend mouseleave', endPress);
 
         line.on('click', (e) => {
-            if (!longPress) {
-                L.DomEvent.stopPropagation(e);
+            L.DomEvent.stopPropagation(e);
+            
+            // Handle double-tap to open modal (alternative to long press)
+            const now = Date.now();
+            if (now - lastClickTime < 300) {
+                // Double tap detected
+                if (!AppState.isDrawing && !AppState.refineMode && !AppState.addingStructure && !AppState.measureMode) {
+                    showInfoModal(utilityData);
+                    hapticFeedback(50);
+                }
             }
+            lastClickTime = now;
         });
 
         // Store reference
@@ -3263,33 +3737,47 @@
         // Add to appropriate layer
         line.addTo(AppState.layers.utilities[utilityData.type]);
 
-        // Add connection markers
+        // Enhanced connection markers with animations
         if (utilityData.connections && utilityData.connections.length > 0) {
-            utilityData.connections.forEach(conn => {
+            utilityData.connections.forEach((conn, index) => {
                 let markerClass = 'connection-marker';
                 let radius = 8;
+                let fillColor = 'white';
                 
                 if (conn.type === 'main-to-service') {
                     markerClass += ' t-junction';
                     radius = 10;
+                    fillColor = '#f0f8ff';
                 } else if (conn.type === 'endpoint') {
                     markerClass += ' endpoint';
                     radius = 8;
+                    fillColor = '#fff5f5';
                 } else if (conn.type === 'structure') {
                     markerClass += ' structure';
                     radius = 12;
+                    fillColor = '#f0fff0';
                 }
                 
                 const marker = L.circleMarker(conn.point, {
                     radius: radius,
-                    fillColor: 'white',
+                    fillColor: fillColor,
                     color: getUtilityColor(utilityData.type),
                     weight: 3,
                     opacity: 1,
                     fillOpacity: 1,
                     className: `${markerClass} ${utilityData.type}`
                 });
-                marker.addTo(AppState.layers.utilities[utilityData.type]);
+                
+                // Add subtle animation delay for visual effect
+                setTimeout(() => {
+                    marker.addTo(AppState.layers.utilities[utilityData.type]);
+                }, index * 100);
+                
+                // Store connection marker reference
+                if (!utilityData.connectionMarkers) {
+                    utilityData.connectionMarkers = [];
+                }
+                utilityData.connectionMarkers.push(marker);
             });
         }
     }
@@ -3361,7 +3849,7 @@
             sewerManhole: 'fa-circle',
             waterManhole: 'fa-tint',
             gasManhole: 'fa-fire',
-            gasValve: 'fa-valve',
+            gasValve: 'fa-wrench',
             hydrantValve: 'fa-fire-extinguisher',
             telecomBox: 'fa-network-wired'
         };
@@ -3477,12 +3965,33 @@
     function saveEdit() {
         if (!AppState.selectedUtilityData) return;
 
+        // Get and validate input values
+        const size = document.getElementById('editSize').value.trim();
+        const depth = document.getElementById('editDepth').value.trim();
+        const material = document.getElementById('editMaterial').value.trim();
+        const condition = document.getElementById('editCondition').value.trim();
+        const curbDistance = document.getElementById('editCurbDistance').value.trim();
+
+        // Validate numeric inputs
+        if (size && (isNaN(size) || parseFloat(size) < 0)) {
+            showToast('Size must be a positive number', 'error');
+            return;
+        }
+        if (depth && (isNaN(depth) || parseFloat(depth) < 0)) {
+            showToast('Depth must be a positive number', 'error');
+            return;
+        }
+        if (curbDistance && (isNaN(curbDistance) || parseFloat(curbDistance) < 0)) {
+            showToast('Curb distance must be a positive number', 'error');
+            return;
+        }
+
         // Update utility data
-        AppState.selectedUtilityData.size = document.getElementById('editSize').value;
-        AppState.selectedUtilityData.depth = document.getElementById('editDepth').value;
-        AppState.selectedUtilityData.material = document.getElementById('editMaterial').value;
-        AppState.selectedUtilityData.condition = document.getElementById('editCondition').value;
-        AppState.selectedUtilityData.curbDistance = document.getElementById('editCurbDistance').value;
+        AppState.selectedUtilityData.size = size;
+        AppState.selectedUtilityData.depth = depth;
+        AppState.selectedUtilityData.material = material;
+        AppState.selectedUtilityData.condition = condition;
+        AppState.selectedUtilityData.curbDistance = curbDistance;
 
         // Save
         saveUtilities();
@@ -3531,7 +4040,21 @@
 
     function saveNote() {
         const noteText = document.getElementById('noteTextarea').value.trim();
-        if (!noteText) return;
+        
+        if (!noteText) {
+            showToast('Please enter a note', 'warning');
+            return;
+        }
+        
+        if (noteText.length > 1000) {
+            showToast('Note is too long (max 1000 characters)', 'error');
+            return;
+        }
+        
+        if (!AppState.selectedUtilityData) {
+            showToast('No utility selected', 'error');
+            return;
+        }
         
         if (!AppState.selectedUtilityData.notes) {
             AppState.selectedUtilityData.notes = [];
@@ -3575,13 +4098,15 @@
         // Highlight the utility line
         if (AppState.selectedUtilityData.lineLayer) {
             AppState.selectedUtilityData.lineLayer.setStyle({
+                weight: AppState.selectedUtilityData.lineType === 'main' ? 12 : 10,
+                opacity: 1,
                 className: `utility-line ${AppState.selectedUtilityData.type} ${AppState.selectedUtilityData.lineType} highlighted`
             });
         }
 
         // Create refine points along the line
         const points = AppState.selectedUtilityData.points;
-        AppState.refinePoints = [];
+        AppState.refinePoints = [...points]; // Copy the original points
         AppState.refineMarkers = [];
 
         // Add points at vertices
@@ -3593,12 +4118,14 @@
                 weight: 3,
                 opacity: 1,
                 fillOpacity: 1,
-                className: 'refine-point'
+                className: 'refine-point',
+                interactive: true
             }).addTo(AppState.map);
 
             marker.index = index;
             marker.utilityId = AppState.selectedUtilityData.id;
-            marker.originalPoint = point;
+            marker.originalPoint = L.latLng(point.lat, point.lng);
+            marker.isIntermediate = false;
             enableDragging(marker);
             AppState.refineMarkers.push(marker);
         });
@@ -3614,26 +4141,39 @@
 
             const marker = L.circleMarker(midPoint, {
                 radius: 10,
-                fillColor: 'white',
+                fillColor: 'rgba(255, 255, 255, 0.8)',
                 color: '#667eea',
                 weight: 3,
                 opacity: 0.7,
                 fillOpacity: 0.7,
-                className: 'refine-point'
+                className: 'refine-point',
+                interactive: true
             }).addTo(AppState.map);
 
             marker.index = i + 0.5;
             marker.utilityId = AppState.selectedUtilityData.id;
             marker.isIntermediate = true;
+            marker.insertAfterIndex = i;
+            marker.originalPoint = L.latLng(midPoint.lat, midPoint.lng); // Store original position
             enableDragging(marker);
             AppState.refineMarkers.push(marker);
         }
 
-        // Zoom to utility
+        // Zoom to utility with better padding
         const bounds = L.latLngBounds(points);
-        AppState.map.fitBounds(bounds, { padding: [50, 50] });
+        AppState.map.fitBounds(bounds, { 
+            padding: [80, 80],
+            maxZoom: 20
+        });
 
         hapticFeedback(50);
+        showToast('Drag points to refine location', 'info');
+        
+        console.log('Refine mode started:', {
+            utilityId: AppState.selectedUtilityData.id,
+            pointsCount: points.length,
+            markersCount: AppState.refineMarkers.length
+        });
     }
 
     function enableDragging(marker) {
@@ -3641,130 +4181,257 @@
         let startLatLng = null;
 
         const onMove = (e) => {
-            if (!isDragging) return;
+            if (!isDragging || !AppState.refineMode) return;
             
             let latlng;
-            if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0]) {
-                const touch = e.originalEvent.touches[0];
-                const point = L.point(touch.clientX, touch.clientY);
-                latlng = AppState.map.containerPointToLatLng(point);
+            
+            // Handle different event types
+            if (e.type === 'touchmove') {
+                if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0]) {
+                    const touch = e.originalEvent.touches[0];
+                    latlng = AppState.map.containerPointToLatLng([touch.clientX, touch.clientY]);
+                } else if (e.touches && e.touches[0]) {
+                    latlng = AppState.map.containerPointToLatLng([e.touches[0].clientX, e.touches[0].clientY]);
+                }
             } else if (e.latlng) {
                 latlng = e.latlng;
-            } else if (e.touches && e.touches[0]) {
-                const point = L.point(e.touches[0].clientX, e.touches[0].clientY);
-                latlng = AppState.map.containerPointToLatLng(point);
             }
             
             if (latlng) {
                 marker.setLatLng(latlng);
-                marker.setStyle({ className: 'refine-point dragging' });
+                marker.setStyle({ 
+                    fillColor: '#00f5a0',
+                    color: '#00f5a0',
+                    radius: marker.isIntermediate ? 14 : 16,
+                    weight: 4
+                });
                 updateRefinedLine();
+                hapticFeedback(10); // Light feedback during drag
             }
         };
 
-        const onEnd = () => {
+        const onEnd = (e) => {
             if (isDragging) {
                 isDragging = false;
-                marker.setStyle({ className: 'refine-point' });
+                marker.setStyle({ 
+                    fillColor: marker.isIntermediate ? 'rgba(255, 255, 255, 0.8)' : 'white',
+                    color: '#667eea',
+                    radius: marker.isIntermediate ? 10 : 12,
+                    weight: 3
+                });
                 
-                // If it's an intermediate point that was dragged, convert it to a real point
-                if (marker.isIntermediate) {
-                    const newIndex = Math.ceil(marker.index);
-                    AppState.refinePoints.splice(newIndex, 0, marker.getLatLng());
-                    marker.isIntermediate = false;
-                    marker.index = newIndex;
-                    
-                    // Update indices of subsequent markers
-                    AppState.refineMarkers.forEach(m => {
-                        if (m.index >= newIndex && m !== marker) {
-                            m.index++;
-                        }
-                    });
-                }
+                // Update the refine points array
+                updateRefinePointsArray();
                 
                 hapticFeedback(30);
             }
             
+            // Clean up all event listeners
             AppState.map.off('mousemove', onMove);
             AppState.map.off('touchmove', onMove);
             AppState.map.off('mouseup', onEnd);
             AppState.map.off('touchend', onEnd);
+            AppState.map.off('mouseleave', onEnd);
+            document.removeEventListener('touchend', onEnd);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchmove', onMove);
         };
 
-        marker.on('mousedown touchstart', (e) => {
+        const onStart = (e) => {
+            if (!AppState.refineMode) return;
+            
             isDragging = true;
             startLatLng = marker.getLatLng();
+            
+            // Prevent default behavior
             L.DomEvent.stopPropagation(e);
             L.DomEvent.preventDefault(e);
             
+            // Disable map dragging while dragging marker
+            AppState.map.dragging.disable();
+            
+            // Add event listeners
             AppState.map.on('mousemove', onMove);
-            AppState.map.on('touchmove', onMove);
+            AppState.map.on('touchmove', onMove, { passive: false });
             AppState.map.on('mouseup', onEnd);
             AppState.map.on('touchend', onEnd);
+            AppState.map.on('mouseleave', onEnd);
+            document.addEventListener('touchend', onEnd);
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            
+            // Visual feedback
+            marker.setStyle({ 
+                fillColor: '#667eea',
+                color: '#667eea',
+                radius: marker.isIntermediate ? 12 : 14,
+                weight: 4
+            });
+            
+            hapticFeedback(50);
+        };
+
+        marker.on('mousedown', onStart);
+        marker.on('touchstart', onStart);
+        
+        // Re-enable map dragging when drag ends
+        marker.on('mouseup touchend', () => {
+            setTimeout(() => {
+                if (AppState.map.dragging) {
+                    AppState.map.dragging.enable();
+                }
+            }, 100);
         });
+    }
+    
+    function updateRefinePointsArray() {
+        if (!AppState.refineMode || !AppState.selectedUtilityData) return;
+        
+        try {
+            // Check if any intermediate points were dragged significantly and need to be converted
+            AppState.refineMarkers.forEach(marker => {
+                if (marker.isIntermediate && marker.originalPoint) {
+                    const currentPos = marker.getLatLng();
+                    const originalPos = marker.originalPoint;
+                    const distance = currentPos.distanceTo ? currentPos.distanceTo(originalPos) : 
+                        Math.sqrt(Math.pow(currentPos.lat - originalPos.lat, 2) + Math.pow(currentPos.lng - originalPos.lng, 2));
+                    
+                    // If dragged more than 5 meters, convert to vertex
+                    if (distance > 0.00005) { // Roughly 5 meters
+                        marker.isIntermediate = false;
+                        const insertIndex = marker.insertAfterIndex + 1;
+                        marker.index = insertIndex;
+                        
+                        // Update indices for markers after this one
+                        AppState.refineMarkers.forEach(m => {
+                            if (!m.isIntermediate && m.index >= insertIndex && m !== marker) {
+                                m.index++;
+                            }
+                        });
+                    }
+                }
+            });
+            
+            // Rebuild the points array from all vertex markers
+            const allVertexMarkers = AppState.refineMarkers
+                .filter(m => !m.isIntermediate)
+                .sort((a, b) => a.index - b.index);
+                
+            AppState.refinePoints = allVertexMarkers.map(marker => marker.getLatLng());
+            
+        } catch (error) {
+            console.error('Error updating refine points array:', error);
+        }
     }
 
     function updateRefinedLine() {
-        if (!AppState.selectedUtilityData || !AppState.selectedUtilityData.lineLayer) return;
+        if (!AppState.selectedUtilityData || !AppState.selectedUtilityData.lineLayer || !AppState.refineMode) return;
 
-        // Collect all points in order
-        const newPoints = [];
-        AppState.refineMarkers
-            .filter(m => !m.isIntermediate)
-            .sort((a, b) => a.index - b.index)
-            .forEach(marker => {
-                newPoints.push(marker.getLatLng());
-            });
-
-        // Update the line
-        AppState.selectedUtilityData.lineLayer.setLatLngs(newPoints);
-        AppState.refinePoints = newPoints;
+        try {
+            // Get all vertex markers (non-intermediate) sorted by index
+            const vertexMarkers = AppState.refineMarkers
+                .filter(marker => !marker.isIntermediate)
+                .sort((a, b) => a.index - b.index);
+            
+            // Get current positions
+            const currentPoints = vertexMarkers.map(marker => marker.getLatLng());
+            
+            if (currentPoints.length >= 2) {
+                // Update the line on the map
+                AppState.selectedUtilityData.lineLayer.setLatLngs(currentPoints);
+                
+                // Store the current state
+                AppState.refinePoints = [...currentPoints];
+            }
+        } catch (error) {
+            console.error('Error updating refined line:', error);
+        }
     }
 
     function finishRefining() {
-        if (!AppState.selectedUtilityData || !AppState.refineMode) return;
+        if (!AppState.selectedUtilityData || !AppState.refineMode) {
+            console.log('Cannot finish refining - no utility data or not in refine mode');
+            return;
+        }
 
-        // Save new positions
-        if (AppState.refinePoints.length > 0) {
-            AppState.selectedUtilityData.points = AppState.refinePoints;
-        } else {
-            // If no changes were made, use current marker positions
-            const newPoints = [];
+        try {
+            console.log('Starting finish refining process...');
+            
+            // Update the refine points one final time
+            updateRefinePointsArray();
+
+            // Get final positions from markers
+            const finalPoints = [];
             AppState.refineMarkers
                 .filter(m => !m.isIntermediate)
                 .sort((a, b) => a.index - b.index)
                 .forEach(marker => {
-                    newPoints.push(marker.getLatLng());
+                    finalPoints.push(marker.getLatLng());
                 });
-            AppState.selectedUtilityData.points = newPoints;
-        }
-        
-        // Remove refine markers
-        AppState.refineMarkers.forEach(marker => {
-            AppState.map.removeLayer(marker);
-        });
 
-        // Remove highlight from line
-        if (AppState.selectedUtilityData.lineLayer) {
-            AppState.selectedUtilityData.lineLayer.setStyle({
-                className: `utility-line ${AppState.selectedUtilityData.type} ${AppState.selectedUtilityData.lineType}`
+            // Save new positions
+            if (finalPoints.length >= 2) {
+                AppState.selectedUtilityData.points = [...finalPoints];
+                console.log('Updated utility points:', finalPoints.length);
+            } else if (AppState.refinePoints.length >= 2) {
+                AppState.selectedUtilityData.points = [...AppState.refinePoints];
+                console.log('Using refine points:', AppState.refinePoints.length);
+            }
+            
+            // Remove refine markers
+            AppState.refineMarkers.forEach(marker => {
+                try {
+                    if (AppState.map.hasLayer(marker)) {
+                        AppState.map.removeLayer(marker);
+                    }
+                } catch (e) {
+                    console.error('Error removing marker:', e);
+                }
             });
+
+            // Reset line styling
+            if (AppState.selectedUtilityData.lineLayer) {
+                AppState.selectedUtilityData.lineLayer.setStyle({
+                    weight: AppState.selectedUtilityData.lineType === 'main' ? 8 : 6,
+                    opacity: 1,
+                    className: `utility-line ${AppState.selectedUtilityData.type} ${AppState.selectedUtilityData.lineType}`
+                });
+                
+                // Update the line with final points
+                AppState.selectedUtilityData.lineLayer.setLatLngs(AppState.selectedUtilityData.points);
+            }
+
+            // Reset state
+            AppState.refineMode = false;
+            AppState.refinePoints = [];
+            AppState.refineMarkers = [];
+            AppState.selectedUtilityData = null;
+            
+            // Hide overlay
+            document.getElementById('refineOverlay').classList.remove('active');
+            
+            // Re-enable map dragging
+            if (AppState.map.dragging) {
+                AppState.map.dragging.enable();
+            }
+
+            // Save
+            saveUtilities();
+            syncToCloud();
+
+            showToast('Location refined successfully', 'success');
+            hapticFeedback(100);
+            
+            console.log('Finish refining completed successfully');
+            
+        } catch (error) {
+            console.error('Error finishing refining:', error);
+            showToast('Error saving refined location', 'error');
+            
+            // Still try to exit refine mode
+            AppState.refineMode = false;
+            document.getElementById('refineOverlay').classList.remove('active');
         }
-
-        // Reset state
-        AppState.refineMode = false;
-        AppState.refinePoints = [];
-        AppState.refineMarkers = [];
-        
-        // Hide overlay
-        document.getElementById('refineOverlay').classList.remove('active');
-
-        // Save
-        saveUtilities();
-        syncToCloud();
-
-        showToast('Location refined', 'success');
-        hapticFeedback(50);
     }
 
     function deleteUtility() {
@@ -3774,6 +4441,15 @@
             // Remove from map
             if (AppState.selectedUtilityData.lineLayer) {
                 AppState.map.removeLayer(AppState.selectedUtilityData.lineLayer);
+            }
+            
+            // Remove connection markers if they exist
+            if (AppState.selectedUtilityData.connectionMarkers) {
+                AppState.selectedUtilityData.connectionMarkers.forEach(marker => {
+                    if (AppState.map.hasLayer(marker)) {
+                        AppState.map.removeLayer(marker);
+                    }
+                });
             }
 
             // Remove from state
@@ -3931,23 +4607,6 @@
             param = dot / lenSq;
         }
 
-        let xx, yy;
-
-        if (param < 0) {
-            xx = startLat;
-            yy = startLng;
-        } else if (param > 1) {
-            xx = endLat;
-            yy = endLng;
-        } else {
-            xx = startLat + param * C;
-            yy = startLng + param * D;
-        }
-
-        const dx = point[0] - xx;
-        const dy = point[1] - yy;
-
-        return Math.sqrt(dx * dx + dy * dy) * 111139; // Convert to meters
     }
 
     function createProximityAlert(utility, distance) {
@@ -4352,21 +5011,26 @@
     }
 
     function saveUtilities() {
-        const data = AppState.utilities.map(u => ({
-            id: u.id,
-            type: u.type,
-            lineType: u.lineType,
-            points: u.points,
-            size: u.size,
-            depth: u.depth,
-            material: u.material,
-            condition: u.condition,
-            curbDistance: u.curbDistance,
-            dateAdded: u.dateAdded,
-            connections: u.connections,
-            notes: u.notes || []
-        }));
-        localStorage.setItem('utilities', JSON.stringify(data));
+        try {
+            const data = AppState.utilities.map(u => ({
+                id: u.id,
+                type: u.type,
+                lineType: u.lineType,
+                points: u.points,
+                size: u.size,
+                depth: u.depth,
+                material: u.material,
+                condition: u.condition,
+                curbDistance: u.curbDistance,
+                dateAdded: u.dateAdded,
+                connections: u.connections,
+                notes: u.notes || []
+            }));
+            localStorage.setItem('utilities', JSON.stringify(data));
+        } catch (error) {
+            console.error('Error saving utilities:', error);
+            showToast('Error saving data. Storage may be full.', 'error');
+        }
     }
 
     function loadUtilities() {
@@ -4388,14 +5052,19 @@
     }
 
     function saveStructures() {
-        const data = AppState.structures.map(s => ({
-            id: s.id,
-            type: s.type,
-            utilityType: s.utilityType,
-            latlng: s.latlng,
-            dateAdded: s.dateAdded
-        }));
-        localStorage.setItem('structures', JSON.stringify(data));
+        try {
+            const data = AppState.structures.map(s => ({
+                id: s.id,
+                type: s.type,
+                utilityType: s.utilityType,
+                latlng: s.latlng,
+                dateAdded: s.dateAdded
+            }));
+            localStorage.setItem('structures', JSON.stringify(data));
+        } catch (error) {
+            console.error('Error saving structures:', error);
+            showToast('Error saving structure data.', 'error');
+        }
     }
 
     function loadStructures() {
@@ -4461,8 +5130,28 @@
             return area;
         }
     });
+    
+    // Cleanup function for memory management
+    function cleanup() {
+        if (AppState.watchId) {
+            navigator.geolocation.clearWatch(AppState.watchId);
+        }
+        if (AppState.proximityInterval) {
+            clearInterval(AppState.proximityInterval);
+        }
+        // Clear all timeouts
+        AppState.alertTimeouts.forEach((timeout, utilityId) => {
+            if (timeout && typeof timeout === 'number') {
+                clearTimeout(timeout);
+            }
+        });
+        AppState.alertTimeouts.clear();
+    }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
+    window.addEventListener('pagehide', cleanup);
 </script>
-```
 
 </body>
 </html>
