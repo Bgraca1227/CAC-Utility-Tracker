@@ -1096,55 +1096,105 @@
         color: white;
     }
     
-    /* Simple Zoom-Responsive User Location Marker */
+    /* Ultra Premium GPS Location System */
     .user-location-marker {
         pointer-events: none;
         z-index: 1000;
         transform-origin: center center;
-        transition: transform 0.3s ease-out;
+        will-change: transform;
     }
     
     .location-container {
         position: relative;
-        width: 48px;
-        height: 48px;
+        width: 56px;
+        height: 56px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
-    /* Accuracy Ring */
+    /* Multi-Layer Accuracy System */
     .location-accuracy {
         position: absolute;
-        inset: -16px;
+        inset: -20px;
         border-radius: 50%;
         background: radial-gradient(circle at center, 
-            rgba(0, 245, 160, 0.15) 0%, 
-            rgba(0, 245, 160, 0.05) 60%,
+            rgba(0, 245, 160, 0.12) 0%, 
+            rgba(0, 245, 160, 0.06) 40%,
+            rgba(0, 245, 160, 0.02) 70%,
             transparent 100%);
-        border: 1px solid rgba(0, 245, 160, 0.2);
-        animation: accuracyPulse 4s ease-in-out infinite;
+        border: 2px solid rgba(0, 245, 160, 0.3);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: accuracyPulse 6s ease-in-out infinite;
+    }
+    
+    .location-accuracy::before {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 245, 160, 0.15);
+        animation: accuracyPulseInner 4s ease-in-out infinite;
     }
     
     @keyframes accuracyPulse {
         0%, 100% { 
-            transform: scale(0.8); 
-            opacity: 0.6; 
+            transform: scale(0.85); 
+            opacity: 0.7; 
         }
         50% { 
-            transform: scale(1.2); 
-            opacity: 0.3; 
+            transform: scale(1.15); 
+            opacity: 0.4; 
         }
     }
     
-    /* Arrow-Style Location Marker */
+    @keyframes accuracyPulseInner {
+        0%, 100% { 
+            transform: scale(1.2); 
+            opacity: 0.3; 
+        }
+        50% { 
+            transform: scale(0.8); 
+            opacity: 0.8; 
+        }
+    }
+    
+    /* Premium GPS Signal Indicator */
+    .location-signal {
+        position: absolute;
+        inset: -30px;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 245, 160, 0.2);
+        animation: signalWave 3s ease-out infinite;
+        opacity: 0;
+    }
+    
+    .location-signal:nth-child(2) { animation-delay: 0.8s; }
+    .location-signal:nth-child(3) { animation-delay: 1.6s; }
+    
+    @keyframes signalWave {
+        0% {
+            transform: scale(0.3);
+            opacity: 0.8;
+        }
+        70% {
+            opacity: 0.2;
+        }
+        100% {
+            transform: scale(1.8);
+            opacity: 0;
+        }
+    }
+    
+    /* Ultra Smooth Direction Arrow */
     .location-arrow {
         position: relative;
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         transform-origin: center center;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 2;
+        transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        z-index: 3;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
     }
     
     .location-arrow::before {
@@ -1155,40 +1205,90 @@
         transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 12px solid transparent;
-        border-right: 12px solid transparent;
-        border-bottom: 28px solid #ffffff;
-        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
-        z-index: 1;
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+        border-bottom: 32px solid #ffffff;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
     }
     
     .location-arrow::after {
         content: '';
         position: absolute;
-        top: 2px;
+        top: 3px;
         left: 50%;
         transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-bottom: 24px solid rgba(0, 245, 160, 1);
-        z-index: 2;
+        border-left: 11px solid transparent;
+        border-right: 11px solid transparent;
+        border-bottom: 26px solid rgba(0, 245, 160, 1);
     }
     
-    /* User Center Dot */
+    /* Premium Center Dot with Status */
     .location-center {
         position: absolute;
-        bottom: 4px;
+        bottom: 6px;
         left: 50%;
         transform: translateX(-50%);
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
         border-radius: 50%;
-        background: #ffffff;
-        border: 2px solid rgba(0, 245, 160, 1);
-        box-shadow: 0 0 12px rgba(0, 245, 160, 0.6);
-        z-index: 3;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fff0 100%);
+        border: 3px solid rgba(0, 245, 160, 1);
+        box-shadow: 
+            0 0 16px rgba(0, 245, 160, 0.6),
+            inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        z-index: 4;
+        transition: all 0.3s ease;
+    }
+    
+    /* GPS Quality States */
+    .location-container[data-gps-quality="excellent"] .location-accuracy {
+        border-color: rgba(0, 245, 160, 0.5);
+        background: radial-gradient(circle at center, 
+            rgba(0, 245, 160, 0.15) 0%, 
+            rgba(0, 245, 160, 0.08) 40%,
+            transparent 70%);
+    }
+    
+    .location-container[data-gps-quality="good"] .location-accuracy {
+        border-color: rgba(154, 245, 0, 0.4);
+        background: radial-gradient(circle at center, 
+            rgba(154, 245, 0, 0.12) 0%, 
+            rgba(154, 245, 0, 0.06) 40%,
+            transparent 70%);
+    }
+    
+    .location-container[data-gps-quality="fair"] .location-accuracy {
+        border-color: rgba(255, 214, 10, 0.4);
+        background: radial-gradient(circle at center, 
+            rgba(255, 214, 10, 0.12) 0%, 
+            rgba(255, 214, 10, 0.06) 40%,
+            transparent 70%);
+    }
+    
+    .location-container[data-gps-quality="poor"] .location-accuracy {
+        border-color: rgba(255, 69, 0, 0.4);
+        background: radial-gradient(circle at center, 
+            rgba(255, 69, 0, 0.12) 0%, 
+            rgba(255, 69, 0, 0.06) 40%,
+            transparent 70%);
+    }
+    
+    /* Smooth Movement States */
+    .location-container[data-moving="true"] .location-center {
+        animation: movingPulse 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes movingPulse {
+        0%, 100% { 
+            transform: translateX(-50%) scale(1);
+            box-shadow: 0 0 16px rgba(0, 245, 160, 0.6);
+        }
+        50% { 
+            transform: translateX(-50%) scale(1.2);
+            box-shadow: 0 0 24px rgba(0, 245, 160, 0.8);
+        }
     }
     
     /* Drawing UI - Premium Floating */
@@ -3400,7 +3500,20 @@
         userMarker: null,
         watchId: null,
         deviceOrientationHandler: null,
-        lastHeading: undefined,
+        // Premium GPS Tracking System
+        gps: {
+            lastPosition: null,
+            filteredPosition: null,
+            lastHeading: null,
+            filteredHeading: null,
+            lastAccuracy: null,
+            lastUpdateTime: 0,
+            isMoving: false,
+            movementSpeed: 0,
+            headingHistory: [],
+            positionHistory: [],
+            quality: 'unknown'
+        },
         excavationMode: false,
         proximityAlerts: [],
         proximityAlertsVisible: true,
@@ -3609,8 +3722,18 @@
             handleZoomChange();
         }, 1000);
 
-        // Start location tracking with enhanced permissions
+        // Start premium location tracking with enhanced permissions
         requestLocationPermissions();
+
+        // Premium GPS system initialized
+        console.log('🚀 Premium GPS System Initialized');
+        console.log('📍 Available debug commands:');
+        console.log('  - demoPremiumGPS() : Quick demo of premium features');
+        console.log('  - debugLocation() : Detailed GPS state info');
+        console.log('  - testPremiumGPS() : Run GPS accuracy tests');
+        console.log('  - testRefineWorkflow() : Test utility refining');
+        console.log('  - createTestUtilityForRefining() : Create test utility');
+        console.log('✨ Try: demoPremiumGPS() to see the system in action!');
 
         // Enhanced touch event prevention - only prevent double-tap zoom and pull-to-refresh
         let touchStartY = 0;
@@ -3971,13 +4094,16 @@
             }
         }
         
-        updateDirectionIndicator(heading);
+        updatePremiumDirectionIndicator(heading);
     }
 
+    // ========== PREMIUM GPS TRACKING SYSTEM ==========
+    
     function updateUserLocation(position) {
-        const { latitude, longitude, accuracy } = position.coords;
+        const { latitude, longitude, accuracy, speed } = position.coords;
+        const timestamp = Date.now();
         
-        console.log(`📍 Location update: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}, accuracy: ${accuracy}m`);
+        console.log(`📍 Raw GPS: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}, ±${accuracy.toFixed(1)}m`);
         
         // Validate coordinates
         if (!isValidCoordinate(latitude, longitude)) {
@@ -3985,137 +4111,342 @@
             return;
         }
         
-        AppState.userLocation = [latitude, longitude];
-
-        if (!AppState.userMarker) {
-            console.log('🆕 Creating new user marker');
-            // Create simple arrow-style user location marker
-            const userIcon = L.divIcon({
-                className: 'user-location-marker',
-                html: `
-                    <div class="location-container">
-                        <div class="location-accuracy"></div>
-                        <div class="location-arrow">
-                            <div class="location-center"></div>
-                        </div>
-                    </div>
-                `,
-                iconSize: [48, 48],
-                iconAnchor: [24, 24]
-            });
-
-            AppState.userMarker = L.marker([latitude, longitude], {
-                icon: userIcon,
-                zIndexOffset: 1000
-            }).addTo(AppState.map);
-            
-            console.log(`✅ User marker created at: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-            
-            // Apply current zoom scale to new marker
-            setTimeout(() => {
-                applyUserMarkerScale();
-            }, 50);
-            
-            // Initialize direction indicator if orientation is available
-            if (window.DeviceOrientationEvent && !AppState.needsOrientationPermission) {
-                setTimeout(() => {
-                    if (window.orientation !== undefined) {
-                        updateDirectionIndicator(window.orientation);
-                    }
-                }, 100);
-            }
-        } else {
-            // Update existing marker location
-            console.log(`🔄 Updating marker to: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
-            AppState.userMarker.setLatLng([latitude, longitude]);
+        // Process location through premium filtering system
+        const processedLocation = processLocationUpdate({
+            lat: latitude,
+            lng: longitude,
+            accuracy: accuracy,
+            speed: speed || 0,
+            timestamp: timestamp
+        });
+        
+        if (!processedLocation) {
+            console.log('🚫 Location update filtered out');
+            return;
         }
-
-        // Update accuracy circle
-        updateAccuracyIndicator(accuracy);
-
-        // Check proximity in excavation mode (no debouncing needed here)
+        
+        // Update app state
+        AppState.userLocation = [processedLocation.lat, processedLocation.lng];
+        
+        // Create or update marker
+        if (!AppState.userMarker) {
+            createPremiumLocationMarker(processedLocation);
+        } else {
+            updatePremiumLocationMarker(processedLocation);
+        }
+        
+        // Check proximity in excavation mode
         if (AppState.excavationMode) {
             checkProximity();
         }
+    }
+
+    function processLocationUpdate(rawLocation) {
+        const gps = AppState.gps;
+        const now = rawLocation.timestamp;
+        
+        // First location - initialize system
+        if (!gps.lastPosition) {
+            gps.lastPosition = rawLocation;
+            gps.filteredPosition = { ...rawLocation };
+            gps.lastUpdateTime = now;
+            gps.quality = getGPSQuality(rawLocation.accuracy);
+            return gps.filteredPosition;
+        }
+        
+        // Calculate time delta
+        const timeDelta = (now - gps.lastUpdateTime) / 1000; // seconds
+        if (timeDelta < 0.1) return null; // Too frequent, skip
+        
+        // Calculate movement
+        const distance = haversineDistance(
+            gps.lastPosition.lat, gps.lastPosition.lng,
+            rawLocation.lat, rawLocation.lng
+        );
+        
+        // Detect if we're actually moving
+        gps.movementSpeed = distance / timeDelta;
+        gps.isMoving = gps.movementSpeed > 0.5; // Moving faster than 0.5 m/s
+        
+        // Apply sophisticated filtering
+        const filtered = applyLocationFilter(rawLocation, gps, timeDelta);
+        
+        // Update GPS state
+        gps.lastPosition = rawLocation;
+        gps.filteredPosition = filtered;
+        gps.lastUpdateTime = now;
+        gps.lastAccuracy = rawLocation.accuracy;
+        gps.quality = getGPSQuality(rawLocation.accuracy);
+        
+        // Maintain position history for trend analysis
+        gps.positionHistory.push({
+            ...filtered,
+            timestamp: now
+        });
+        
+        // Keep only last 10 positions
+        if (gps.positionHistory.length > 10) {
+            gps.positionHistory.shift();
+        }
+        
+        console.log(`✨ Filtered GPS: ${filtered.lat.toFixed(6)}, ${filtered.lng.toFixed(6)}, speed: ${gps.movementSpeed.toFixed(1)}m/s`);
+        
+        return filtered;
+    }
+
+    function applyLocationFilter(rawLocation, gps, timeDelta) {
+        const lastFiltered = gps.filteredPosition;
+        
+        // If we haven't moved much and accuracy is poor, use more aggressive smoothing
+        const accuracyFactor = Math.min(1, rawLocation.accuracy / 10);
+        const movementFactor = Math.min(1, gps.movementSpeed / 2);
+        
+        // Adaptive smoothing based on movement and accuracy
+        let smoothingFactor;
+        if (gps.isMoving) {
+            // When moving, be more responsive but still smooth
+            smoothingFactor = 0.3 + (movementFactor * 0.4); // 0.3 to 0.7
+        } else {
+            // When stationary, apply heavy smoothing
+            smoothingFactor = 0.1 + (accuracyFactor * 0.2); // 0.1 to 0.3
+        }
+        
+        // Apply exponential smoothing
+        const filtered = {
+            lat: lastFiltered.lat + (rawLocation.lat - lastFiltered.lat) * smoothingFactor,
+            lng: lastFiltered.lng + (rawLocation.lng - lastFiltered.lng) * smoothingFactor,
+            accuracy: rawLocation.accuracy,
+            speed: rawLocation.speed,
+            timestamp: rawLocation.timestamp
+        };
+        
+        return filtered;
+    }
+
+    function createPremiumLocationMarker(location) {
+        console.log('🆕 Creating premium location marker');
+        
+        const userIcon = L.divIcon({
+            className: 'user-location-marker',
+            html: `
+                <div class="location-container" data-gps-quality="${AppState.gps.quality}" data-moving="${AppState.gps.isMoving}">
+                    <div class="location-signal"></div>
+                    <div class="location-signal"></div>
+                    <div class="location-signal"></div>
+                    <div class="location-accuracy"></div>
+                    <div class="location-arrow">
+                        <div class="location-center"></div>
+                    </div>
+                </div>
+            `,
+            iconSize: [56, 56],
+            iconAnchor: [28, 28]
+        });
+
+        AppState.userMarker = L.marker([location.lat, location.lng], {
+            icon: userIcon,
+            zIndexOffset: 1000
+        }).addTo(AppState.map);
+        
+                 // Apply initial scaling
+        setTimeout(() => {
+            applyPremiumLocationTransform();
+        }, 50);
+        
+        // Initialize direction indicator if orientation is available
+        if (window.DeviceOrientationEvent && !AppState.needsOrientationPermission) {
+            setTimeout(() => {
+                if (window.orientation !== undefined) {
+                    updatePremiumDirectionIndicator(window.orientation);
+                }
+            }, 100);
+        }
+        
+        console.log(`✅ Premium marker created at: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}`);
+    }
+
+    function updatePremiumLocationMarker(location) {
+        if (!AppState.userMarker) return;
+        
+        // Smooth animation to new position
+        const currentLatLng = AppState.userMarker.getLatLng();
+        const newLatLng = L.latLng(location.lat, location.lng);
+        
+        // Use smooth animation for position updates
+        animateMarkerToPosition(AppState.userMarker, currentLatLng, newLatLng, 800);
+        
+        // Update marker attributes for visual states
+        const container = AppState.userMarker.getElement()?.querySelector('.location-container');
+        if (container) {
+            container.setAttribute('data-gps-quality', AppState.gps.quality);
+            container.setAttribute('data-moving', AppState.gps.isMoving.toString());
+        }
+        
+        // Update accuracy visualization
+        updatePremiumAccuracyDisplay(location.accuracy);
+    }
+
+    function animateMarkerToPosition(marker, fromLatLng, toLatLng, duration) {
+        const startTime = Date.now();
+        const startLat = fromLatLng.lat;
+        const startLng = fromLatLng.lng;
+        const deltaLat = toLatLng.lat - startLat;
+        const deltaLng = toLatLng.lng - startLng;
+        
+        function animate() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Use easing function for smooth movement
+            const eased = easeOutCubic(progress);
+            
+            const currentLat = startLat + (deltaLat * eased);
+            const currentLng = startLng + (deltaLng * eased);
+            
+            marker.setLatLng([currentLat, currentLng]);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        }
+        
+        requestAnimationFrame(animate);
+    }
+
+    function updatePremiumDirectionIndicator(heading) {
+        if (heading === null || heading === undefined) return;
+        
+        // Normalize heading to 0-360 range
+        const normalizedHeading = ((heading % 360) + 360) % 360;
+        
+        // Apply sophisticated heading filtering
+        const filteredHeading = filterHeading(normalizedHeading);
+        
+        if (filteredHeading === null) return;
+        
+        console.log(`🧭 Smooth heading: ${filteredHeading.toFixed(1)}°`);
+        
+        // Apply smooth rotation
+        if (AppState.userMarker) {
+            const markerElement = AppState.userMarker.getElement();
+            if (markerElement) {
+                const arrow = markerElement.querySelector('.location-arrow');
+                if (arrow) {
+                    arrow.style.transform = `rotate(${filteredHeading}deg)`;
+                }
+                
+                const container = markerElement.querySelector('.location-container');
+                if (container) {
+                    container.setAttribute('data-heading', filteredHeading.toFixed(0));
+                }
+            }
+        }
+    }
+
+    function filterHeading(rawHeading) {
+        const gps = AppState.gps;
+        
+        // Initialize heading history
+        if (!gps.lastHeading) {
+            gps.lastHeading = rawHeading;
+            gps.filteredHeading = rawHeading;
+            gps.headingHistory = [rawHeading];
+            return rawHeading;
+        }
+        
+        // Add to history
+        gps.headingHistory.push(rawHeading);
+        if (gps.headingHistory.length > 5) {
+            gps.headingHistory.shift();
+        }
+        
+        // Calculate heading difference (accounting for 360° wrap)
+        const diff = ((rawHeading - gps.lastHeading + 540) % 360) - 180;
+        
+        // Apply different filtering based on movement
+        let smoothingFactor;
+        if (gps.isMoving) {
+            // More responsive when moving
+            smoothingFactor = Math.abs(diff) > 45 ? 0.7 : 0.4;
+        } else {
+            // Heavy smoothing when stationary
+            smoothingFactor = Math.abs(diff) > 90 ? 0.3 : 0.1;
+        }
+        
+        // Apply exponential smoothing with wrap-around handling
+        let filteredHeading = gps.filteredHeading + (diff * smoothingFactor);
+        filteredHeading = ((filteredHeading % 360) + 360) % 360;
+        
+        gps.lastHeading = rawHeading;
+        gps.filteredHeading = filteredHeading;
+        
+        return filteredHeading;
+    }
+
+    function updatePremiumAccuracyDisplay(accuracy) {
+        const accuracyElement = document.querySelector('.location-accuracy');
+        if (!accuracyElement || !accuracy) return;
+        
+        // Sophisticated accuracy scaling
+        const minScale = 0.4;
+        const maxScale = 2.5;
+        const scale = Math.min(maxScale, Math.max(minScale, accuracy / 8));
+        
+        // Smooth scale transition
+        accuracyElement.style.transform = `scale(${scale})`;
+        
+        // Update opacity based on confidence
+        const confidence = Math.max(0.2, Math.min(1, 1 - (accuracy / 30)));
+        accuracyElement.style.opacity = confidence.toString();
+    }
+
+    function applyPremiumLocationTransform() {
+        if (!AppState.userMarker) return;
+        
+        const zoom = AppState.map.getZoom();
+        const scale = calculateZoomScale(zoom);
+        const markerElement = AppState.userMarker.getElement();
+        
+        if (markerElement) {
+            // Apply scale to the entire marker container (not individual elements)
+            markerElement.style.transform = `scale(${scale})`;
+            markerElement.style.transformOrigin = 'center center';
+        }
+    }
+
+    // ========== UTILITY FUNCTIONS ==========
+
+    function getGPSQuality(accuracy) {
+        if (accuracy <= 3) return 'excellent';
+        if (accuracy <= 8) return 'good';
+        if (accuracy <= 20) return 'fair';
+        return 'poor';
+    }
+
+    function haversineDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371000; // Earth's radius in meters
+        const φ1 = lat1 * Math.PI / 180;
+        const φ2 = lat2 * Math.PI / 180;
+        const Δφ = (lat2 - lat1) * Math.PI / 180;
+        const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c;
+    }
+
+    function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
     }
 
     function isValidCoordinate(lat, lng) {
         return !isNaN(lat) && !isNaN(lng) && 
                lat >= -90 && lat <= 90 && 
                lng >= -180 && lng <= 180 &&
-               lat !== 0 || lng !== 0; // Reject null island
-    }
-
-
-
-    function applyUserMarkerScale() {
-        if (!AppState.userMarker) return;
-        
-        const zoom = AppState.map.getZoom();
-        const userScale = calculateZoomScale(zoom);
-        const markerElement = AppState.userMarker.getElement();
-        if (markerElement) {
-            // Preserve any existing direction rotation while applying scale
-            const currentTransform = markerElement.style.transform || '';
-            const rotateMatch = currentTransform.match(/rotate\([^)]+\)/);
-            const rotateTransform = rotateMatch ? rotateMatch[0] : '';
-            markerElement.style.transform = `scale(${userScale}) ${rotateTransform}`.trim();
-        }
-    }
-
-    function updateAccuracyIndicator(accuracy) {
-        const accuracyElement = document.querySelector('.location-accuracy');
-        if (accuracyElement && accuracy) {
-            // Scale based on accuracy: better accuracy = smaller circle
-            const scale = Math.min(3, Math.max(0.3, accuracy / 10));
-            accuracyElement.style.transform = `scale(${scale})`;
-            
-            // Adjust opacity based on accuracy - better accuracy = more opaque
-            const opacity = Math.min(0.8, Math.max(0.1, 1 - (accuracy / 50)));
-            accuracyElement.style.opacity = opacity;
-            
-            // Change color based on accuracy quality
-            if (accuracy <= 5) {
-                accuracyElement.style.borderColor = 'rgba(0, 245, 160, 0.3)';
-            } else if (accuracy <= 15) {
-                accuracyElement.style.borderColor = 'rgba(154, 245, 0, 0.3)';
-            } else if (accuracy <= 30) {
-                accuracyElement.style.borderColor = 'rgba(255, 214, 10, 0.3)';
-            } else {
-                accuracyElement.style.borderColor = 'rgba(255, 69, 0, 0.3)';
-            }
-        }
-    }
-
-    function updateDirectionIndicator(heading) {
-        if (heading === null || heading === undefined) return;
-        
-        // Normalize heading to 0-360 range
-        const normalizedHeading = ((heading % 360) + 360) % 360;
-        
-        console.log(`🧭 Direction update: ${normalizedHeading.toFixed(1)}°`);
-        
-        // Apply rotation to marker element to preserve scale transform
-        if (AppState.userMarker) {
-            const markerElement = AppState.userMarker.getElement();
-            if (markerElement) {
-                // Preserve any existing scale while applying rotation
-                const currentTransform = markerElement.style.transform || '';
-                const scaleMatch = currentTransform.match(/scale\([^)]+\)/);
-                const scaleTransform = scaleMatch ? scaleMatch[0] : 'scale(1)';
-                markerElement.style.transform = `${scaleTransform} rotate(${normalizedHeading}deg)`;
-                
-                console.log(`🔄 Applied transform: ${markerElement.style.transform}`);
-                
-                // Optional: Add visual feedback that compass is working
-                const container = markerElement.querySelector('.location-container');
-                if (container) {
-                    container.setAttribute('data-heading', normalizedHeading.toFixed(0));
-                }
-            }
-        }
-        
-        AppState.lastHeading = normalizedHeading;
+               (lat !== 0 || lng !== 0); // Reject null island
     }
 
     async function centerOnLocation() {
@@ -4222,9 +4553,9 @@
             }
         });
         
-        // Scale user location marker while preserving rotation
+        // Scale user location marker with premium transforms
         if (AppState.userMarker) {
-            applyUserMarkerScale();
+            applyPremiumLocationTransform();
         }
         
         // Ensure refine markers are always fully visible
@@ -6738,31 +7069,68 @@
     // Make it available globally for testing
     window.testZoomFading = testZoomFading;
     
-    // Debug function for location issues
+    // Premium GPS Debug System
     function debugLocation() {
-        console.log('🔍 Location Debug Info:');
-        console.log('- User location:', AppState.userLocation);
-        console.log('- User marker exists:', !!AppState.userMarker);
+        const gps = AppState.gps;
+        console.log('🔍 Premium GPS Debug Info:');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📍 Location State:');
+        console.log('  Raw Position:', gps.lastPosition);
+        console.log('  Filtered Position:', gps.filteredPosition);
+        console.log('  App User Location:', AppState.userLocation);
+        console.log('');
+        console.log('🎯 GPS Quality:');
+        console.log('  Quality Level:', gps.quality);
+        console.log('  Last Accuracy:', gps.lastAccuracy?.toFixed(1), 'm');
+        console.log('  Is Moving:', gps.isMoving);
+        console.log('  Movement Speed:', gps.movementSpeed?.toFixed(2), 'm/s');
+        console.log('');
+        console.log('🧭 Direction State:');
+        console.log('  Raw Heading:', gps.lastHeading?.toFixed(1), '°');
+        console.log('  Filtered Heading:', gps.filteredHeading?.toFixed(1), '°');
+        console.log('  Heading History:', gps.headingHistory?.map(h => h.toFixed(1)));
+        console.log('');
+        console.log('📊 Position History:');
+        gps.positionHistory?.forEach((pos, i) => {
+            console.log(`  ${i}: ${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)} (${new Date(pos.timestamp).toLocaleTimeString()})`);
+        });
+        console.log('');
+        console.log('🗺️ Marker Info:');
+        console.log('  Marker exists:', !!AppState.userMarker);
         if (AppState.userMarker) {
-            console.log('- Marker position:', AppState.userMarker.getLatLng());
-            console.log('- Marker element:', AppState.userMarker.getElement());
+            console.log('  Marker position:', AppState.userMarker.getLatLng());
             const element = AppState.userMarker.getElement();
             if (element) {
-                console.log('- Element transform:', element.style.transform);
-                console.log('- Element position:', element.getBoundingClientRect());
+                console.log('  Element transform:', element.style.transform);
+                const container = element.querySelector('.location-container');
+                if (container) {
+                    console.log('  GPS Quality attr:', container.getAttribute('data-gps-quality'));
+                    console.log('  Moving attr:', container.getAttribute('data-moving'));
+                    console.log('  Heading attr:', container.getAttribute('data-heading'));
+                }
             }
         }
-        console.log('- Map center:', AppState.map.getCenter());
-        console.log('- Map zoom:', AppState.map.getZoom());
-        console.log('- Map bounds:', AppState.map.getBounds());
+        console.log('');
+        console.log('🗺️ Map State:');
+        console.log('  Center:', AppState.map.getCenter());
+        console.log('  Zoom:', AppState.map.getZoom());
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         
-        // Force a location update if possible
+        // Force a premium location update
         if (navigator.geolocation) {
-            console.log('🎯 Requesting fresh location...');
+            console.log('🎯 Requesting fresh premium location...');
             navigator.geolocation.getCurrentPosition(
                 position => {
-                    console.log('📍 Fresh location:', position.coords);
+                    console.log('📍 Fresh GPS data received');
                     updateUserLocation(position);
+                    // Debug the processing
+                    setTimeout(() => {
+                        console.log('✨ Post-processing GPS state:', {
+                            quality: AppState.gps.quality,
+                            isMoving: AppState.gps.isMoving,
+                            speed: AppState.gps.movementSpeed
+                        });
+                    }, 100);
                 },
                 error => console.error('❌ Fresh location error:', error),
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -6770,7 +7138,117 @@
         }
     }
     
+    // Test Premium GPS System
+    function testPremiumGPS() {
+        console.log('🧪 Testing Premium GPS System...');
+        
+        if (!navigator.geolocation) {
+            console.error('❌ Geolocation not supported');
+            showToast('Geolocation not supported', 'error');
+            return;
+        }
+        
+        showToast('🧪 Testing premium GPS - check console for details', 'info');
+        
+        let testCount = 0;
+        const maxTests = 5;
+        
+        function runTest() {
+            testCount++;
+            console.log(`🔬 GPS Test ${testCount}/${maxTests}`);
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    console.log(`✅ Test ${testCount} - Raw GPS:`, {
+                        lat: position.coords.latitude.toFixed(6),
+                        lng: position.coords.longitude.toFixed(6),
+                        accuracy: position.coords.accuracy.toFixed(1),
+                        speed: position.coords.speed
+                    });
+                    
+                    updateUserLocation(position);
+                    
+                    setTimeout(() => {
+                        console.log(`✨ Test ${testCount} - Processed:`, {
+                            quality: AppState.gps.quality,
+                            isMoving: AppState.gps.isMoving,
+                            speed: AppState.gps.movementSpeed?.toFixed(2),
+                            filteredLat: AppState.gps.filteredPosition?.lat.toFixed(6),
+                            filteredLng: AppState.gps.filteredPosition?.lng.toFixed(6)
+                        });
+                        
+                        if (testCount < maxTests) {
+                            setTimeout(runTest, 2000); // Test every 2 seconds
+                        } else {
+                            console.log('🎉 Premium GPS test completed!');
+                            showToast('Premium GPS test completed! Check console for results.', 'success');
+                        }
+                    }, 500);
+                },
+                error => {
+                    console.error(`❌ Test ${testCount} failed:`, error);
+                    if (testCount < maxTests) {
+                        setTimeout(runTest, 2000);
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 1000 }
+            );
+        }
+        
+        runTest();
+    }
+    
+    // Quick Demo of Premium GPS Features
+    function demoPremiumGPS() {
+        console.log('🎪 Premium GPS Demo Starting...');
+        showToast('🎪 Premium GPS Demo - Watch the console!', 'success');
+        
+        if (!navigator.geolocation) {
+            showToast('❌ Geolocation not available', 'error');
+            return;
+        }
+        
+        console.log('🔮 Premium GPS Features:');
+        console.log('  ✨ Advanced coordinate filtering');
+        console.log('  🎯 Movement detection & adaptive smoothing');
+        console.log('  🧭 Sophisticated compass heading filters');
+        console.log('  📊 Quality-based visual indicators');
+        console.log('  🎬 Smooth animations for all updates');
+        console.log('  🎨 Multi-layer accuracy visualization');
+        
+        // Get location and show the filtering in action
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                console.log('📍 Raw GPS received - processing through premium filters...');
+                updateUserLocation(position);
+                
+                setTimeout(() => {
+                    debugLocation();
+                    showToast('✅ Premium GPS demo complete! Check console for details.', 'success');
+                    
+                    // Show visual feedback about quality
+                    const quality = AppState.gps.quality;
+                    const qualityEmoji = {
+                        'excellent': '🟢',
+                        'good': '🟡', 
+                        'fair': '🟠',
+                        'poor': '🔴'
+                    };
+                    
+                    showToast(`${qualityEmoji[quality]} GPS Quality: ${quality.toUpperCase()}`, 'info');
+                }, 1000);
+            },
+            error => {
+                console.error('❌ Demo failed:', error);
+                showToast('❌ GPS demo failed - check permissions', 'error');
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
     window.debugLocation = debugLocation;
+    window.testPremiumGPS = testPremiumGPS;
+    window.demoPremiumGPS = demoPremiumGPS;
     
     // Enhanced cleanup function for memory management
     function cleanup() {
@@ -6812,6 +7290,16 @@
         
         // Clear refine mode state
         AppState.refineMode = false;
+        
+        // Reset premium GPS state
+        if (AppState.gps) {
+            AppState.gps.lastPosition = null;
+            AppState.gps.filteredPosition = null;
+            AppState.gps.lastHeading = null;
+            AppState.gps.filteredHeading = null;
+            AppState.gps.headingHistory = [];
+            AppState.gps.positionHistory = [];
+        }
         
         // Run all stored cleanup functions
         if (AppState.cleanupFunctions) {
