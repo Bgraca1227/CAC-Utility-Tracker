@@ -1711,20 +1711,21 @@
         }
     }
     
-    /* Compact Proximity Alerts for Enhanced Excavation Mode */
+    /* Premium Grid-Based Proximity Alerts for Excavation Mode */
     .proximity-alerts {
         position: absolute;
         top: calc(env(safe-area-inset-top, 0) + 100px);
         left: var(--spacing-md);
         right: var(--spacing-md);
-        display: flex;
-        flex-direction: column;
+        bottom: calc(env(safe-area-inset-bottom, 0) + 120px);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: var(--spacing-sm);
         z-index: 402;
-        max-height: 50vh;
         overflow-y: auto;
         pointer-events: none;
         transition: all var(--transition-normal);
+        padding: var(--spacing-sm);
     }
     
     .proximity-alerts.hidden {
@@ -1738,51 +1739,44 @@
     }
     
     .proximity-alert {
-        background: rgba(18, 18, 26, 0.98);
-        backdrop-filter: blur(30px) saturate(220%);
-        -webkit-backdrop-filter: blur(30px) saturate(220%);
+        background: rgba(255, 255, 255, 1.0);
         border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.2),
+            0 4px 16px rgba(0, 0, 0, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.05);
         overflow: hidden;
         animation: alertSlideIn var(--transition-bounce) ease-out;
         position: relative;
-        border: 1px solid rgba(255, 255, 255, 0.4);
+        border: 2px solid transparent;
         transform-origin: top center;
-        max-width: 280px;
-        margin: 0 auto;
         transition: all var(--transition-normal);
+        min-height: 140px;
+        max-height: 180px;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
     
     .proximity-alert.water { 
-        background: linear-gradient(135deg, rgba(0, 180, 216, 0.35) 0%, rgba(18, 18, 26, 0.98) 100%);
-        border-color: rgba(0, 180, 216, 0.8);
-        box-shadow: var(--shadow-xl), 0 0 50px rgba(0, 180, 216, 1.0);
+        border-color: var(--water-color);
     }
     .proximity-alert.gas { 
-        background: linear-gradient(135deg, rgba(255, 214, 10, 0.35) 0%, rgba(18, 18, 26, 0.98) 100%);
-        border-color: rgba(255, 214, 10, 0.8);
-        box-shadow: var(--shadow-xl), 0 0 50px rgba(255, 214, 10, 1.0);
+        border-color: var(--gas-color);
     }
     .proximity-alert.electric { 
-        background: linear-gradient(135deg, rgba(255, 0, 110, 0.35) 0%, rgba(18, 18, 26, 0.98) 100%);
-        border-color: rgba(255, 0, 110, 0.8);
-        box-shadow: var(--shadow-xl), 0 0 50px rgba(255, 0, 110, 1.0);
+        border-color: var(--electric-color);
     }
     .proximity-alert.sewer { 
-        background: linear-gradient(135deg, rgba(168, 118, 62, 0.35) 0%, rgba(18, 18, 26, 0.98) 100%);
-        border-color: rgba(168, 118, 62, 0.8);
-        box-shadow: var(--shadow-xl), 0 0 50px rgba(168, 118, 62, 1.0);
+        border-color: var(--sewer-color);
     }
     .proximity-alert.telecom { 
-        background: linear-gradient(135deg, rgba(181, 101, 216, 0.35) 0%, rgba(18, 18, 26, 0.98) 100%);
-        border-color: rgba(181, 101, 216, 0.8);
-        box-shadow: var(--shadow-xl), 0 0 50px rgba(181, 101, 216, 1.0);
+        border-color: var(--telecom-color);
     }
     
     @keyframes alertSlideIn {
         from {
             opacity: 0;
-            transform: translateY(-30px) scale(0.9);
+            transform: translateY(-20px) scale(0.95);
         }
         to {
             opacity: 1;
@@ -1791,216 +1785,161 @@
     }
     
     .alert-content {
+        padding: var(--spacing-md);
         position: relative;
-        overflow: hidden;
-    }
-    
-    .alert-status-bar {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        z-index: 1;
-    }
-    
-    .alert-status-bar.water { background: linear-gradient(90deg, var(--water-color), rgba(0, 180, 216, 0.6)); }
-    .alert-status-bar.gas { background: linear-gradient(90deg, var(--gas-color), rgba(255, 214, 10, 0.6)); }
-    .alert-status-bar.electric { background: linear-gradient(90deg, var(--electric-color), rgba(255, 0, 110, 0.6)); }
-    .alert-status-bar.sewer { background: linear-gradient(90deg, var(--sewer-color), rgba(168, 118, 62, 0.6)); }
-    .alert-status-bar.telecom { background: linear-gradient(90deg, var(--telecom-color), rgba(181, 101, 216, 0.6)); }
-    
-    .alert-main {
-        padding-top: 4px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     
     .alert-header {
-        padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
         display: flex;
         align-items: center;
-        gap: var(--spacing-sm);
-        position: relative;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-sm);
     }
     
     .alert-icon-container {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
-        position: relative;
-        overflow: hidden;
         flex-shrink: 0;
     }
     
-    .alert-icon-container::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        opacity: 0.1;
+    .alert-icon-container.water { 
+        background: rgba(0, 180, 216, 0.1);
+        color: var(--water-color);
     }
-    
-    .alert-icon-container.water { background: rgba(0, 180, 216, 0.35); }
-    .alert-icon-container.water::before { background: var(--water-color); }
-    .alert-icon-container.gas { background: rgba(255, 214, 10, 0.35); }
-    .alert-icon-container.gas::before { background: var(--gas-color); }
-    .alert-icon-container.electric { background: rgba(255, 0, 110, 0.35); }
-    .alert-icon-container.electric::before { background: var(--electric-color); }
-    .alert-icon-container.sewer { background: rgba(168, 118, 62, 0.35); }
-    .alert-icon-container.sewer::before { background: var(--sewer-color); }
-    .alert-icon-container.telecom { background: rgba(181, 101, 216, 0.35); }
-    .alert-icon-container.telecom::before { background: var(--telecom-color); }
+    .alert-icon-container.gas { 
+        background: rgba(255, 214, 10, 0.1);
+        color: var(--gas-color);
+    }
+    .alert-icon-container.electric { 
+        background: rgba(255, 0, 110, 0.1);
+        color: var(--electric-color);
+    }
+    .alert-icon-container.sewer { 
+        background: rgba(168, 118, 62, 0.1);
+        color: var(--sewer-color);
+    }
+    .alert-icon-container.telecom { 
+        background: rgba(181, 101, 216, 0.1);
+        color: var(--telecom-color);
+    }
     
     .alert-icon-container i {
-        font-size: 24px;
-        z-index: 1;
-    }
-    
-    .alert-icon-container.water i { color: var(--water-color); }
-    .alert-icon-container.gas i { color: var(--gas-color); }
-    .alert-icon-container.electric i { color: var(--electric-color); }
-    .alert-icon-container.sewer i { color: var(--sewer-color); }
-    .alert-icon-container.telecom i { color: var(--telecom-color); }
-    
-    .alert-info {
-        flex: 1;
-    }
-    
-    .alert-utility-type {
         font-size: 18px;
-        font-weight: 800;
-        color: var(--text-primary);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin: 0 0 4px 0;
-    }
-    
-    .alert-line-type {
-        font-size: 13px;
-        color: var(--text-secondary);
-        font-weight: 600;
-        margin: 0;
-        text-transform: capitalize;
     }
     
     .alert-close {
-        width: 36px;
-        height: 36px;
+        width: 24px;
+        height: 24px;
         border: none;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.05);
         border-radius: var(--radius-full);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all var(--transition-normal);
-        color: var(--text-secondary);
+        color: #666;
+        font-size: 12px;
     }
     
     .alert-close:hover {
-        background: rgba(255, 255, 255, 0.2);
-        color: var(--text-primary);
-        transform: scale(1.05);
+        background: rgba(0, 0, 0, 0.1);
+        color: #333;
+        transform: scale(1.1);
     }
     
     .alert-close:active {
-        transform: scale(0.95);
+        transform: scale(0.9);
+    }
+    
+    .alert-utility-info {
+        text-align: center;
+        margin-bottom: var(--spacing-sm);
+    }
+    
+    .alert-utility-type {
+        font-size: 16px;
+        font-weight: 800;
+        color: #1a1a1a;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 2px 0;
+        line-height: 1;
+    }
+    
+    .alert-line-type {
+        font-size: 11px;
+        color: #666;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .alert-distance-banner {
-        margin: 0 var(--spacing-md) var(--spacing-sm);
-        padding: var(--spacing-sm) var(--spacing-md);
-        border-radius: var(--radius-md);
         text-align: center;
-        position: relative;
-        overflow: hidden;
+        margin-bottom: var(--spacing-sm);
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-md);
+        background: rgba(0, 0, 0, 0.03);
     }
-    
-    .alert-distance-banner::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        opacity: 0.1;
-        border-radius: inherit;
-    }
-    
-    .alert-distance-banner.water { background: rgba(0, 180, 216, 0.3); }
-    .alert-distance-banner.water::before { background: var(--water-color); }
-    .alert-distance-banner.gas { background: rgba(255, 214, 10, 0.3); }
-    .alert-distance-banner.gas::before { background: var(--gas-color); }
-    .alert-distance-banner.electric { background: rgba(255, 0, 110, 0.3); }
-    .alert-distance-banner.electric::before { background: var(--electric-color); }
-    .alert-distance-banner.sewer { background: rgba(168, 118, 62, 0.3); }
-    .alert-distance-banner.sewer::before { background: var(--sewer-color); }
-    .alert-distance-banner.telecom { background: rgba(181, 101, 216, 0.3); }
-    .alert-distance-banner.telecom::before { background: var(--telecom-color); }
     
     .distance-value {
         display: block;
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 900;
         line-height: 1;
-        z-index: 1;
-        position: relative;
+        color: #d32f2f;
+        margin-bottom: 2px;
     }
-    
-    .distance-value, .distance-unit {
-        z-index: 1;
-        position: relative;
-    }
-    
-    .alert-distance-banner.water .distance-value,
-    .alert-distance-banner.water .distance-unit { color: var(--water-color); }
-    .alert-distance-banner.gas .distance-value,
-    .alert-distance-banner.gas .distance-unit { color: var(--gas-color); }
-    .alert-distance-banner.electric .distance-value,
-    .alert-distance-banner.electric .distance-unit { color: var(--electric-color); }
-    .alert-distance-banner.sewer .distance-value,
-    .alert-distance-banner.sewer .distance-unit { color: var(--sewer-color); }
-    .alert-distance-banner.telecom .distance-value,
-    .alert-distance-banner.telecom .distance-unit { color: var(--telecom-color); }
     
     .distance-unit {
         font-size: 10px;
         font-weight: 700;
         letter-spacing: 1px;
         text-transform: uppercase;
+        color: #666;
     }
     
     .alert-details {
-        padding: 0 var(--spacing-md) var(--spacing-md);
-    }
-    
-    .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-md);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
     }
     
     .detail-item {
-        background: var(--bg-glass-light);
-        padding: var(--spacing-sm) var(--spacing-md);
-        border-radius: var(--radius-md);
-        border: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .detail-item:last-child {
+        border-bottom: none;
     }
     
     .detail-label {
-        display: block;
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--text-secondary);
+        font-size: 10px;
+        font-weight: 600;
+        color: #666;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-bottom: 4px;
     }
     
     .detail-value {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-primary);
+        font-size: 11px;
+        font-weight: 700;
+        color: #1a1a1a;
+        text-align: right;
     }
     
     /* Exit Excavation Button */
@@ -2855,13 +2794,40 @@
         }
         
         .proximity-alerts {
-            max-width: 520px;
-            left: 50%;
-            transform: translateX(-50%);
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         }
         
         .structure-menu {
             width: 360px;
+        }
+    }
+    
+    @media (min-width: 1024px) {
+        .proximity-alerts {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .proximity-alerts {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
+        
+        .proximity-alert {
+            min-height: 120px;
+            max-height: 160px;
+        }
+        
+        .alert-content {
+            padding: 10px;
+        }
+        
+        .alert-utility-type {
+            font-size: 14px;
+        }
+        
+        .distance-value {
+            font-size: 18px;
         }
     }
     
@@ -3434,6 +3400,9 @@
         userMarker: null,
         watchId: null,
         deviceOrientationHandler: null,
+        lastAccuracy: null,
+        lastHeading: undefined,
+        proximityCheckTimeout: null,
         excavationMode: false,
         proximityAlerts: [],
         proximityAlertsVisible: true,
@@ -3995,7 +3964,19 @@
 
     function updateUserLocation(position) {
         const { latitude, longitude, accuracy } = position.coords;
-        AppState.userLocation = [latitude, longitude];
+        const newLocation = [latitude, longitude];
+        
+        // Debounce location updates to prevent jittering
+        if (AppState.userLocation) {
+            const distance = calculateDistance(AppState.userLocation, newLocation);
+            // Only update if moved more than 2 meters or accuracy significantly improved
+            if (distance < 0.000018 && (!AppState.lastAccuracy || Math.abs(accuracy - AppState.lastAccuracy) < 5)) {
+                return;
+            }
+        }
+        
+        AppState.userLocation = newLocation;
+        AppState.lastAccuracy = accuracy;
 
         if (!AppState.userMarker) {
             // Create simple arrow-style user location marker
@@ -4018,14 +3999,9 @@
                 zIndexOffset: 1000
             }).addTo(AppState.map);
             
-            // Apply current zoom scale to new marker
+            // Apply current zoom scale to new marker - prevent bouncing
             setTimeout(() => {
-                const currentZoom = AppState.map.getZoom();
-                const scale = calculateZoomScale(currentZoom);
-                const markerElement = AppState.userMarker.getElement();
-                if (markerElement) {
-                    markerElement.style.transform = `scale(${scale})`;
-                }
+                applyUserMarkerScale();
             }, 50);
             
             // Initialize direction indicator if orientation is available
@@ -4039,14 +4015,48 @@
                 }, 100);
             }
         } else {
+            // Smooth location updates
             AppState.userMarker.setLatLng([latitude, longitude]);
         }
 
-        // Update accuracy circle size based on GPS accuracy
+        // Update accuracy circle with smooth transitions
+        updateAccuracyIndicator(accuracy);
+
+        // Debounced proximity check in excavation mode
+        if (AppState.excavationMode) {
+            clearTimeout(AppState.proximityCheckTimeout);
+            AppState.proximityCheckTimeout = setTimeout(checkProximity, 500);
+        }
+    }
+
+    function calculateDistance(point1, point2) {
+        const lat1 = point1[0];
+        const lng1 = point1[1];
+        const lat2 = point2[0];
+        const lng2 = point2[1];
+        
+        return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lng2 - lng1, 2));
+    }
+
+    function applyUserMarkerScale() {
+        if (!AppState.userMarker) return;
+        
+        const currentZoom = AppState.map.getZoom();
+        const scale = calculateZoomScale(currentZoom);
+        const markerElement = AppState.userMarker.getElement();
+        if (markerElement) {
+            // Preserve any existing direction rotation while applying scale
+            const currentTransform = markerElement.style.transform || '';
+            const rotateMatch = currentTransform.match(/rotate\([^)]+\)/);
+            const rotateTransform = rotateMatch ? rotateMatch[0] : '';
+            markerElement.style.transform = `scale(${scale}) ${rotateTransform}`.trim();
+        }
+    }
+
+    function updateAccuracyIndicator(accuracy) {
         const accuracyElement = document.querySelector('.location-accuracy');
         if (accuracyElement && accuracy) {
             // Scale based on accuracy: better accuracy = smaller circle
-            // accuracy is in meters, so scale accordingly
             const scale = Math.min(3, Math.max(0.3, accuracy / 10));
             accuracyElement.style.transform = `scale(${scale})`;
             
@@ -4056,38 +4066,48 @@
             
             // Change color based on accuracy quality
             if (accuracy <= 5) {
-                // Excellent accuracy - green
                 accuracyElement.style.borderColor = 'rgba(0, 245, 160, 0.3)';
             } else if (accuracy <= 15) {
-                // Good accuracy - yellow-green  
                 accuracyElement.style.borderColor = 'rgba(154, 245, 0, 0.3)';
             } else if (accuracy <= 30) {
-                // Fair accuracy - yellow
                 accuracyElement.style.borderColor = 'rgba(255, 214, 10, 0.3)';
             } else {
-                // Poor accuracy - orange/red
                 accuracyElement.style.borderColor = 'rgba(255, 69, 0, 0.3)';
             }
-        }
-
-        // Check proximity in excavation mode
-        if (AppState.excavationMode) {
-            checkProximity();
         }
     }
 
     function updateDirectionIndicator(heading) {
-        const arrowElement = document.querySelector('.location-arrow');
-        if (arrowElement && heading !== null && heading !== undefined) {
-            // Normalize heading to 0-360 range
-            const normalizedHeading = ((heading % 360) + 360) % 360;
+        if (heading === null || heading === undefined) return;
+        
+        // Normalize heading to 0-360 range
+        const normalizedHeading = ((heading % 360) + 360) % 360;
+        
+        // Debounce direction updates to prevent jittering
+        if (AppState.lastHeading !== undefined) {
+            const headingDifference = Math.abs(normalizedHeading - AppState.lastHeading);
+            const minDifference = Math.min(headingDifference, 360 - headingDifference);
             
-            // Apply rotation to the entire arrow - it rotates around its center
-            arrowElement.style.transform = `rotate(${normalizedHeading}deg)`;
-            
-            // Optional: Add visual feedback that compass is working
-            if (AppState.userMarker) {
-                const container = AppState.userMarker.getElement()?.querySelector('.location-container');
+            // Only update if heading changed by more than 3 degrees
+            if (minDifference < 3) {
+                return;
+            }
+        }
+        
+        AppState.lastHeading = normalizedHeading;
+        
+        // Apply rotation to marker element to preserve scale transform
+        if (AppState.userMarker) {
+            const markerElement = AppState.userMarker.getElement();
+            if (markerElement) {
+                // Preserve any existing scale while applying rotation
+                const currentTransform = markerElement.style.transform || '';
+                const scaleMatch = currentTransform.match(/scale\([^)]+\)/);
+                const scaleTransform = scaleMatch ? scaleMatch[0] : 'scale(1)';
+                markerElement.style.transform = `${scaleTransform} rotate(${normalizedHeading}deg)`;
+                
+                // Optional: Add visual feedback that compass is working
+                const container = markerElement.querySelector('.location-container');
                 if (container) {
                     container.setAttribute('data-heading', normalizedHeading.toFixed(0));
                 }
@@ -4198,12 +4218,9 @@
             }
         });
         
-        // Scale user location marker
+        // Scale user location marker while preserving rotation
         if (AppState.userMarker) {
-            const markerElement = AppState.userMarker.getElement();
-            if (markerElement) {
-                markerElement.style.transform = `scale(${scale})`;
-            }
+            applyUserMarkerScale();
         }
         
         // Ensure refine markers are always fully visible
@@ -5922,43 +5939,41 @@
         alertDiv.className = `proximity-alert ${utility.type}`;
         alertDiv.innerHTML = `
             <div class="alert-content">
-                <div class="alert-status-bar ${utility.type}"></div>
-                <div class="alert-main">
-                    <div class="alert-header">
-                        <div class="alert-icon-container ${utility.type}">
-                            <i class="${getUtilityIcon(utility.type)}" aria-hidden="true"></i>
+                <div class="alert-header">
+                    <div class="alert-icon-container ${utility.type}">
+                        <i class="${getUtilityIcon(utility.type)}" aria-hidden="true"></i>
                     </div>
-                        <div class="alert-info">
-                            <h3 class="alert-utility-type">${utility.type.toUpperCase()}</h3>
-                            <p class="alert-line-type">${utility.lineType} Line</p>
+                    <button class="alert-close" onclick="dismissProximityAlert('${utility.id}')" aria-label="Dismiss alert">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                
+                <div class="alert-utility-info">
+                    <h3 class="alert-utility-type">${utility.type}</h3>
+                    <p class="alert-line-type">${utility.lineType} Line</p>
+                </div>
+                
+                <div class="alert-distance-banner">
+                    <span class="distance-value">${Math.round(distance / 0.3048)}</span>
+                    <span class="distance-unit">FEET AWAY</span>
+                </div>
+                
+                <div class="alert-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Size</span>
+                        <span class="detail-value">${utility.size ? utility.size + '"' : 'N/A'}</span>
                     </div>
-                        <button class="alert-close" onclick="dismissProximityAlert('${utility.id}')" aria-label="Dismiss alert">
-                            <i class="fas fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-                    <div class="alert-distance-banner ${utility.type}">
-                        <span class="distance-value">${Math.round(distance / 0.3048)}</span>
-                        <span class="distance-unit">FEET AWAY</span>
-                </div>
-                    <div class="alert-details">
-                        <div class="detail-grid">
-                            <div class="detail-item">
-                                <span class="detail-label">Size</span>
-                                <span class="detail-value">${utility.size ? utility.size + '"' : 'Unknown'}</span>
-                </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Depth</span>
-                                <span class="detail-value">${utility.depth ? utility.depth + "'" : 'Unknown'}</span>
-                </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Material</span>
-                                <span class="detail-value">${utility.material || 'Unknown'}</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Condition</span>
-                                <span class="detail-value">${utility.condition || 'Unknown'}</span>
-                            </div>
-                        </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Depth</span>
+                        <span class="detail-value">${utility.depth ? utility.depth + "'" : 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Material</span>
+                        <span class="detail-value">${utility.material || 'N/A'}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Condition</span>
+                        <span class="detail-value">${utility.condition || 'N/A'}</span>
                     </div>
                 </div>
             </div>
@@ -5984,9 +5999,12 @@
             return;
         }
         
-        const distanceValue = document.querySelector(`#alert-${utility.id} .distance-value`);
-        if (distanceValue) {
-            distanceValue.textContent = Math.round(distance / 0.3048);
+        const alertElement = document.getElementById(`alert-${utility.id}`);
+        if (alertElement) {
+            const distanceValue = alertElement.querySelector('.distance-value');
+            if (distanceValue) {
+                distanceValue.textContent = Math.round(distance / 0.3048);
+            }
         }
     }
 
