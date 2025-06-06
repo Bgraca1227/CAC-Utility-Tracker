@@ -2144,6 +2144,12 @@
         cursor: pointer;
         filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
         transition: all var(--transition-normal), opacity 0.3s ease-in-out;
+        touch-action: manipulation;
+        -webkit-touch-callout: default;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
     
     .utility-line:hover {
@@ -3730,7 +3736,9 @@
         console.log('  - testPremiumGPS() : Run GPS accuracy tests');
         console.log('  - testRefineWorkflow() : Test utility refining');
         console.log('  - createTestUtilityForRefining() : Create test utility');
+        console.log('  - testMobileTouch() : Test mobile touch functionality');
         console.log('✨ Try: demoPremiumGPS() to see the system in action!');
+        console.log('📱 For mobile touch issues, try: testMobileTouch()');
 
         // Enhanced touch event prevention - only prevent double-tap zoom and pull-to-refresh
         let touchStartY = 0;
@@ -4958,7 +4966,7 @@
                 return; // Don't interfere with other modes
             }
             
-            // Prevent event bubbling
+            // Prevent event bubbling and default behavior
             L.DomEvent.stopPropagation(e);
             L.DomEvent.preventDefault(e);
             
@@ -4966,24 +4974,54 @@
             hasMoved = false;
             startTime = Date.now();
             
-            // Store initial position for move detection
-            if (e.type === 'touchstart' && e.originalEvent.touches && e.originalEvent.touches[0]) {
-                startPos = {
-                    x: e.originalEvent.touches[0].clientX,
-                    y: e.originalEvent.touches[0].clientY
-                };
+            // Enhanced touch position detection
+            let clientX, clientY;
+            
+            if (e.type === 'touchstart') {
+                // Try multiple ways to get touch coordinates
+                if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0]) {
+                    clientX = e.originalEvent.touches[0].clientX;
+                    clientY = e.originalEvent.touches[0].clientY;
+                } else if (e.touches && e.touches[0]) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else if (e.originalEvent && e.originalEvent.clientX !== undefined) {
+                    clientX = e.originalEvent.clientX;
+                    clientY = e.originalEvent.clientY;
+                } else {
+                    // Fallback to container point
+                    const point = e.containerPoint || e.layerPoint;
+                    if (point) {
+                        clientX = point.x;
+                        clientY = point.y;
+                    } else {
+                        console.warn('Could not determine touch position');
+                        return;
+                    }
+                }
             } else {
-                startPos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+                // Mouse event
+                clientX = e.originalEvent ? e.originalEvent.clientX : e.clientX;
+                clientY = e.originalEvent ? e.originalEvent.clientY : e.clientY;
             }
             
-            // Start long press timer
+            startPos = { x: clientX, y: clientY };
+            
+            console.log('🎯 Touch start detected on utility line', {
+                type: e.type,
+                position: startPos,
+                utilityId: utilityData.id
+            });
+            
+            // Start long press timer (shorter for better mobile UX)
             pressTimer = setTimeout(() => {
                 if (!hasMoved) {
-                longPress = true;
-                hapticFeedback(50);
-                showInfoModal(utilityData);
+                    console.log('✅ Long press triggered!');
+                    longPress = true;
+                    hapticFeedback(100);
+                    showInfoModal(utilityData);
                 }
-            }, 600); // Slightly longer for mobile
+            }, 500); // Reduced from 600ms to 500ms
             
             // Highlight line on press
             line.setStyle({
@@ -4995,43 +5033,77 @@
         const movePress = (e) => {
             if (!startPos) return;
             
-            let currentPos;
-            if (e.type === 'touchmove' && e.originalEvent.touches && e.originalEvent.touches[0]) {
-                currentPos = {
-                    x: e.originalEvent.touches[0].clientX,
-                    y: e.originalEvent.touches[0].clientY
-                };
+            // Enhanced touch position detection for move events
+            let clientX, clientY;
+            
+            if (e.type === 'touchmove') {
+                if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0]) {
+                    clientX = e.originalEvent.touches[0].clientX;
+                    clientY = e.originalEvent.touches[0].clientY;
+                } else if (e.touches && e.touches[0]) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else if (e.originalEvent && e.originalEvent.clientX !== undefined) {
+                    clientX = e.originalEvent.clientX;
+                    clientY = e.originalEvent.clientY;
+                } else {
+                    const point = e.containerPoint || e.layerPoint;
+                    if (point) {
+                        clientX = point.x;
+                        clientY = point.y;
+                    } else {
+                        return;
+                    }
+                }
             } else {
-                currentPos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+                clientX = e.originalEvent ? e.originalEvent.clientX : e.clientX;
+                clientY = e.originalEvent ? e.originalEvent.clientY : e.clientY;
             }
             
-            // Check if moved more than 10px
+            const currentPos = { x: clientX, y: clientY };
+            
+            // Check if moved more than 20px (increased threshold for mobile)
             const distance = Math.sqrt(
                 Math.pow(currentPos.x - startPos.x, 2) + 
                 Math.pow(currentPos.y - startPos.y, 2)
             );
             
-            if (distance > 10) {
+            if (distance > 20) { // Increased from 10px to 20px for better mobile tolerance
+                console.log('🔄 Movement detected, cancelling long press', { distance });
                 hasMoved = true;
-            clearTimeout(pressTimer);
+                clearTimeout(pressTimer);
             }
         };
         
         const endPress = (e) => {
-            clearTimeout(pressTimer);
             const pressDuration = Date.now() - startTime;
             
-            // Reset line style
+            console.log('🔚 Touch end detected', {
+                type: e.type,
+                duration: pressDuration,
+                longPress,
+                hasMoved,
+                utilityId: utilityData.id
+            });
+            
+            clearTimeout(pressTimer);
+            
+            // Reset line style to current zoom-appropriate weight
+            const currentZoom = AppState.map.getZoom();
+            const lineScale = calculateUtilityLineScale(currentZoom);
+            const baseWeight = utilityData.lineType === 'main' ? 8 : 6;
+            const scaledWeight = Math.max(1, baseWeight * lineScale);
+            
             line.setStyle({
-                weight: utilityData.lineType === 'main' ? 8 : 6,
+                weight: scaledWeight,
                 opacity: 1
             });
             
-            // Show quick info on short press without movement
-            if (!longPress && !hasMoved && pressDuration < 400 && pressDuration > 50) {
+            // Show quick info on short press without movement (if not a long press)
+            if (!longPress && !hasMoved && pressDuration < 450 && pressDuration > 50) {
                 const utilityName = `${capitalizeFirst(utilityData.type)} ${capitalizeFirst(utilityData.lineType)}`;
                 const info = utilityData.size ? ` (${utilityData.size}")` : '';
-                showToast(`${utilityName}${info} - Long press to edit`, 'info');
+                showToast(`${utilityName}${info} - Hold to edit`, 'info');
                 hapticFeedback(30);
             }
             
@@ -5040,10 +5112,20 @@
             hasMoved = false;
         };
 
-        // Enhanced event handling for mobile
-        line.on('mousedown touchstart', startPress);
-        line.on('mousemove touchmove', movePress);
-        line.on('mouseup touchend mouseleave touchcancel', endPress);
+        // Enhanced event handling for mobile with explicit touch support
+        line.on('mousedown', startPress);
+        line.on('touchstart', startPress);
+        line.on('mousemove', movePress);
+        line.on('touchmove', movePress);
+        line.on('mouseup', endPress);
+        line.on('touchend', endPress);
+        line.on('mouseleave', endPress);
+        line.on('touchcancel', endPress);
+        
+        // Additional debugging for mobile touch events
+        if ('ontouchstart' in window) {
+            console.log('📱 Touch support detected, utility line touch events registered for:', utilityData.id);
+        }
 
         line.on('click', (e) => {
                 L.DomEvent.stopPropagation(e);
@@ -7065,6 +7147,81 @@
     
     // Make it available globally for testing
     window.testZoomFading = testZoomFading;
+    
+    // Test mobile touch functionality
+    function testMobileTouch() {
+        console.log('🧪 Testing mobile touch functionality...');
+        
+        // Check if we're on a touch device
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        console.log('📱 Touch device detected:', isTouchDevice);
+        
+        if (!isTouchDevice) {
+            showToast('⚠️ No touch support detected - test may not be accurate', 'warning');
+        }
+        
+        // Create a test utility if none exist
+        if (AppState.utilities.length === 0) {
+            console.log('📝 Creating test utility for touch testing...');
+            createTestUtilityForRefining();
+            
+            setTimeout(() => {
+                console.log('✅ Test utility created');
+                showToast('📱 Touch test: Try pressing and holding the blue line for 0.5 seconds', 'info');
+                
+                // Check if events are bound
+                const testUtility = AppState.utilities[0];
+                if (testUtility && testUtility.lineLayer) {
+                    console.log('🔗 Testing event listeners on utility line...');
+                    const events = testUtility.lineLayer._events;
+                    if (events) {
+                        console.log('📋 Registered events:', Object.keys(events));
+                        console.log('  - touchstart:', !!events.touchstart);
+                        console.log('  - touchmove:', !!events.touchmove);
+                        console.log('  - touchend:', !!events.touchend);
+                        console.log('  - mousedown:', !!events.mousedown);
+                    }
+                }
+            }, 1000);
+            
+            return;
+        }
+        
+        // Test existing utility
+        const testUtility = AppState.utilities[0];
+        console.log('🎯 Testing touch events on utility:', testUtility.id);
+        
+        // Show info about the utility
+        showToast('📱 Touch test: Try pressing and holding the utility line for 0.5 seconds', 'info');
+        
+        // Zoom to the utility for better testing
+        if (testUtility.points && testUtility.points.length > 0) {
+            const bounds = L.latLngBounds(testUtility.points);
+            AppState.map.fitBounds(bounds, { padding: [100, 100] });
+        }
+        
+        // Check event listeners
+        if (testUtility.lineLayer && testUtility.lineLayer._events) {
+            const events = testUtility.lineLayer._events;
+            console.log('📋 Touch events registered:', {
+                touchstart: !!events.touchstart,
+                touchmove: !!events.touchmove, 
+                touchend: !!events.touchend,
+                mousedown: !!events.mousedown
+            });
+            
+            if (events.touchstart) {
+                console.log('✅ Touch events are properly registered');
+                showToast('✅ Touch events are registered - try the long press now!', 'success');
+            } else {
+                console.error('❌ Touch events not found');
+                showToast('❌ Touch events not registered properly', 'error');
+            }
+        }
+    }
+    
+    // Make it available globally for testing
+    window.testMobileTouch = testMobileTouch;
     
     // Premium GPS Debug System
     function debugLocation() {
