@@ -1769,7 +1769,21 @@
     .connection-marker.sewer { stroke: var(--sewer-color); }
     .connection-marker.telecom { stroke: var(--telecom-color); }
     
-    /* Refine Points */
+    /* Refine Points - Enhanced for Leaflet CircleMarkers */
+    .leaflet-interactive {
+        cursor: pointer;
+    }
+    
+    .leaflet-interactive[style*="cursor: move"] {
+        cursor: move !important;
+    }
+    
+    /* Ensure refine markers are always visible and interactive */
+    .leaflet-zoom-animated .leaflet-interactive {
+        pointer-events: auto !important;
+    }
+    
+    /* Legacy CSS for any SVG-based refine points */
     .refine-point {
         fill: white;
         stroke: #667eea;
@@ -1778,6 +1792,7 @@
         r: 12;
         filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.5));
         transition: all var(--transition-normal);
+        pointer-events: auto;
     }
     
     .refine-point:hover {
@@ -1789,6 +1804,81 @@
         r: 16;
         stroke: #00f5a0;
         filter: drop-shadow(0 8px 20px rgba(0, 245, 160, 0.7));
+    }
+    
+    /* Enhanced refine marker styles - Much more visible */
+    .refine-vertex-marker,
+    .refine-intermediate-marker {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .refine-vertex-point {
+        width: 24px;
+        height: 24px;
+        background: #ffffff;
+        border: 5px solid #667eea;
+        border-radius: 50%;
+        cursor: move !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.9);
+        transition: all var(--transition-normal);
+        animation: refinePulse 2s ease-in-out infinite;
+        position: relative;
+        z-index: 10000 !important;
+        display: block !important;
+        pointer-events: auto !important;
+    }
+    
+    .refine-vertex-point:hover {
+        transform: scale(1.2) !important;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 1), 0 0 0 3px rgba(255, 255, 255, 1);
+        border-color: #00f5a0;
+        background: #f0f8ff;
+    }
+    
+    .refine-intermediate-point {
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 4px solid #667eea;
+        border-radius: 50%;
+        cursor: move !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.8);
+        transition: all var(--transition-normal);
+        animation: refinePulse 3s ease-in-out infinite;
+        position: relative;
+        z-index: 9999 !important;
+        opacity: 0.9;
+        display: block !important;
+        pointer-events: auto !important;
+    }
+    
+    .refine-intermediate-point:hover {
+        transform: scale(1.3) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.8), 0 0 0 2px rgba(255, 255, 255, 1);
+        opacity: 1;
+        border-color: #00f5a0;
+        background: #f0fff0;
+    }
+    
+    /* Ensure markers are always visible */
+    .leaflet-marker-icon.refine-vertex-marker,
+    .leaflet-marker-icon.refine-intermediate-marker {
+        z-index: 10000 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Pulsing animation for refine points to make them more visible */
+    @keyframes refinePulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
     }
     
     /* Connection Dialog - Premium */
@@ -2317,7 +2407,6 @@
         }
     }
 </style>
-```
 
 </head>
 <body>
@@ -2349,7 +2438,6 @@
         <div class="splash-loader"></div>
     </div>
 
-```
 <!-- Main App Container -->
 <div class="app-container">
     <!-- Map -->
@@ -4087,8 +4175,14 @@
 
     // Refine Location functions
     function startRefineLocation() {
-        if (!AppState.selectedUtilityData) return;
+        if (!AppState.selectedUtilityData) {
+            console.log('Cannot start refine - no selected utility data');
+            showToast('No utility selected for refining', 'error');
+            return;
+        }
 
+        console.log('Starting refine location for utility:', AppState.selectedUtilityData.id);
+        
         AppState.refineMode = true;
         closeInfoModal();
 
@@ -4109,28 +4203,74 @@
         AppState.refinePoints = [...points]; // Copy the original points
         AppState.refineMarkers = [];
 
-        // Add points at vertices
+        // Add points at vertices (main control points) using regular markers for better dragging
+        console.log(`Creating ${points.length} vertex markers`);
         points.forEach((point, index) => {
-            const marker = L.circleMarker(point, {
-                radius: 12,
-                fillColor: 'white',
-                color: '#667eea',
-                weight: 3,
-                opacity: 1,
-                fillOpacity: 1,
-                className: 'refine-point',
-                interactive: true
+            console.log(`Creating vertex marker ${index} at`, point);
+            
+            const markerIcon = L.divIcon({
+                className: 'refine-vertex-marker',
+                html: `<div class="refine-vertex-point" data-index="${index}" title="Drag to move vertex ${index + 1}"></div>`,
+                iconSize: [34, 34],
+                iconAnchor: [17, 17]
+            });
+
+            const marker = L.marker(point, {
+                icon: markerIcon,
+                draggable: true,
+                interactive: true,
+                zIndexOffset: 10000
             }).addTo(AppState.map);
 
+            console.log(`Added vertex marker ${index} to map`);
+
+            // Add custom properties
             marker.index = index;
             marker.utilityId = AppState.selectedUtilityData.id;
             marker.originalPoint = L.latLng(point.lat, point.lng);
             marker.isIntermediate = false;
-            enableDragging(marker);
+            
+            // Enhanced drag events
+            marker.on('dragstart', (e) => {
+                console.log(`Starting drag of vertex ${index}`);
+                showToast(`Dragging vertex ${index + 1}`, 'info');
+                hapticFeedback(50);
+                if (marker._icon) {
+                    const pointElement = marker._icon.querySelector('.refine-vertex-point');
+                    if (pointElement) {
+                        pointElement.style.transform = 'scale(1.3)';
+                        pointElement.style.borderColor = '#00f5a0';
+                        pointElement.style.background = '#f0f8ff';
+                    }
+                }
+            });
+            
+            marker.on('drag', (e) => {
+                updateRefinedLine();
+                hapticFeedback(10);
+            });
+            
+            marker.on('dragend', (e) => {
+                console.log(`Finished drag of vertex ${index}`);
+                if (marker._icon) {
+                    const pointElement = marker._icon.querySelector('.refine-vertex-point');
+                    if (pointElement) {
+                        pointElement.style.transform = 'scale(1)';
+                        pointElement.style.borderColor = '#667eea';
+                        pointElement.style.background = '#ffffff';
+                    }
+                }
+                updateRefinePointsArray();
+                hapticFeedback(30);
+            });
+            
             AppState.refineMarkers.push(marker);
         });
+        
+        console.log(`Created ${AppState.refineMarkers.length} vertex markers`);
 
-        // Add intermediate points between vertices
+        // Add intermediate points between vertices (for adding new points)
+        console.log(`Creating ${points.length - 1} intermediate markers`);
         for (let i = 0; i < points.length - 1; i++) {
             const start = points[i];
             const end = points[i + 1];
@@ -4139,25 +4279,100 @@
                 (start.lng + end.lng) / 2
             );
 
-            const marker = L.circleMarker(midPoint, {
-                radius: 10,
-                fillColor: 'rgba(255, 255, 255, 0.8)',
-                color: '#667eea',
-                weight: 3,
-                opacity: 0.7,
-                fillOpacity: 0.7,
-                className: 'refine-point',
-                interactive: true
+            console.log(`Creating intermediate marker ${i + 0.5} at`, midPoint);
+
+            const markerIcon = L.divIcon({
+                className: 'refine-intermediate-marker',
+                html: `<div class="refine-intermediate-point" data-index="${i + 0.5}" title="Drag to add new vertex"></div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+
+            const marker = L.marker(midPoint, {
+                icon: markerIcon,
+                draggable: true,
+                interactive: true,
+                zIndexOffset: 9999
             }).addTo(AppState.map);
 
+            console.log(`Added intermediate marker ${i + 0.5} to map`);
+
+            // Add custom properties
             marker.index = i + 0.5;
             marker.utilityId = AppState.selectedUtilityData.id;
             marker.isIntermediate = true;
             marker.insertAfterIndex = i;
-            marker.originalPoint = L.latLng(midPoint.lat, midPoint.lng); // Store original position
-            enableDragging(marker);
+            marker.originalPoint = L.latLng(midPoint.lat, midPoint.lng);
+            
+            // Enhanced drag events for intermediate points
+            marker.on('dragstart', (e) => {
+                console.log(`Starting drag of intermediate point ${i + 0.5}`);
+                showToast(`Dragging intermediate point - will become new vertex if moved far enough`, 'info');
+                hapticFeedback(50);
+                if (marker._icon) {
+                    const pointElement = marker._icon.querySelector('.refine-intermediate-point');
+                    if (pointElement) {
+                        pointElement.style.transform = 'scale(1.4)';
+                        pointElement.style.borderColor = '#00f5a0';
+                        pointElement.style.background = '#f0fff0';
+                    }
+                }
+            });
+            
+            marker.on('drag', (e) => {
+                updateRefinedLine();
+                hapticFeedback(10);
+            });
+            
+            marker.on('dragend', (e) => {
+                console.log(`Finished drag of intermediate point ${i + 0.5}`);
+                
+                // Check if significantly moved to convert to vertex
+                const currentPos = marker.getLatLng();
+                const originalPos = marker.originalPoint;
+                const distance = currentPos.distanceTo(originalPos);
+                
+                if (distance > 5) { // 5 meters threshold
+                    console.log('Converting intermediate point to vertex');
+                    showToast('Intermediate point converted to vertex', 'success');
+                    marker.isIntermediate = false;
+                    marker.index = marker.insertAfterIndex + 1;
+                    
+                    // Update other marker indices
+                    AppState.refineMarkers.forEach(m => {
+                        if (!m.isIntermediate && m.index > marker.insertAfterIndex && m !== marker) {
+                            m.index++;
+                        }
+                    });
+                    
+                    // Update the icon to vertex style
+                    const newIcon = L.divIcon({
+                        className: 'refine-vertex-marker',
+                        html: `<div class="refine-vertex-point" data-index="${marker.index}" title="Drag to move vertex ${marker.index + 1}"></div>`,
+                        iconSize: [34, 34],
+                        iconAnchor: [17, 17]
+                    });
+                    marker.setIcon(newIcon);
+                } else {
+                    // Reset styling for intermediate point
+                    if (marker._icon) {
+                        const pointElement = marker._icon.querySelector('.refine-intermediate-point');
+                        if (pointElement) {
+                            pointElement.style.transform = 'scale(1)';
+                            pointElement.style.borderColor = '#667eea';
+                            pointElement.style.background = 'rgba(255, 255, 255, 0.95)';
+                        }
+                    }
+                }
+                
+                updateRefinePointsArray();
+                hapticFeedback(30);
+            });
+            
             AppState.refineMarkers.push(marker);
         }
+        
+        console.log(`Total refine markers created: ${AppState.refineMarkers.length}`);
 
         // Zoom to utility with better padding
         const bounds = L.latLngBounds(points);
@@ -4174,115 +4389,12 @@
             pointsCount: points.length,
             markersCount: AppState.refineMarkers.length
         });
-    }
-
-    function enableDragging(marker) {
-        let isDragging = false;
-        let startLatLng = null;
-
-        const onMove = (e) => {
-            if (!isDragging || !AppState.refineMode) return;
-            
-            let latlng;
-            
-            // Handle different event types
-            if (e.type === 'touchmove') {
-                if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0]) {
-                    const touch = e.originalEvent.touches[0];
-                    latlng = AppState.map.containerPointToLatLng([touch.clientX, touch.clientY]);
-                } else if (e.touches && e.touches[0]) {
-                    latlng = AppState.map.containerPointToLatLng([e.touches[0].clientX, e.touches[0].clientY]);
-                }
-            } else if (e.latlng) {
-                latlng = e.latlng;
-            }
-            
-            if (latlng) {
-                marker.setLatLng(latlng);
-                marker.setStyle({ 
-                    fillColor: '#00f5a0',
-                    color: '#00f5a0',
-                    radius: marker.isIntermediate ? 14 : 16,
-                    weight: 4
-                });
-                updateRefinedLine();
-                hapticFeedback(10); // Light feedback during drag
-            }
-        };
-
-        const onEnd = (e) => {
-            if (isDragging) {
-                isDragging = false;
-                marker.setStyle({ 
-                    fillColor: marker.isIntermediate ? 'rgba(255, 255, 255, 0.8)' : 'white',
-                    color: '#667eea',
-                    radius: marker.isIntermediate ? 10 : 12,
-                    weight: 3
-                });
-                
-                // Update the refine points array
-                updateRefinePointsArray();
-                
-                hapticFeedback(30);
-            }
-            
-            // Clean up all event listeners
-            AppState.map.off('mousemove', onMove);
-            AppState.map.off('touchmove', onMove);
-            AppState.map.off('mouseup', onEnd);
-            AppState.map.off('touchend', onEnd);
-            AppState.map.off('mouseleave', onEnd);
-            document.removeEventListener('touchend', onEnd);
-            document.removeEventListener('mouseup', onEnd);
-            document.removeEventListener('touchmove', onMove);
-        };
-
-        const onStart = (e) => {
-            if (!AppState.refineMode) return;
-            
-            isDragging = true;
-            startLatLng = marker.getLatLng();
-            
-            // Prevent default behavior
-            L.DomEvent.stopPropagation(e);
-            L.DomEvent.preventDefault(e);
-            
-            // Disable map dragging while dragging marker
-            AppState.map.dragging.disable();
-            
-            // Add event listeners
-            AppState.map.on('mousemove', onMove);
-            AppState.map.on('touchmove', onMove, { passive: false });
-            AppState.map.on('mouseup', onEnd);
-            AppState.map.on('touchend', onEnd);
-            AppState.map.on('mouseleave', onEnd);
-            document.addEventListener('touchend', onEnd);
-            document.addEventListener('mouseup', onEnd);
-            document.addEventListener('touchmove', onMove, { passive: false });
-            
-            // Visual feedback
-            marker.setStyle({ 
-                fillColor: '#667eea',
-                color: '#667eea',
-                radius: marker.isIntermediate ? 12 : 14,
-                weight: 4
-            });
-            
-            hapticFeedback(50);
-        };
-
-        marker.on('mousedown', onStart);
-        marker.on('touchstart', onStart);
         
-        // Re-enable map dragging when drag ends
-        marker.on('mouseup touchend', () => {
-            setTimeout(() => {
-                if (AppState.map.dragging) {
-                    AppState.map.dragging.enable();
-                }
-            }, 100);
-        });
+        // Show detailed instructions
+        showToast('🔵 Large blue circles = main vertices (drag to move)\n🔵 Small blue circles = add new vertices (drag away)', 'info');
     }
+
+
     
     function updateRefinePointsArray() {
         if (!AppState.refineMode || !AppState.selectedUtilityData) return;
@@ -4325,13 +4437,18 @@
     }
 
     function updateRefinedLine() {
-        if (!AppState.selectedUtilityData || !AppState.selectedUtilityData.lineLayer || !AppState.refineMode) return;
+        if (!AppState.selectedUtilityData || !AppState.selectedUtilityData.lineLayer || !AppState.refineMode) {
+            console.log('Cannot update refined line - missing data or not in refine mode');
+            return;
+        }
 
         try {
             // Get all vertex markers (non-intermediate) sorted by index
             const vertexMarkers = AppState.refineMarkers
                 .filter(marker => !marker.isIntermediate)
                 .sort((a, b) => a.index - b.index);
+            
+            console.log('Updating refined line with', vertexMarkers.length, 'vertex markers');
             
             // Get current positions
             const currentPoints = vertexMarkers.map(marker => marker.getLatLng());
@@ -4342,6 +4459,10 @@
                 
                 // Store the current state
                 AppState.refinePoints = [...currentPoints];
+                
+                console.log('Updated line with', currentPoints.length, 'points');
+            } else {
+                console.warn('Not enough points to update line:', currentPoints.length);
             }
         } catch (error) {
             console.error('Error updating refined line:', error);
@@ -4351,45 +4472,58 @@
     function finishRefining() {
         if (!AppState.selectedUtilityData || !AppState.refineMode) {
             console.log('Cannot finish refining - no utility data or not in refine mode');
+            showToast('No refining session active', 'warning');
             return;
         }
 
         try {
-            console.log('Starting finish refining process...');
+            console.log('Starting finish refining process...', {
+                utilityId: AppState.selectedUtilityData.id,
+                markersCount: AppState.refineMarkers.length
+            });
             
             // Update the refine points one final time
             updateRefinePointsArray();
 
-            // Get final positions from markers
-            const finalPoints = [];
-            AppState.refineMarkers
+            // Get final positions from non-intermediate markers only
+            const vertexMarkers = AppState.refineMarkers
                 .filter(m => !m.isIntermediate)
-                .sort((a, b) => a.index - b.index)
-                .forEach(marker => {
-                    finalPoints.push(marker.getLatLng());
-                });
+                .sort((a, b) => a.index - b.index);
+                
+            console.log('Vertex markers found:', vertexMarkers.length);
 
-            // Save new positions
-            if (finalPoints.length >= 2) {
+            if (vertexMarkers.length >= 2) {
+                const finalPoints = vertexMarkers.map(marker => marker.getLatLng());
                 AppState.selectedUtilityData.points = [...finalPoints];
-                console.log('Updated utility points:', finalPoints.length);
-            } else if (AppState.refinePoints.length >= 2) {
-                AppState.selectedUtilityData.points = [...AppState.refinePoints];
-                console.log('Using refine points:', AppState.refinePoints.length);
+                console.log('Updated utility with', finalPoints.length, 'points');
+            } else {
+                console.warn('Not enough vertex markers found, keeping original points');
+                if (AppState.refinePoints.length >= 2) {
+                    AppState.selectedUtilityData.points = [...AppState.refinePoints];
+                }
             }
             
-            // Remove refine markers
-            AppState.refineMarkers.forEach(marker => {
+            // Remove all refine markers and stop animations
+            AppState.refineMarkers.forEach((marker, index) => {
                 try {
+                    // Stop animation if it exists
+                    if (marker._icon) {
+                        const pointElement = marker._icon.querySelector('.refine-vertex-point, .refine-intermediate-point');
+                        if (pointElement) {
+                            pointElement.style.animation = 'none';
+                        }
+                    }
+                    
                     if (AppState.map.hasLayer(marker)) {
                         AppState.map.removeLayer(marker);
+                        console.log(`Removed marker ${index}`);
                     }
                 } catch (e) {
                     console.error('Error removing marker:', e);
                 }
             });
 
-            // Reset line styling
+            // Reset line styling and update with new points
             if (AppState.selectedUtilityData.lineLayer) {
                 AppState.selectedUtilityData.lineLayer.setStyle({
                     weight: AppState.selectedUtilityData.lineType === 'main' ? 8 : 6,
@@ -4399,28 +4533,33 @@
                 
                 // Update the line with final points
                 AppState.selectedUtilityData.lineLayer.setLatLngs(AppState.selectedUtilityData.points);
+                console.log('Updated line layer with new points');
             }
 
-            // Reset state
+            // Clear refine state
             AppState.refineMode = false;
             AppState.refinePoints = [];
             AppState.refineMarkers = [];
-            AppState.selectedUtilityData = null;
             
             // Hide overlay
             document.getElementById('refineOverlay').classList.remove('active');
             
             // Re-enable map dragging
-            if (AppState.map.dragging) {
+            if (AppState.map && AppState.map.dragging) {
                 AppState.map.dragging.enable();
             }
 
-            // Save
+            // Save changes
             saveUtilities();
-            syncToCloud();
+            if (AppState.cloudSync.enabled) {
+                syncToCloud();
+            }
 
             showToast('Location refined successfully', 'success');
             hapticFeedback(100);
+            
+            // Clear selected utility data after successful completion
+            AppState.selectedUtilityData = null;
             
             console.log('Finish refining completed successfully');
             
@@ -4428,9 +4567,23 @@
             console.error('Error finishing refining:', error);
             showToast('Error saving refined location', 'error');
             
-            // Still try to exit refine mode
+            // Still try to exit refine mode on error
             AppState.refineMode = false;
+            AppState.refineMarkers.forEach(marker => {
+                try {
+                    if (AppState.map.hasLayer(marker)) {
+                        AppState.map.removeLayer(marker);
+                    }
+                } catch (e) {
+                    // Ignore cleanup errors
+                }
+            });
+            AppState.refineMarkers = [];
             document.getElementById('refineOverlay').classList.remove('active');
+            
+            if (AppState.map && AppState.map.dragging) {
+                AppState.map.dragging.enable();
+            }
         }
     }
 
@@ -4476,26 +4629,171 @@
     }
 
     function enterExcavationMode() {
+        console.log('Entering excavation mode...');
+        
         AppState.excavationMode = true;
         document.getElementById('excavationBtn').classList.add('active');
         document.getElementById('excavationOverlay').classList.add('active');
 
-        // Zoom to user location
-        if (AppState.userLocation) {
+        // Check if user location is available
+        if (!AppState.userLocation) {
+            console.log('User location not available, requesting location...');
+            showToast('Getting your location for excavation mode...', 'info');
+            
+            // Try to get current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const { latitude, longitude } = position.coords;
+                        AppState.userLocation = [latitude, longitude];
+                        console.log('Got user location:', AppState.userLocation);
+                        
+                        // Update user marker if it exists
+                        if (AppState.userMarker) {
+                            AppState.userMarker.setLatLng([latitude, longitude]);
+                        }
+                        
+                        // Zoom to location and start checking
+                        AppState.map.setView(AppState.userLocation, 20);
+                        checkProximity();
+                        showExcavationModeStatus();
+                    },
+                    error => {
+                        console.error('Location error:', error);
+                        showToast('Location required for excavation mode. Please enable location services.', 'error');
+                        exitExcavationMode();
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+                );
+            } else {
+                showToast('Location services not available', 'error');
+                exitExcavationMode();
+                return;
+            }
+        } else {
+            console.log('Using existing user location:', AppState.userLocation);
+            // Zoom to user location
             AppState.map.setView(AppState.userLocation, 20);
+            
+            // Start proximity checking immediately
+            checkProximity();
+            showExcavationModeStatus();
         }
 
-        // Start proximity checking
-        checkProximity();
-        AppState.proximityInterval = setInterval(checkProximity, 1000);
+        // Start periodic proximity checking
+        AppState.proximityInterval = setInterval(checkProximity, 2000); // Check every 2 seconds
 
-        showToast('Excavation mode activated', 'warning');
+        console.log('Excavation mode setup complete', {
+            userLocation: AppState.userLocation,
+            utilitiesCount: AppState.utilities.length,
+            intervalId: AppState.proximityInterval
+        });
 
         // Strong haptic feedback
         hapticFeedback(200);
         setTimeout(() => hapticFeedback(200), 200);
         setTimeout(() => hapticFeedback(200), 400);
     }
+
+    function showExcavationModeStatus() {
+        const utilitiesCount = AppState.utilities.length;
+        if (utilitiesCount === 0) {
+            showToast('Excavation mode active - No utilities mapped yet', 'warning');
+            console.log('No utilities available for proximity checking');
+        } else {
+            showToast(`Excavation mode active - Monitoring ${utilitiesCount} utilities`, 'warning');
+        }
+    }
+
+    // Debug function to create test utilities for testing excavation mode
+    function createTestUtility(offsetLat = 0.0001, offsetLng = 0.0001) {
+        if (!AppState.userLocation) {
+            console.log('Cannot create test utility - no user location');
+            return;
+        }
+
+        const testUtility = {
+            id: generateId(),
+            type: 'water',
+            lineType: 'main',
+            points: [
+                L.latLng(AppState.userLocation[0] + offsetLat, AppState.userLocation[1] + offsetLng),
+                L.latLng(AppState.userLocation[0] + offsetLat + 0.0001, AppState.userLocation[1] + offsetLng + 0.0001)
+            ],
+            size: '8',
+            depth: '4',
+            material: 'Cast Iron',
+            condition: 'Good',
+            curbDistance: '6',
+            dateAdded: new Date().toISOString(),
+            connections: [],
+            notes: []
+        };
+
+        AppState.utilities.push(testUtility);
+        createUtilityLine(testUtility);
+        saveUtilities();
+        
+        console.log('Created test utility:', testUtility);
+        return testUtility;
+    }
+
+    // Make debug function available globally for testing
+    window.createTestUtility = createTestUtility;
+    
+    // Debug function to create a test utility for refining if none exist
+    function createTestUtilityForRefining() {
+        if (AppState.utilities.length > 0) {
+            console.log('Utilities already exist, opening info for first utility');
+            showInfoModal(AppState.utilities[0]);
+            return;
+        }
+        
+        let testLocation;
+        if (AppState.userLocation) {
+            testLocation = AppState.userLocation;
+        } else {
+            // Default to NYC area
+            testLocation = [40.7128, -74.0060];
+        }
+        
+        console.log('Creating test utility for refining at:', testLocation);
+        
+        const testUtility = {
+            id: generateId(),
+            type: 'water',
+            lineType: 'main',
+            points: [
+                L.latLng(testLocation[0] - 0.0002, testLocation[1] - 0.0002),
+                L.latLng(testLocation[0], testLocation[1]),
+                L.latLng(testLocation[0] + 0.0002, testLocation[1] + 0.0002)
+            ],
+            size: '8',
+            depth: '4',
+            material: 'Cast Iron',
+            condition: 'Good',
+            curbDistance: '6',
+            dateAdded: new Date().toISOString(),
+            connections: [],
+            notes: []
+        };
+
+        AppState.utilities.push(testUtility);
+        createUtilityLine(testUtility);
+        saveUtilities();
+        
+        console.log('Created test utility:', testUtility);
+        showToast('Test utility created! Long press the blue line to edit/refine', 'success');
+        
+        // Zoom to the test utility
+        const bounds = L.latLngBounds(testUtility.points);
+        AppState.map.fitBounds(bounds, { padding: [50, 50] });
+        
+        return testUtility;
+    }
+    
+    // Make it available globally for testing
+    window.createTestUtilityForRefining = createTestUtilityForRefining;
 
     function exitExcavationMode() {
         AppState.excavationMode = false;
@@ -4515,23 +4813,52 @@
     }
 
     function checkProximity() {
-        if (!AppState.userLocation || !AppState.excavationMode) return;
+        if (!AppState.userLocation || !AppState.excavationMode) {
+            console.log('Proximity check skipped:', {
+                userLocation: !!AppState.userLocation,
+                excavationMode: AppState.excavationMode
+            });
+            return;
+        }
 
         const alertsContainer = document.getElementById('proximityAlerts');
         const radius = 15; // 15 feet in meters
         const radiusMeters = radius * 0.3048;
 
+        console.log('Checking proximity:', {
+            userLocation: AppState.userLocation,
+            radiusMeters: radiusMeters,
+            utilitiesCount: AppState.utilities.length
+        });
+
         // Track which utilities are in range
         const inRangeUtilities = new Set();
 
         // Check each utility
-        AppState.utilities.forEach(utility => {
+        AppState.utilities.forEach((utility, index) => {
             // Skip if utility is not visible
             if (!AppState.layers.visibility[utility.type] || 
-                !AppState.layers.visibility[utility.lineType]) return;
+                !AppState.layers.visibility[utility.lineType]) {
+                console.log(`Utility ${index} skipped - not visible:`, {
+                    type: utility.type,
+                    lineType: utility.lineType,
+                    typeVisible: AppState.layers.visibility[utility.type],
+                    lineTypeVisible: AppState.layers.visibility[utility.lineType]
+                });
+                return;
+            }
 
             // Calculate distance to utility line
             const distance = calculateDistanceToLine(AppState.userLocation, utility.points);
+            
+            console.log(`Utility ${index} distance:`, {
+                id: utility.id,
+                type: utility.type,
+                lineType: utility.lineType,
+                distance: distance,
+                radiusMeters: radiusMeters,
+                inRange: distance <= radiusMeters
+            });
             
             if (distance <= radiusMeters) {
                 inRangeUtilities.add(utility.id);
@@ -4543,17 +4870,24 @@
                 
                 if (dismissedTime) {
                     // Check if 3 minutes have passed
-                    if (Date.now() - dismissedTime < 180000) return;
+                    if (Date.now() - dismissedTime < 180000) {
+                        console.log(`Alert for ${utility.id} dismissed recently`);
+                        return;
+                    }
                     AppState.dismissedAlerts.delete(utility.id);
                 }
 
                 if (!existingAlert) {
+                    console.log(`Creating new proximity alert for utility ${utility.id}`);
                     createProximityAlert(utility, distance);
                 } else {
+                    console.log(`Updating existing alert for utility ${utility.id}`);
                     updateProximityAlert(utility, distance);
                 }
             }
         });
+
+        console.log('In-range utilities:', Array.from(inRangeUtilities));
 
         // Handle alerts for utilities that are out of range
         AppState.alertTimeouts.forEach((timeout, utilityId) => {
@@ -4607,6 +4941,35 @@
             param = dot / lenSq;
         }
 
+        let closestLat, closestLng;
+
+        if (param < 0) {
+            // Closest point is the start of the segment
+            closestLat = startLat;
+            closestLng = startLng;
+        } else if (param > 1) {
+            // Closest point is the end of the segment
+            closestLat = endLat;
+            closestLng = endLng;
+        } else {
+            // Closest point is somewhere along the segment
+            closestLat = startLat + param * C;
+            closestLng = startLng + param * D;
+        }
+
+        // Calculate distance using Haversine formula for better accuracy
+        const R = 6371000; // Earth's radius in meters
+        const φ1 = point[0] * Math.PI / 180;
+        const φ2 = closestLat * Math.PI / 180;
+        const Δφ = (closestLat - point[0]) * Math.PI / 180;
+        const Δλ = (closestLng - point[1]) * Math.PI / 180;
+
+        const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // Distance in meters
     }
 
     function createProximityAlert(utility, distance) {
@@ -5103,10 +5466,13 @@
         
         setTimeout(() => toast.classList.add('show'), 10);
         
+        // Adjust timeout based on message length
+        const timeout = type === 'info' && message.length > 50 ? 5000 : 3000;
+        
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
-        }, 3000);
+        }, timeout);
     }
 
     // Initialize GeometryUtil for area calculations
