@@ -3400,9 +3400,7 @@
         userMarker: null,
         watchId: null,
         deviceOrientationHandler: null,
-        lastAccuracy: null,
         lastHeading: undefined,
-        proximityCheckTimeout: null,
         excavationMode: false,
         proximityAlerts: [],
         proximityAlertsVisible: true,
@@ -3900,18 +3898,32 @@
             return;
         }
 
-        // Get initial position
+        console.log('🎯 Starting location tracking...');
+
+        // Get initial position with better options
         navigator.geolocation.getCurrentPosition(
-            position => updateUserLocation(position),
-            error => showToast('Location access denied', 'error'),
-            { enableHighAccuracy: true }
+            position => {
+                console.log('✅ Initial location acquired');
+                updateUserLocation(position);
+            },
+            error => {
+                console.error('❌ Initial location error:', error);
+                showToast('Location access denied', 'error');
+            },
+            { 
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            }
         );
 
-        // Watch position
+        // Watch position with more forgiving settings
         AppState.watchId = navigator.geolocation.watchPosition(
-            position => updateUserLocation(position),
+            position => {
+                updateUserLocation(position);
+            },
             error => {
-                console.error('Location error:', error);
+                console.error('❌ Watch position error:', error);
                 let message = 'Location error';
                 switch(error.code) {
                     case error.PERMISSION_DENIED:
@@ -3928,8 +3940,8 @@
             },
             {
                 enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000
+                timeout: 15000,
+                maximumAge: 5000  // Allow slightly cached positions
             }
         );
 
@@ -3964,21 +3976,19 @@
 
     function updateUserLocation(position) {
         const { latitude, longitude, accuracy } = position.coords;
-        const newLocation = [latitude, longitude];
         
-        // Debounce location updates to prevent jittering
-        if (AppState.userLocation) {
-            const distance = calculateDistance(AppState.userLocation, newLocation);
-            // Only update if moved more than 2 meters or accuracy significantly improved
-            if (distance < 0.000018 && (!AppState.lastAccuracy || Math.abs(accuracy - AppState.lastAccuracy) < 5)) {
-                return;
-            }
+        console.log(`📍 Location update: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}, accuracy: ${accuracy}m`);
+        
+        // Validate coordinates
+        if (!isValidCoordinate(latitude, longitude)) {
+            console.error('❌ Invalid coordinates received:', latitude, longitude);
+            return;
         }
         
-        AppState.userLocation = newLocation;
-        AppState.lastAccuracy = accuracy;
+        AppState.userLocation = [latitude, longitude];
 
         if (!AppState.userMarker) {
+            console.log('🆕 Creating new user marker');
             // Create simple arrow-style user location marker
             const userIcon = L.divIcon({
                 className: 'user-location-marker',
@@ -3999,57 +4009,57 @@
                 zIndexOffset: 1000
             }).addTo(AppState.map);
             
-            // Apply current zoom scale to new marker - prevent bouncing
+            console.log(`✅ User marker created at: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+            
+            // Apply current zoom scale to new marker
             setTimeout(() => {
                 applyUserMarkerScale();
             }, 50);
             
             // Initialize direction indicator if orientation is available
             if (window.DeviceOrientationEvent && !AppState.needsOrientationPermission) {
-                // Add a small delay to ensure the marker is rendered
                 setTimeout(() => {
-                    // Try to get initial orientation
                     if (window.orientation !== undefined) {
                         updateDirectionIndicator(window.orientation);
                     }
                 }, 100);
             }
         } else {
-            // Smooth location updates
+            // Update existing marker location
+            console.log(`🔄 Updating marker to: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
             AppState.userMarker.setLatLng([latitude, longitude]);
         }
 
-        // Update accuracy circle with smooth transitions
+        // Update accuracy circle
         updateAccuracyIndicator(accuracy);
 
-        // Debounced proximity check in excavation mode
+        // Check proximity in excavation mode (no debouncing needed here)
         if (AppState.excavationMode) {
-            clearTimeout(AppState.proximityCheckTimeout);
-            AppState.proximityCheckTimeout = setTimeout(checkProximity, 500);
+            checkProximity();
         }
     }
 
-    function calculateDistance(point1, point2) {
-        const lat1 = point1[0];
-        const lng1 = point1[1];
-        const lat2 = point2[0];
-        const lng2 = point2[1];
-        
-        return Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lng2 - lng1, 2));
+    function isValidCoordinate(lat, lng) {
+        return !isNaN(lat) && !isNaN(lng) && 
+               lat >= -90 && lat <= 90 && 
+               lng >= -180 && lng <= 180 &&
+               lat !== 0 || lng !== 0; // Reject null island
     }
+
+
 
     function applyUserMarkerScale() {
         if (!AppState.userMarker) return;
         
-        const currentZoom = AppState.map.getZoom();
-        const scale = calculateZoomScale(currentZoom);
+        const zoom = AppState.map.getZoom();
+        const userScale = calculateZoomScale(zoom);
         const markerElement = AppState.userMarker.getElement();
         if (markerElement) {
             // Preserve any existing direction rotation while applying scale
             const currentTransform = markerElement.style.transform || '';
             const rotateMatch = currentTransform.match(/rotate\([^)]+\)/);
             const rotateTransform = rotateMatch ? rotateMatch[0] : '';
-            markerElement.style.transform = `scale(${scale}) ${rotateTransform}`.trim();
+            markerElement.style.transform = `scale(${userScale}) ${rotateTransform}`.trim();
         }
     }
 
@@ -4083,18 +4093,7 @@
         // Normalize heading to 0-360 range
         const normalizedHeading = ((heading % 360) + 360) % 360;
         
-        // Debounce direction updates to prevent jittering
-        if (AppState.lastHeading !== undefined) {
-            const headingDifference = Math.abs(normalizedHeading - AppState.lastHeading);
-            const minDifference = Math.min(headingDifference, 360 - headingDifference);
-            
-            // Only update if heading changed by more than 3 degrees
-            if (minDifference < 3) {
-                return;
-            }
-        }
-        
-        AppState.lastHeading = normalizedHeading;
+        console.log(`🧭 Direction update: ${normalizedHeading.toFixed(1)}°`);
         
         // Apply rotation to marker element to preserve scale transform
         if (AppState.userMarker) {
@@ -4106,6 +4105,8 @@
                 const scaleTransform = scaleMatch ? scaleMatch[0] : 'scale(1)';
                 markerElement.style.transform = `${scaleTransform} rotate(${normalizedHeading}deg)`;
                 
+                console.log(`🔄 Applied transform: ${markerElement.style.transform}`);
+                
                 // Optional: Add visual feedback that compass is working
                 const container = markerElement.querySelector('.location-container');
                 if (container) {
@@ -4113,6 +4114,8 @@
                 }
             }
         }
+        
+        AppState.lastHeading = normalizedHeading;
     }
 
     async function centerOnLocation() {
@@ -4174,11 +4177,12 @@
     function handleZoomChange() {
         const currentZoom = AppState.map.getZoom();
         const opacity = calculateZoomOpacity(currentZoom);
-        const scale = calculateZoomScale(currentZoom);
+        const userScale = calculateZoomScale(currentZoom);
+        const lineScale = calculateUtilityLineScale(currentZoom);
         
-        console.log(`🔍 Zoom: ${currentZoom}, Opacity: ${opacity.toFixed(2)}, Scale: ${scale.toFixed(2)}`);
+        console.log(`🔍 Zoom: ${currentZoom}, Opacity: ${opacity.toFixed(2)}, Line Scale: ${lineScale.toFixed(2)}`);
         
-        // Apply to all utility lines with scaling
+        // Apply to all utility lines with inverse scaling (thinner when zoomed out)
         AppState.utilities.forEach(utility => {
             if (utility.lineLayer) {
                 // Don't fade if currently highlighted/selected, in refine mode, or in excavation mode
@@ -4190,9 +4194,9 @@
                 const isExcavationMode = AppState.excavationMode;
                 const finalOpacity = (isHighlighted || isBeingRefined || isExcavationMode) ? 1.0 : opacity;
                 
-                // Base weight with zoom scaling
+                // Base weight with inverse zoom scaling (thinner when zoomed out)
                 const baseWeight = utility.lineType === 'main' ? 8 : 6;
-                const scaledWeight = Math.max(2, baseWeight * scale); // Minimum of 2px
+                const scaledWeight = Math.max(1, baseWeight * lineScale); // Minimum of 1px
                 
                 utility.lineLayer.setStyle({ 
                     opacity: finalOpacity,
@@ -4254,7 +4258,7 @@
         }
     }
 
-    // Zoom-based scaling calculation for user location and utility lines
+    // Zoom-based scaling calculation for user location marker
     function calculateZoomScale(zoom) {
         // Responsive scaling - smaller at low zoom, larger at high zoom
         if (zoom >= 18) return 1.0;     // Full size at close zoom
@@ -4263,6 +4267,18 @@
         if (zoom >= 12) return 0.4;     // 40% size
         if (zoom >= 10) return 0.3;     // 30% size
         return 0.2;                     // 20% size at far zoom
+    }
+
+    // Utility line thickness scaling - thinner when zoomed out for cleaner appearance
+    function calculateUtilityLineScale(zoom) {
+        // Inverse scaling for utility lines - thinner at low zoom to reduce clutter
+        if (zoom >= 20) return 1.0;     // Full thickness at max zoom
+        if (zoom >= 18) return 0.9;     // Slightly thinner
+        if (zoom >= 16) return 0.7;     // 70% thickness
+        if (zoom >= 14) return 0.5;     // 50% thickness
+        if (zoom >= 12) return 0.4;     // 40% thickness
+        if (zoom >= 10) return 0.3;     // 30% thickness
+        return 0.25;                    // Very thin at far zoom to prevent clutter
     }
 
     function addDrawingPoint(latlng) {
@@ -4312,9 +4328,15 @@
         }
 
         if (AppState.drawingPoints.length > 1) {
+            // Use current zoom scaling for consistent appearance
+            const zoom = AppState.map.getZoom();
+            const lineScale = calculateUtilityLineScale(zoom);
+            const baseWeight = AppState.lineType === 'main' ? 8 : 6;
+            const scaledWeight = Math.max(1, baseWeight * lineScale);
+            
             AppState.tempLine = L.polyline(AppState.drawingPoints, {
                 color: getUtilityColor(AppState.selectedUtility),
-                weight: AppState.lineType === 'main' ? 8 : 6,
+                weight: scaledWeight,
                 opacity: 1.0, // Always fully visible during drawing
                 dashArray: AppState.lineType === 'service' ? '15, 5' : null,
                 className: 'utility-line drawing'
@@ -4580,9 +4602,15 @@
     }
 
     function createUtilityLine(utilityData) {
+        // Use current zoom scaling for initial line creation
+        const zoom = AppState.map.getZoom();
+        const lineScale = calculateUtilityLineScale(zoom);
+        const baseWeight = utilityData.lineType === 'main' ? 8 : 6;
+        const scaledWeight = Math.max(1, baseWeight * lineScale);
+        
         const line = L.polyline(utilityData.points, {
             color: getUtilityColor(utilityData.type),
-            weight: utilityData.lineType === 'main' ? 8 : 6,
+            weight: scaledWeight,
             opacity: 1,
             dashArray: utilityData.lineType === 'service' ? '15, 5' : null,
             className: `utility-line ${utilityData.type} ${utilityData.lineType}`,
@@ -4711,8 +4739,7 @@
         line.addTo(AppState.layers.utilities[utilityData.type]);
 
         // Apply current zoom-based opacity
-        const currentZoom = AppState.map.getZoom();
-        const opacity = calculateZoomOpacity(currentZoom);
+        const opacity = calculateZoomOpacity(zoom);
         line.setStyle({ opacity: opacity });
 
         // Enhanced connection markers with animations
@@ -6710,6 +6737,40 @@
     
     // Make it available globally for testing
     window.testZoomFading = testZoomFading;
+    
+    // Debug function for location issues
+    function debugLocation() {
+        console.log('🔍 Location Debug Info:');
+        console.log('- User location:', AppState.userLocation);
+        console.log('- User marker exists:', !!AppState.userMarker);
+        if (AppState.userMarker) {
+            console.log('- Marker position:', AppState.userMarker.getLatLng());
+            console.log('- Marker element:', AppState.userMarker.getElement());
+            const element = AppState.userMarker.getElement();
+            if (element) {
+                console.log('- Element transform:', element.style.transform);
+                console.log('- Element position:', element.getBoundingClientRect());
+            }
+        }
+        console.log('- Map center:', AppState.map.getCenter());
+        console.log('- Map zoom:', AppState.map.getZoom());
+        console.log('- Map bounds:', AppState.map.getBounds());
+        
+        // Force a location update if possible
+        if (navigator.geolocation) {
+            console.log('🎯 Requesting fresh location...');
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    console.log('📍 Fresh location:', position.coords);
+                    updateUserLocation(position);
+                },
+                error => console.error('❌ Fresh location error:', error),
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+    }
+    
+    window.debugLocation = debugLocation;
     
     // Enhanced cleanup function for memory management
     function cleanup() {
