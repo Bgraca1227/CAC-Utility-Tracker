@@ -1096,202 +1096,99 @@
         color: white;
     }
     
-    /* Ultra Premium User Location Marker */
+    /* Simple Zoom-Responsive User Location Marker */
     .user-location-marker {
         pointer-events: none;
         z-index: 1000;
+        transform-origin: center center;
+        transition: transform 0.3s ease-out;
     }
     
     .location-container {
         position: relative;
-        width: 80px;
-        height: 80px;
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
-    /* Outer Accuracy Ring */
+    /* Accuracy Ring */
     .location-accuracy {
         position: absolute;
-        inset: -40px;
+        inset: -16px;
         border-radius: 50%;
         background: radial-gradient(circle at center, 
-            rgba(0, 245, 160, 0.2) 0%, 
-            rgba(0, 245, 160, 0.08) 30%, 
-            rgba(0, 245, 160, 0.03) 60%,
+            rgba(0, 245, 160, 0.15) 0%, 
+            rgba(0, 245, 160, 0.05) 60%,
             transparent 100%);
-        animation: accuracyPulse 5s ease-in-out infinite;
-        border: 1px solid rgba(0, 245, 160, 0.1);
+        border: 1px solid rgba(0, 245, 160, 0.2);
+        animation: accuracyPulse 4s ease-in-out infinite;
     }
     
     @keyframes accuracyPulse {
         0%, 100% { 
-            transform: scale(0.7); 
-            opacity: 0.4; 
+            transform: scale(0.8); 
+            opacity: 0.6; 
         }
         50% { 
-            transform: scale(1.3); 
-            opacity: 0.1; 
+            transform: scale(1.2); 
+            opacity: 0.3; 
         }
     }
     
-    /* Main Location Body */
-    .location-body {
+    /* Arrow-Style Location Marker */
+    .location-arrow {
         position: relative;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, 
-            rgba(255, 255, 255, 0.95) 0%,
-            rgba(0, 245, 160, 0.9) 50%,
-            rgba(0, 200, 130, 1) 100%);
-        box-shadow: 
-            0 8px 32px rgba(0, 245, 160, 0.4),
-            0 4px 16px rgba(0, 0, 0, 0.3),
-            inset 0 2px 4px rgba(255, 255, 255, 0.4),
-            0 0 0 3px rgba(255, 255, 255, 0.9),
-            0 0 0 4px rgba(0, 245, 160, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        animation: locationBodyPulse 3s ease-in-out infinite;
+        width: 32px;
+        height: 32px;
+        transform-origin: center center;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 2;
     }
     
-    @keyframes locationBodyPulse {
-        0%, 100% { 
-            transform: scale(1);
-            box-shadow: 
-                0 8px 32px rgba(0, 245, 160, 0.4),
-                0 4px 16px rgba(0, 0, 0, 0.3),
-                inset 0 2px 4px rgba(255, 255, 255, 0.4),
-                0 0 0 3px rgba(255, 255, 255, 0.9),
-                0 0 0 4px rgba(0, 245, 160, 0.6);
-        }
-        50% { 
-            transform: scale(1.05);
-            box-shadow: 
-                0 12px 48px rgba(0, 245, 160, 0.6),
-                0 6px 24px rgba(0, 0, 0, 0.4),
-                inset 0 2px 4px rgba(255, 255, 255, 0.5),
-                0 0 0 3px rgba(255, 255, 255, 1),
-                0 0 0 4px rgba(0, 245, 160, 0.8);
-        }
-    }
-    
-    /* Center Dot */
-    .location-dot {
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #ffffff 0%, #f0fff0 100%);
-        box-shadow: 
-            0 0 8px rgba(255, 255, 255, 0.9),
-            inset 0 1px 2px rgba(0, 245, 160, 0.3);
-        position: relative;
-        z-index: 3;
-    }
-    
-    /* Premium Direction Indicator */
-    .location-direction {
-        position: absolute;
-        width: 0;
-        height: 0;
-        top: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        transform-origin: center 36px;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 4;
-        filter: drop-shadow(0 3px 12px rgba(0, 245, 160, 0.8));
-    }
-    
-    .location-direction::before {
+    .location-arrow::before {
         content: '';
         position: absolute;
         top: 0;
-        left: -8px;
+        left: 50%;
+        transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-bottom: 24px solid #ffffff;
-        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+        border-bottom: 28px solid #ffffff;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+        z-index: 1;
     }
     
-    .location-direction::after {
+    .location-arrow::after {
         content: '';
         position: absolute;
         top: 2px;
-        left: -6px;
+        left: 50%;
+        transform: translateX(-50%);
         width: 0;
         height: 0;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-bottom: 20px solid rgba(0, 245, 160, 1);
-        z-index: 1;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-bottom: 24px solid rgba(0, 245, 160, 1);
+        z-index: 2;
     }
     
-    /* Rotating Orbit Ring */
-    .location-orbit {
+    /* User Center Dot */
+    .location-center {
         position: absolute;
-        inset: -12px;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        background: conic-gradient(
-            from 0deg,
-            transparent 0deg,
-            rgba(0, 245, 160, 0.6) 30deg,
-            rgba(0, 245, 160, 0.9) 60deg,
-            rgba(0, 245, 160, 0.6) 90deg,
-            transparent 120deg,
-            transparent 240deg,
-            rgba(0, 245, 160, 0.4) 270deg,
-            rgba(0, 245, 160, 0.6) 300deg,
-            rgba(0, 245, 160, 0.4) 330deg,
-            transparent 360deg
-        );
-        animation: locationOrbit 8s linear infinite;
-        mask: radial-gradient(circle, transparent 70%, black 72%, black 85%, transparent 87%);
-        -webkit-mask: radial-gradient(circle, transparent 70%, black 72%, black 85%, transparent 87%);
-        z-index: 1;
-    }
-    
-    @keyframes locationOrbit {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    
-    /* GPS Signal Waves */
-    .location-signal {
-        position: absolute;
-        inset: -20px;
-        border-radius: 50%;
-        border: 2px solid rgba(0, 245, 160, 0.3);
-        animation: signalWave 4s ease-out infinite;
-        z-index: 0;
-    }
-    
-    .location-signal:nth-child(2) {
-        animation-delay: 1s;
-    }
-    
-    .location-signal:nth-child(3) {
-        animation-delay: 2s;
-    }
-    
-    @keyframes signalWave {
-        0% {
-            transform: scale(0.5);
-            opacity: 0.8;
-        }
-        50% {
-            opacity: 0.4;
-        }
-        100% {
-            transform: scale(2);
-            opacity: 0;
-        }
+        background: #ffffff;
+        border: 2px solid rgba(0, 245, 160, 1);
+        box-shadow: 0 0 12px rgba(0, 245, 160, 0.6);
+        z-index: 3;
     }
     
     /* Drawing UI - Premium Floating */
@@ -4101,30 +3998,35 @@
         AppState.userLocation = [latitude, longitude];
 
         if (!AppState.userMarker) {
-            // Create ultra premium user location marker
+            // Create simple arrow-style user location marker
             const userIcon = L.divIcon({
                 className: 'user-location-marker',
                 html: `
                     <div class="location-container">
                         <div class="location-accuracy"></div>
-                        <div class="location-signal"></div>
-                        <div class="location-signal"></div>
-                        <div class="location-signal"></div>
-                        <div class="location-orbit"></div>
-                        <div class="location-body">
-                            <div class="location-dot"></div>
+                        <div class="location-arrow">
+                            <div class="location-center"></div>
                         </div>
-                        <div class="location-direction"></div>
                     </div>
                 `,
-                iconSize: [80, 80],
-                iconAnchor: [40, 40]
+                iconSize: [48, 48],
+                iconAnchor: [24, 24]
             });
 
             AppState.userMarker = L.marker([latitude, longitude], {
                 icon: userIcon,
                 zIndexOffset: 1000
             }).addTo(AppState.map);
+            
+            // Apply current zoom scale to new marker
+            setTimeout(() => {
+                const currentZoom = AppState.map.getZoom();
+                const scale = calculateZoomScale(currentZoom);
+                const markerElement = AppState.userMarker.getElement();
+                if (markerElement) {
+                    markerElement.style.transform = `scale(${scale})`;
+                }
+            }, 50);
             
             // Initialize direction indicator if orientation is available
             if (window.DeviceOrientationEvent && !AppState.needsOrientationPermission) {
@@ -4175,13 +4077,13 @@
     }
 
     function updateDirectionIndicator(heading) {
-        const directionElement = document.querySelector('.location-direction');
-        if (directionElement && heading !== null && heading !== undefined) {
+        const arrowElement = document.querySelector('.location-arrow');
+        if (arrowElement && heading !== null && heading !== undefined) {
             // Normalize heading to 0-360 range
             const normalizedHeading = ((heading % 360) + 360) % 360;
             
-            // Apply rotation with smooth transition
-            directionElement.style.transform = `translateX(-50%) rotate(${normalizedHeading}deg)`;
+            // Apply rotation to the entire arrow - it rotates around its center
+            arrowElement.style.transform = `rotate(${normalizedHeading}deg)`;
             
             // Optional: Add visual feedback that compass is working
             if (AppState.userMarker) {
@@ -4248,14 +4150,15 @@
         }
     }
 
-    // Enhanced zoom-based visibility system
+    // Enhanced zoom-based visibility and scaling system
     function handleZoomChange() {
         const currentZoom = AppState.map.getZoom();
         const opacity = calculateZoomOpacity(currentZoom);
+        const scale = calculateZoomScale(currentZoom);
         
-        console.log(`🔍 Zoom: ${currentZoom}, Opacity: ${opacity.toFixed(2)}`);
+        console.log(`🔍 Zoom: ${currentZoom}, Opacity: ${opacity.toFixed(2)}, Scale: ${scale.toFixed(2)}`);
         
-        // Apply to all utility lines
+        // Apply to all utility lines with scaling
         AppState.utilities.forEach(utility => {
             if (utility.lineLayer) {
                 // Don't fade if currently highlighted/selected, in refine mode, or in excavation mode
@@ -4267,7 +4170,14 @@
                 const isExcavationMode = AppState.excavationMode;
                 const finalOpacity = (isHighlighted || isBeingRefined || isExcavationMode) ? 1.0 : opacity;
                 
-                utility.lineLayer.setStyle({ opacity: finalOpacity });
+                // Base weight with zoom scaling
+                const baseWeight = utility.lineType === 'main' ? 8 : 6;
+                const scaledWeight = Math.max(2, baseWeight * scale); // Minimum of 2px
+                
+                utility.lineLayer.setStyle({ 
+                    opacity: finalOpacity,
+                    weight: scaledWeight
+                });
                 
                 // Apply to connection markers
                 if (utility.connectionMarkers) {
@@ -4287,6 +4197,14 @@
                 structure.marker._icon.style.opacity = finalOpacity;
             }
         });
+        
+        // Scale user location marker
+        if (AppState.userMarker) {
+            const markerElement = AppState.userMarker.getElement();
+            if (markerElement) {
+                markerElement.style.transform = `scale(${scale})`;
+            }
+        }
         
         // Ensure refine markers are always fully visible
         if (AppState.refineMode && AppState.refineMarkers) {
@@ -4317,6 +4235,17 @@
         } else {
             return 0.02; // Almost completely invisible below zoom 14
         }
+    }
+
+    // Zoom-based scaling calculation for user location and utility lines
+    function calculateZoomScale(zoom) {
+        // Responsive scaling - smaller at low zoom, larger at high zoom
+        if (zoom >= 18) return 1.0;     // Full size at close zoom
+        if (zoom >= 16) return 0.8;     // 80% size
+        if (zoom >= 14) return 0.6;     // 60% size
+        if (zoom >= 12) return 0.4;     // 40% size
+        if (zoom >= 10) return 0.3;     // 30% size
+        return 0.2;                     // 20% size at far zoom
     }
 
     function addDrawingPoint(latlng) {
